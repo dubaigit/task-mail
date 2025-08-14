@@ -27,7 +27,7 @@ const EmailList: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('http://localhost:8000/emails/');
+      const response = await fetch('http://localhost:8002/emails/');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
