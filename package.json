@@ -20,7 +20,7 @@
     "claude"
   ],
   "bin": {
-    "apple-mcp": "./dist/index.js"
+    "apple-mcp": "dist/index.js"
   },
   "scripts": {
     "dev": "bun run index.ts",
@@ -41,8 +41,18 @@
     "@jxa/run": "^1.3.6",
     "@modelcontextprotocol/sdk": "^1.5.0",
     "@types/express": "^5.0.0",
+    "express": "^5.1.0",
     "mcp-proxy": "^2.4.0",
     "run-applescript": "^7.0.0",
+    "socket.io": "^4.8.1",
     "zod": "^3.24.2"
-  }
+  },
+  "main": "chat_server.js",
+  "directories": {
+    "test": "tests"
+  },
+  "bugs": {
+    "url": "https://github.com/dhravya/apple-mcp/issues"
+  },
+  "homepage": "https://github.com/dhravya/apple-mcp#readme"
 }

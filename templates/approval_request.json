@@ -1,0 +1,10 @@
+{
+  "subject": "Approval Required: {request_type}",
+  "body": "Hi {approver_name},\n\nI need your approval for the following:\n\n{request_details}\n\nPriority: {priority}\nRequested by: {requester}\nDue date: {due_date}\n\nTo approve or reject this request, click one of the links below:\n\n✅ Approve: {approval_url}\n❌ Reject: {rejection_url}\n\nOr reply to this email with your decision and any comments.\n\nBest regards,\nEmail Action System",
+  "priority_colors": {
+    "CRITICAL": "🔴",
+    "HIGH": "🟠", 
+    "MEDIUM": "🟡",
+    "LOW": "🟢"
+  }
+}

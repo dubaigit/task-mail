@@ -25,7 +25,7 @@ import uvicorn
 
 # Database and caching
 import asyncpg
-import aioredis
+import redis.asyncio as aioredis
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.pool import QueuePool
 
@@ -72,7 +72,7 @@ PROCESSING_TIME = Histogram('email_processing_seconds', 'Email processing time')
 class Settings(BaseModel):
     """Application settings"""
     # Database
-    DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost/email_intelligence"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./email_intelligence_production.db"
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 30
     

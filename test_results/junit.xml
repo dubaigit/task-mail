@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="18" failures="21" skipped="0" tests="75" time="3.566" timestamp="2025-08-14T03:16:15.525521+04:00" hostname="iamomen"><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_initialization" time="0.031"><failure message="FileNotFoundError: Apple Mail database not found at /Users/testuser/Library/Mail/V9/MailData/Envelope Index">tests/test_apple_mail_db_reader.py:60: in test_initialization
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/testuser/Library/Mail/V9/MailData/Envelope Index</failure></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_initialization_with_custom_path" time="0.001"><failure message="TypeError: AppleMailDBReader.__init__() got an unexpected keyword argument 'db_path'">tests/test_apple_mail_db_reader.py:67: in test_initialization_with_custom_path
+    reader = AppleMailDBReader(db_path=custom_path)
+E   TypeError: AppleMailDBReader.__init__() got an unexpected keyword argument 'db_path'</failure></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_convert_timestamp" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_convert_timestamp_none" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_get_recent_emails_success" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_get_recent_emails_database_error" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_search_emails_by_subject" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_search_emails_by_sender" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_search_emails_all_fields" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_get_email_by_id" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_get_email_not_found" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_get_email_count" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_get_email_count_error" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_get_unread_count" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_get_flagged_emails" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_get_emails_by_date_range" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_sql_injection_prevention" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_database_path_validation" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_connection_cleanup" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_apple_mail_db_reader.TestAppleMailDBReader" name="test_empty_result_handling" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index&quot;">tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index</error></testcase><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_send_email_success" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_send_email_with_cc_and_bcc" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_send_email_failure" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_send_email_with_quotes_escaping" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_create_draft_success" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_create_draft_with_cc" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_create_draft_failure" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_reply_to_email_success" time="0.001"><failure message="assert 'reply to' in '\n        tell application &quot;Mail&quot;\n            try\n                set selectedMessages to (messages of inbox whose message id = &quot;&lt;message123@example.com&gt;&quot;)\n                if (count of selectedMessages) &gt; 0 then\n                    set theMessage to item 1 of selectedMessages\n                    set theReply to reply theMessage with opening window\n                    tell theReply\n                        set content to &quot;This is my reply&quot;\n                    end tell\n                    return true\n                else\n                    return false\n                end if\n            on error\n                return false\n            end try\n        end tell\n        '">tests/test_applescript_integration.py:183: in test_reply_to_email_success
+    assert 'reply to' in script  # Not reply all
+E   assert 'reply to' in '\n        tell application "Mail"\n            try\n                set selectedMessages to (messages of inbox whose message id = "&lt;message123@example.com&gt;")\n                if (count of selectedMessages) &gt; 0 then\n                    set theMessage to item 1 of selectedMessages\n                    set theReply to reply theMessage with opening window\n                    tell theReply\n                        set content to "This is my reply"\n                    end tell\n                    return true\n                else\n                    return false\n                end if\n            on error\n                return false\n            end try\n        end tell\n        '</failure></testcase><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_reply_all_to_email" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_reply_to_email_not_found" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_mark_as_read_success" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_mark_as_read_not_found" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_flag_email_success" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_unflag_email" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_get_selected_emails" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_subprocess_timeout_handling" time="0.001"><failure message="subprocess.TimeoutExpired: Command 'osascript' timed out after 30 seconds">tests/test_applescript_integration.py:301: in test_subprocess_timeout_handling
+    result = mailer.send_email(
+applescript_integration.py:48: in send_email
+    result = subprocess.run(
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1124: in __call__
+    return self._mock_call(*args, **kwargs)
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1128: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1183: in _execute_mock_call
+    raise effect
+E   subprocess.TimeoutExpired: Command 'osascript' timed out after 30 seconds</failure></testcase><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_empty_email_handling" time="0.001" /><testcase classname="tests.test_applescript_integration.TestAppleScriptMailer" name="test_special_characters_escaping" time="0.001" /><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_initialization" time="0.001"><failure message="AttributeError: 'EmailIntelligenceEngine' object has no attribute 'api_key'">tests/test_email_intelligence_engine.py:50: in test_initialization
+    assert engine.api_key == 'test-key-123'
+E   AttributeError: 'EmailIntelligenceEngine' object has no attribute 'api_key'</failure></testcase><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_initialization_without_api_key" time="0.001"><failure message="AttributeError: 'EmailIntelligenceEngine' object has no attribute 'ai_enabled'">tests/test_email_intelligence_engine.py:60: in test_initialization_without_api_key
+    assert engine.ai_enabled == False
+E   AttributeError: 'EmailIntelligenceEngine' object has no attribute 'ai_enabled'</failure></testcase><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_classify_with_ai_success" time="0.002"><failure message="AttributeError: 'NoneType' object has no attribute 'classification'">tests/test_email_intelligence_engine.py:88: in test_classify_with_ai_success
+    assert result.classification == EmailClassification.APPROVAL_REQUIRED
+E   AttributeError: 'NoneType' object has no attribute 'classification'</failure></testcase><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_classify_with_ai_fallback" time="0.001" /><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_classify_with_patterns_urgent" time="0.001"><failure message="AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'">tests/test_email_intelligence_engine.py:115: in test_classify_with_patterns_urgent
+    result = engine._classify_with_patterns(
+E   AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'</failure></testcase><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_classify_with_patterns_invoice" time="0.001"><failure message="AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'">tests/test_email_intelligence_engine.py:127: in test_classify_with_patterns_invoice
+    result = engine._classify_with_patterns(
+E   AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'</failure></testcase><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_classify_with_patterns_meeting" time="0.001"><failure message="AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'">tests/test_email_intelligence_engine.py:138: in test_classify_with_patterns_meeting
+    result = engine._classify_with_patterns(
+E   AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'</failure></testcase><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_classify_with_patterns_newsletter" time="0.001"><failure message="AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'">tests/test_email_intelligence_engine.py:149: in test_classify_with_patterns_newsletter
+    result = engine._classify_with_patterns(
+E   AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'</failure></testcase><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_analyze_email_ai_priority" time="0.001"><failure message="AttributeError: &lt;class 'email_intelligence_engine.EmailIntelligenceEngine'&gt; does not have the attribute '_classify_with_patterns'">../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1375: in patched
+    with self.decoration_helper(patched,
+../miniconda3/envs/iamomenv2/lib/python3.11/contextlib.py:137: in __enter__
+    return next(self.gen)
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1357: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+../miniconda3/envs/iamomenv2/lib/python3.11/contextlib.py:517: in enter_context
+    result = _enter(cm)
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1446: in __enter__
+    original, local = self.get_original()
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1419: in get_original
+    raise AttributeError(
+E   AttributeError: &lt;class 'email_intelligence_engine.EmailIntelligenceEngine'&gt; does not have the attribute '_classify_with_patterns'</failure></testcase><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_analyze_email_fallback_to_patterns" time="0.001"><failure message="AttributeError: &lt;class 'email_intelligence_engine.EmailIntelligenceEngine'&gt; does not have the attribute '_classify_with_patterns'">../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1375: in patched
+    with self.decoration_helper(patched,
+../miniconda3/envs/iamomenv2/lib/python3.11/contextlib.py:137: in __enter__
+    return next(self.gen)
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1357: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+../miniconda3/envs/iamomenv2/lib/python3.11/contextlib.py:517: in enter_context
+    result = _enter(cm)
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1446: in __enter__
+    original, local = self.get_original()
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1419: in get_original
+    raise AttributeError(
+E   AttributeError: &lt;class 'email_intelligence_engine.EmailIntelligenceEngine'&gt; does not have the attribute '_classify_with_patterns'</failure></testcase><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_generate_draft_reply_approval" time="0.002"><failure message="AttributeError: 'EmailAnalysisResult' object has no attribute 'action_items'">tests/test_email_intelligence_engine.py:231: in test_generate_draft_reply_approval
+    draft = engine.generate_draft_reply(email_data, analysis)
+email_intelligence_engine.py:643: in generate_draft_reply
+    if analysis.action_items:
+E   AttributeError: 'EmailAnalysisResult' object has no attribute 'action_items'</failure></testcase><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_generate_draft_reply_fallback" time="0.001"><failure message="AttributeError: 'EmailAnalysisResult' object has no attribute 'action_items'">tests/test_email_intelligence_engine.py:251: in test_generate_draft_reply_fallback
+    draft = engine.generate_draft_reply(email_data, analysis)
+email_intelligence_engine.py:643: in generate_draft_reply
+    if analysis.action_items:
+E   AttributeError: 'EmailAnalysisResult' object has no attribute 'action_items'</failure></testcase><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_get_performance_metrics" time="0.091"><failure message="AttributeError: 'EmailIntelligenceEngine' object has no attribute 'stats'">tests/test_email_intelligence_engine.py:260: in test_get_performance_metrics
+    engine.stats['total_processed'] = 100
+E   AttributeError: 'EmailIntelligenceEngine' object has no attribute 'stats'</failure></testcase><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_email_classification_enum" time="0.000" /><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_email_urgency_enum" time="0.000" /><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_email_analysis_result_dataclass" time="0.000" /><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_stats_tracking" time="0.003"><failure message="TypeError: cannot unpack non-iterable EmailAnalysisResult object">tests/test_email_intelligence_engine.py:310: in test_stats_tracking
+    engine.analyze_email("Test", "Body", "sender@example.com")
+email_intelligence_engine.py:304: in analyze_email
+    classification, class_confidence = self._classify_email(full_text, subject, sender)
+E   TypeError: cannot unpack non-iterable EmailAnalysisResult object</failure></testcase><testcase classname="tests.test_email_intelligence_engine.TestEmailIntelligenceEngine" name="test_error_handling_in_analysis" time="0.443"><failure message="AttributeError: 'NoneType' object has no attribute 'lower'">tests/test_email_intelligence_engine.py:318: in test_error_handling_in_analysis
+    result = engine.analyze_email(None, None, None)
+email_intelligence_engine.py:304: in analyze_email
+    classification, class_confidence = self._classify_email(full_text, subject, sender)
+email_intelligence_engine.py:386: in _classify_email
+    class_scores = self._apply_classification_rules(class_scores, text, subject, sender)
+email_intelligence_engine.py:490: in _apply_classification_rules
+    if re.search(r'\b(re:|fwd:)\b', subject.lower()):
+E   AttributeError: 'NoneType' object has no attribute 'lower'</failure></testcase><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_root_endpoint" time="0.010" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_get_emails_success" time="0.006" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_get_emails_with_limit_offset" time="0.004" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_get_emails_database_error" time="0.003" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_get_single_email_success" time="0.005" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_get_single_email_not_found" time="0.003"><failure message="assert 500 == 404&#10; +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code">tests/test_fastapi_endpoints.py:163: in test_get_single_email_not_found
+    assert response.status_code == 404
+E   assert 500 == 404
+E    +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code</failure></testcase><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_get_tasks" time="0.005"><failure message="assert 500 == 200&#10; +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code">tests/test_fastapi_endpoints.py:181: in test_get_tasks
+    assert response.status_code == 200
+E   assert 500 == 200
+E    +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code</failure></testcase><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_get_drafts" time="0.005" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_get_stats" time="0.005" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_send_draft" time="0.004" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_send_draft_failure" time="0.003" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_create_draft" time="0.004" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_reply_to_email" time="0.006" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_reply_to_nonexistent_email" time="0.003"><failure message="assert 500 == 404&#10; +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code">tests/test_fastapi_endpoints.py:315: in test_reply_to_nonexistent_email
+    assert response.status_code == 404
+E   assert 500 == 404
+E    +  where 500 = &lt;Response [500 Internal Server Error]&gt;.status_code</failure></testcase><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_mark_email_read" time="0.007" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_cors_headers" time="0.002" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_invalid_endpoint" time="0.002" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_method_not_allowed" time="0.002" /><testcase classname="tests.test_fastapi_endpoints.TestFastAPIEndpoints" name="test_server_error_handling" time="0.003" /></testsuite></testsuites>

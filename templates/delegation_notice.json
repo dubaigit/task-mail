@@ -1,0 +1,10 @@
+{
+  "subject": "Task Delegated to You: {task_title}",
+  "body": "Hello {assignee_name},\n\nA task has been delegated to you by {delegator_name}:\n\n📋 **Task Information:**\n{task_description}\n\n👤 **Assignment Details:**\nOriginal requester: {original_requester}\nDelegated by: {delegator_name}\nPriority: {priority}\nExpected completion: {due_date}\n\n📞 **Contact Information:**\nFor questions about requirements: {original_requester}\nFor delegation concerns: {delegator_name}\n\n✅ **Required Actions:**\n1. Review the task requirements carefully\n2. Confirm receipt and your availability\n3. Provide an estimated completion time\n4. Ask any clarifying questions before starting\n\nPlease reply to this email with:\n- Confirmation of task acceptance\n- Estimated completion date\n- Any resource requirements\n- Questions or concerns\n\nThank you for your assistance!\n\nBest regards,\n{delegator_name}",
+  "urgency_indicators": {
+    "CRITICAL": "🚨 URGENT: ",
+    "HIGH": "⚡ High Priority: ",
+    "MEDIUM": "📋 Task: ",
+    "LOW": "📝 When available: "
+  }
+}

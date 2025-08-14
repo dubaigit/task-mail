@@ -1,0 +1,550 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.11.13, pytest-8.3.2, pluggy-1.6.0 -- /Users/iamomen/miniconda3/envs/iamomenv2/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.11.13', 'Platform': 'macOS-10.16-x86_64-i386-64bit', 'Packages': {'pytest': '8.3.2', 'pluggy': '1.6.0'}, 'Plugins': {'asyncio': '0.23.8', 'cov': '5.0.0', 'docker': '3.1.2', 'html': '4.1.1', 'json-report': '1.5.0', 'metadata': '3.1.1', 'Faker': '26.3.0', 'anyio': '4.10.0', 'langsmith': '0.3.45', 'mock': '3.14.0'}}
+rootdir: /Users/iamomen/apple-mcp
+configfile: pytest.ini
+plugins: asyncio-0.23.8, cov-5.0.0, docker-3.1.2, html-4.1.1, json-report-1.5.0, metadata-3.1.1, Faker-26.3.0, anyio-4.10.0, langsmith-0.3.45, mock-3.14.0
+asyncio: mode=Mode.STRICT
+collecting ... 
+----------------------------- live log collection ------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+collected 75 items
+
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_initialization FAILED [  1%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_initialization_with_custom_path FAILED [  2%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_convert_timestamp ERROR [  4%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_convert_timestamp_none ERROR [  5%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_recent_emails_success ERROR [  6%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_recent_emails_database_error ERROR [  8%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_search_emails_by_subject ERROR [  9%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_search_emails_by_sender ERROR [ 10%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_search_emails_all_fields ERROR [ 12%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_email_by_id ERROR [ 13%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_email_not_found ERROR [ 14%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_email_count ERROR [ 16%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_email_count_error ERROR [ 17%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_unread_count ERROR [ 18%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_flagged_emails ERROR [ 20%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_emails_by_date_range ERROR [ 21%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_sql_injection_prevention ERROR [ 22%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_database_path_validation ERROR [ 24%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_connection_cleanup ERROR [ 25%]
+tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_empty_result_handling ERROR [ 26%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_send_email_success PASSED [ 28%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_send_email_with_cc_and_bcc PASSED [ 29%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_send_email_failure PASSED [ 30%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_send_email_with_quotes_escaping PASSED [ 32%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_create_draft_success PASSED [ 33%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_create_draft_with_cc PASSED [ 34%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_create_draft_failure PASSED [ 36%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_reply_to_email_success FAILED [ 37%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_reply_all_to_email PASSED [ 38%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_reply_to_email_not_found PASSED [ 40%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_mark_as_read_success PASSED [ 41%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_mark_as_read_not_found PASSED [ 42%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_flag_email_success PASSED [ 44%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_unflag_email PASSED [ 45%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_get_selected_emails PASSED [ 46%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_subprocess_timeout_handling FAILED [ 48%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_empty_email_handling PASSED [ 49%]
+tests/test_applescript_integration.py::TestAppleScriptMailer::test_special_characters_escaping PASSED [ 50%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_initialization 
+-------------------------------- live log setup --------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+FAILED                                                                   [ 52%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_initialization_without_api_key 
+-------------------------------- live log call ---------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+FAILED                                                                   [ 53%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_classify_with_ai_success 
+-------------------------------- live log setup --------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+FAILED                                                                   [ 54%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_classify_with_ai_fallback 
+-------------------------------- live log setup --------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+PASSED                                                                   [ 56%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_classify_with_patterns_urgent 
+-------------------------------- live log setup --------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+FAILED                                                                   [ 57%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_classify_with_patterns_invoice 
+-------------------------------- live log setup --------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+FAILED                                                                   [ 58%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_classify_with_patterns_meeting 
+-------------------------------- live log setup --------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+FAILED                                                                   [ 60%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_classify_with_patterns_newsletter 
+-------------------------------- live log setup --------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+FAILED                                                                   [ 61%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_analyze_email_ai_priority 
+-------------------------------- live log setup --------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+FAILED                                                                   [ 62%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_analyze_email_fallback_to_patterns 
+-------------------------------- live log setup --------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+FAILED                                                                   [ 64%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_generate_draft_reply_approval 
+-------------------------------- live log setup --------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+-------------------------------- live log call ---------------------------------
+WARNING  email_intelligence_engine:email_intelligence_engine.py:620 AI draft generation failed, using fallback. Error: 'EmailAnalysisResult' object has no attribute 'action_items'
+FAILED                                                                   [ 65%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_generate_draft_reply_fallback 
+-------------------------------- live log setup --------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+-------------------------------- live log call ---------------------------------
+WARNING  email_intelligence_engine:email_intelligence_engine.py:620 AI draft generation failed, using fallback. Error: 'EmailAnalysisResult' object has no attribute 'action_items'
+FAILED                                                                   [ 66%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_get_performance_metrics 
+-------------------------------- live log setup --------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+FAILED                                                                   [ 68%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_email_classification_enum PASSED [ 69%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_email_urgency_enum PASSED [ 70%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_email_analysis_result_dataclass PASSED [ 72%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_stats_tracking 
+-------------------------------- live log setup --------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+FAILED                                                                   [ 73%]
+tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_error_handling_in_analysis 
+-------------------------------- live log setup --------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+FAILED                                                                   [ 74%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_root_endpoint 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: GET http://testserver/ "HTTP/1.1 200 OK"
+PASSED                                                                   [ 76%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_get_emails_success 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: GET http://testserver/emails/ "HTTP/1.1 200 OK"
+PASSED                                                                   [ 77%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_get_emails_with_limit_offset 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: GET http://testserver/emails/?limit=10&offset=5 "HTTP/1.1 200 OK"
+PASSED                                                                   [ 78%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_get_emails_database_error 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: GET http://testserver/emails/ "HTTP/1.1 500 Internal Server Error"
+PASSED                                                                   [ 80%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_get_single_email_success 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: GET http://testserver/emails/123 "HTTP/1.1 200 OK"
+PASSED                                                                   [ 81%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_get_single_email_not_found 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: GET http://testserver/emails/999 "HTTP/1.1 500 Internal Server Error"
+FAILED                                                                   [ 82%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_get_tasks 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: GET http://testserver/tasks/ "HTTP/1.1 500 Internal Server Error"
+FAILED                                                                   [ 84%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_get_drafts 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: GET http://testserver/drafts/ "HTTP/1.1 200 OK"
+PASSED                                                                   [ 85%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_get_stats 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: GET http://testserver/stats/ "HTTP/1.1 200 OK"
+PASSED                                                                   [ 86%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_send_draft 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: POST http://testserver/drafts/1/send?to_email=recipient@example.com "HTTP/1.1 200 OK"
+PASSED                                                                   [ 88%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_send_draft_failure 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: POST http://testserver/drafts/1/send?to_email=recipient@example.com "HTTP/1.1 500 Internal Server Error"
+PASSED                                                                   [ 89%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_create_draft 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: POST http://testserver/drafts/create?to_email=recipient%40example.com&subject=Test%20Subject&body=Test%20body%20content "HTTP/1.1 200 OK"
+PASSED                                                                   [ 90%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_reply_to_email 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: POST http://testserver/emails/123/reply?body=This%20is%20my%20reply&reply_all=false "HTTP/1.1 200 OK"
+PASSED                                                                   [ 92%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_reply_to_nonexistent_email 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: POST http://testserver/emails/999/reply?body=Reply "HTTP/1.1 500 Internal Server Error"
+FAILED                                                                   [ 93%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_mark_email_read 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: POST http://testserver/emails/123/mark-read "HTTP/1.1 200 OK"
+PASSED                                                                   [ 94%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_cors_headers 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: OPTIONS http://testserver/emails/ "HTTP/1.1 200 OK"
+PASSED                                                                   [ 96%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_invalid_endpoint 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: GET http://testserver/invalid/endpoint "HTTP/1.1 404 Not Found"
+PASSED                                                                   [ 97%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_method_not_allowed 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: DELETE http://testserver/emails/ "HTTP/1.1 405 Method Not Allowed"
+PASSED                                                                   [ 98%]
+tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_server_error_handling 
+-------------------------------- live log call ---------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: GET http://testserver/emails/ "HTTP/1.1 500 Internal Server Error"
+PASSED                                                                   [100%]
+
+==================================== ERRORS ====================================
+________ ERROR at setup of TestAppleMailDBReader.test_convert_timestamp ________
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+_____ ERROR at setup of TestAppleMailDBReader.test_convert_timestamp_none ______
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+____ ERROR at setup of TestAppleMailDBReader.test_get_recent_emails_success ____
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+_ ERROR at setup of TestAppleMailDBReader.test_get_recent_emails_database_error _
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+____ ERROR at setup of TestAppleMailDBReader.test_search_emails_by_subject _____
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+_____ ERROR at setup of TestAppleMailDBReader.test_search_emails_by_sender _____
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+____ ERROR at setup of TestAppleMailDBReader.test_search_emails_all_fields _____
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+_________ ERROR at setup of TestAppleMailDBReader.test_get_email_by_id _________
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+_______ ERROR at setup of TestAppleMailDBReader.test_get_email_not_found _______
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+_________ ERROR at setup of TestAppleMailDBReader.test_get_email_count _________
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+______ ERROR at setup of TestAppleMailDBReader.test_get_email_count_error ______
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+________ ERROR at setup of TestAppleMailDBReader.test_get_unread_count _________
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+_______ ERROR at setup of TestAppleMailDBReader.test_get_flagged_emails ________
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+____ ERROR at setup of TestAppleMailDBReader.test_get_emails_by_date_range _____
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+____ ERROR at setup of TestAppleMailDBReader.test_sql_injection_prevention _____
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+____ ERROR at setup of TestAppleMailDBReader.test_database_path_validation _____
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+_______ ERROR at setup of TestAppleMailDBReader.test_connection_cleanup ________
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+______ ERROR at setup of TestAppleMailDBReader.test_empty_result_handling ______
+tests/test_apple_mail_db_reader.py:27: in reader
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+=================================== FAILURES ===================================
+__________________ TestAppleMailDBReader.test_initialization ___________________
+tests/test_apple_mail_db_reader.py:60: in test_initialization
+    reader = AppleMailDBReader()
+apple_mail_db_reader.py:27: in __init__
+    raise FileNotFoundError(f"Apple Mail database not found at {self.db_path}")
+E   FileNotFoundError: Apple Mail database not found at /Users/testuser/Library/Mail/V9/MailData/Envelope Index
+__________ TestAppleMailDBReader.test_initialization_with_custom_path __________
+tests/test_apple_mail_db_reader.py:67: in test_initialization_with_custom_path
+    reader = AppleMailDBReader(db_path=custom_path)
+E   TypeError: AppleMailDBReader.__init__() got an unexpected keyword argument 'db_path'
+______________ TestAppleScriptMailer.test_reply_to_email_success _______________
+tests/test_applescript_integration.py:183: in test_reply_to_email_success
+    assert 'reply to' in script  # Not reply all
+E   assert 'reply to' in '\n        tell application "Mail"\n            try\n                set selectedMessages to (messages of inbox whose message id = "<message123@example.com>")\n                if (count of selectedMessages) > 0 then\n                    set theMessage to item 1 of selectedMessages\n                    set theReply to reply theMessage with opening window\n                    tell theReply\n                        set content to "This is my reply"\n                    end tell\n                    return true\n                else\n                    return false\n                end if\n            on error\n                return false\n            end try\n        end tell\n        '
+____________ TestAppleScriptMailer.test_subprocess_timeout_handling ____________
+tests/test_applescript_integration.py:301: in test_subprocess_timeout_handling
+    result = mailer.send_email(
+applescript_integration.py:48: in send_email
+    result = subprocess.run(
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1124: in __call__
+    return self._mock_call(*args, **kwargs)
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1128: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1183: in _execute_mock_call
+    raise effect
+E   subprocess.TimeoutExpired: Command 'osascript' timed out after 30 seconds
+_______________ TestEmailIntelligenceEngine.test_initialization ________________
+tests/test_email_intelligence_engine.py:50: in test_initialization
+    assert engine.api_key == 'test-key-123'
+E   AttributeError: 'EmailIntelligenceEngine' object has no attribute 'api_key'
+------------------------------ Captured log setup ------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+_______ TestEmailIntelligenceEngine.test_initialization_without_api_key ________
+tests/test_email_intelligence_engine.py:60: in test_initialization_without_api_key
+    assert engine.ai_enabled == False
+E   AttributeError: 'EmailIntelligenceEngine' object has no attribute 'ai_enabled'
+------------------------------ Captured log call -------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+__________ TestEmailIntelligenceEngine.test_classify_with_ai_success ___________
+tests/test_email_intelligence_engine.py:88: in test_classify_with_ai_success
+    assert result.classification == EmailClassification.APPROVAL_REQUIRED
+E   AttributeError: 'NoneType' object has no attribute 'classification'
+------------------------------ Captured log setup ------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+________ TestEmailIntelligenceEngine.test_classify_with_patterns_urgent ________
+tests/test_email_intelligence_engine.py:115: in test_classify_with_patterns_urgent
+    result = engine._classify_with_patterns(
+E   AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'
+------------------------------ Captured log setup ------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+_______ TestEmailIntelligenceEngine.test_classify_with_patterns_invoice ________
+tests/test_email_intelligence_engine.py:127: in test_classify_with_patterns_invoice
+    result = engine._classify_with_patterns(
+E   AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'
+------------------------------ Captured log setup ------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+_______ TestEmailIntelligenceEngine.test_classify_with_patterns_meeting ________
+tests/test_email_intelligence_engine.py:138: in test_classify_with_patterns_meeting
+    result = engine._classify_with_patterns(
+E   AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'
+------------------------------ Captured log setup ------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+______ TestEmailIntelligenceEngine.test_classify_with_patterns_newsletter ______
+tests/test_email_intelligence_engine.py:149: in test_classify_with_patterns_newsletter
+    result = engine._classify_with_patterns(
+E   AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'
+------------------------------ Captured log setup ------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+__________ TestEmailIntelligenceEngine.test_analyze_email_ai_priority __________
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1375: in patched
+    with self.decoration_helper(patched,
+../miniconda3/envs/iamomenv2/lib/python3.11/contextlib.py:137: in __enter__
+    return next(self.gen)
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1357: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+../miniconda3/envs/iamomenv2/lib/python3.11/contextlib.py:517: in enter_context
+    result = _enter(cm)
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1446: in __enter__
+    original, local = self.get_original()
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1419: in get_original
+    raise AttributeError(
+E   AttributeError: <class 'email_intelligence_engine.EmailIntelligenceEngine'> does not have the attribute '_classify_with_patterns'
+------------------------------ Captured log setup ------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+_____ TestEmailIntelligenceEngine.test_analyze_email_fallback_to_patterns ______
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1375: in patched
+    with self.decoration_helper(patched,
+../miniconda3/envs/iamomenv2/lib/python3.11/contextlib.py:137: in __enter__
+    return next(self.gen)
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1357: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+../miniconda3/envs/iamomenv2/lib/python3.11/contextlib.py:517: in enter_context
+    result = _enter(cm)
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1446: in __enter__
+    original, local = self.get_original()
+../miniconda3/envs/iamomenv2/lib/python3.11/unittest/mock.py:1419: in get_original
+    raise AttributeError(
+E   AttributeError: <class 'email_intelligence_engine.EmailIntelligenceEngine'> does not have the attribute '_classify_with_patterns'
+------------------------------ Captured log setup ------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+________ TestEmailIntelligenceEngine.test_generate_draft_reply_approval ________
+tests/test_email_intelligence_engine.py:231: in test_generate_draft_reply_approval
+    draft = engine.generate_draft_reply(email_data, analysis)
+email_intelligence_engine.py:643: in generate_draft_reply
+    if analysis.action_items:
+E   AttributeError: 'EmailAnalysisResult' object has no attribute 'action_items'
+------------------------------ Captured log setup ------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+------------------------------ Captured log call -------------------------------
+WARNING  email_intelligence_engine:email_intelligence_engine.py:620 AI draft generation failed, using fallback. Error: 'EmailAnalysisResult' object has no attribute 'action_items'
+________ TestEmailIntelligenceEngine.test_generate_draft_reply_fallback ________
+tests/test_email_intelligence_engine.py:251: in test_generate_draft_reply_fallback
+    draft = engine.generate_draft_reply(email_data, analysis)
+email_intelligence_engine.py:643: in generate_draft_reply
+    if analysis.action_items:
+E   AttributeError: 'EmailAnalysisResult' object has no attribute 'action_items'
+------------------------------ Captured log setup ------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+------------------------------ Captured log call -------------------------------
+WARNING  email_intelligence_engine:email_intelligence_engine.py:620 AI draft generation failed, using fallback. Error: 'EmailAnalysisResult' object has no attribute 'action_items'
+___________ TestEmailIntelligenceEngine.test_get_performance_metrics ___________
+tests/test_email_intelligence_engine.py:260: in test_get_performance_metrics
+    engine.stats['total_processed'] = 100
+E   AttributeError: 'EmailIntelligenceEngine' object has no attribute 'stats'
+------------------------------ Captured log setup ------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+_______________ TestEmailIntelligenceEngine.test_stats_tracking ________________
+tests/test_email_intelligence_engine.py:310: in test_stats_tracking
+    engine.analyze_email("Test", "Body", "sender@example.com")
+email_intelligence_engine.py:304: in analyze_email
+    classification, class_confidence = self._classify_email(full_text, subject, sender)
+E   TypeError: cannot unpack non-iterable EmailAnalysisResult object
+------------------------------ Captured log setup ------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+_________ TestEmailIntelligenceEngine.test_error_handling_in_analysis __________
+tests/test_email_intelligence_engine.py:318: in test_error_handling_in_analysis
+    result = engine.analyze_email(None, None, None)
+email_intelligence_engine.py:304: in analyze_email
+    classification, class_confidence = self._classify_email(full_text, subject, sender)
+email_intelligence_engine.py:386: in _classify_email
+    class_scores = self._apply_classification_rules(class_scores, text, subject, sender)
+email_intelligence_engine.py:490: in _apply_classification_rules
+    if re.search(r'\b(re:|fwd:)\b', subject.lower()):
+E   AttributeError: 'NoneType' object has no attribute 'lower'
+------------------------------ Captured log setup ------------------------------
+INFO     email_intelligence_engine:email_intelligence_engine.py:109 Initializing lightweight classification models
+_____________ TestFastAPIEndpoints.test_get_single_email_not_found _____________
+tests/test_fastapi_endpoints.py:163: in test_get_single_email_not_found
+    assert response.status_code == 404
+E   assert 500 == 404
+E    +  where 500 = <Response [500 Internal Server Error]>.status_code
+------------------------------ Captured log call -------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: GET http://testserver/emails/999 "HTTP/1.1 500 Internal Server Error"
+_____________________ TestFastAPIEndpoints.test_get_tasks ______________________
+tests/test_fastapi_endpoints.py:181: in test_get_tasks
+    assert response.status_code == 200
+E   assert 500 == 200
+E    +  where 500 = <Response [500 Internal Server Error]>.status_code
+------------------------------ Captured log call -------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: GET http://testserver/tasks/ "HTTP/1.1 500 Internal Server Error"
+_____________ TestFastAPIEndpoints.test_reply_to_nonexistent_email _____________
+tests/test_fastapi_endpoints.py:315: in test_reply_to_nonexistent_email
+    assert response.status_code == 404
+E   assert 500 == 404
+E    +  where 500 = <Response [500 Internal Server Error]>.status_code
+------------------------------ Captured log call -------------------------------
+INFO     httpx:_client.py:1026 HTTP Request: POST http://testserver/emails/999/reply?body=Reply "HTTP/1.1 500 Internal Server Error"
+----- generated xml file: /Users/iamomen/apple-mcp/test_results/junit.xml ------
+
+--------- coverage: platform darwin, python 3.11.13-final-0 ----------
+Name                           Stmts   Miss  Cover   Missing
+------------------------------------------------------------
+apple_mail_composer.py           136    120 11.76%   23-36, 42-86, 91-149, 154-210, 214-266, 270-325, 329-413
+apple_mail_db_reader.py          193    171 11.40%   32-33, 37-45, 49-96, 100-157, 161-198, 202-239, 243-289, 293-361
+applecli.py                      478    478  0.00%   7-1437
+applescript_integration.py        69      9 86.96%   132-134, 161-162, 191-192, 223-224
+dashboard/backend/main.py        158     16 89.87%   20, 152-163, 202-203, 240-241, 271-274, 292, 303, 311-314
+email_complete_solution.py       187    187  0.00%   8-506
+email_intelligence_cli.py        206    206  0.00%   9-441
+email_intelligence_config.py     261    261  0.00%   7-578
+email_intelligence_engine.py     358    201 43.85%   22-23, 28-29, 307-324, 361-362, 389-401, 456-463, 477, 487, 491-504, 508-521, 525-538, 567-618, 629-630, 635-640, 644-650, 655-674, 678-709, 714-724, 728-741, 746-752, 756-781, 785-791, 795-821, 825, 843-905
+email_intelligence_models.py     180    180  0.00%   9-416
+email_intelligence_system.py     317    317  0.00%   7-777
+email_processor.py               169    169  0.00%   7-423
+email_to_database.py             276    276  0.00%   8-777
+email_to_mongodb.py              209    209  0.00%   7-562
+enhanced_mail.py                  70     70  0.00%   7-345
+fetch_emails_simple.py           124    124  0.00%   6-295
+fetch_monthly_emails.py          163    163  0.00%   6-298
+mail_tool.py                     226    226  0.00%   7-828
+mail_tool_background.py          171    171  0.00%   8-396
+mail_tool_exceptions.py          143    143  0.00%   9-477
+mailcli.py                       257    257  0.00%   7-442
+outlook_db_reader.py             153    153  0.00%   7-310
+voice_assistant_demo.py          131    131  0.00%   9-208
+------------------------------------------------------------
+TOTAL                           4635   4238  8.57%
+Coverage HTML written to dir test_results/htmlcov
+Coverage XML written to file test_results/coverage.xml
+
+- Generated html report: file:///Users/iamomen/apple-mcp/test_results/report.html -
+=========================== short test summary info ============================
+FAILED tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_initialization - FileNotFoundError: Apple Mail database not found at /Users/testuser/Library/Mail/V9/MailData/Envelope Index
+FAILED tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_initialization_with_custom_path - TypeError: AppleMailDBReader.__init__() got an unexpected keyword argument 'db_path'
+FAILED tests/test_applescript_integration.py::TestAppleScriptMailer::test_reply_to_email_success - assert 'reply to' in '\n        tell application "Mail"\n            try\n                set selectedMessages to (messages of inbox whose message id = "<message123@example.com>")\n                if (count of selectedMessages) > 0 then\n                    set theMessage to item 1 of selectedMessages\n                    set theReply to reply theMessage with opening window\n                    tell theReply\n                        set content to "This is my reply"\n                    end tell\n                    return true\n                else\n                    return false\n                end if\n            on error\n                return false\n            end try\n        end tell\n        '
+FAILED tests/test_applescript_integration.py::TestAppleScriptMailer::test_subprocess_timeout_handling - subprocess.TimeoutExpired: Command 'osascript' timed out after 30 seconds
+FAILED tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_initialization - AttributeError: 'EmailIntelligenceEngine' object has no attribute 'api_key'
+FAILED tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_initialization_without_api_key - AttributeError: 'EmailIntelligenceEngine' object has no attribute 'ai_enabled'
+FAILED tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_classify_with_ai_success - AttributeError: 'NoneType' object has no attribute 'classification'
+FAILED tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_classify_with_patterns_urgent - AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'
+FAILED tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_classify_with_patterns_invoice - AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'
+FAILED tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_classify_with_patterns_meeting - AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'
+FAILED tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_classify_with_patterns_newsletter - AttributeError: 'EmailIntelligenceEngine' object has no attribute '_classify_with_patterns'
+FAILED tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_analyze_email_ai_priority - AttributeError: <class 'email_intelligence_engine.EmailIntelligenceEngine'> does not have the attribute '_classify_with_patterns'
+FAILED tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_analyze_email_fallback_to_patterns - AttributeError: <class 'email_intelligence_engine.EmailIntelligenceEngine'> does not have the attribute '_classify_with_patterns'
+FAILED tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_generate_draft_reply_approval - AttributeError: 'EmailAnalysisResult' object has no attribute 'action_items'
+FAILED tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_generate_draft_reply_fallback - AttributeError: 'EmailAnalysisResult' object has no attribute 'action_items'
+FAILED tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_get_performance_metrics - AttributeError: 'EmailIntelligenceEngine' object has no attribute 'stats'
+FAILED tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_stats_tracking - TypeError: cannot unpack non-iterable EmailAnalysisResult object
+FAILED tests/test_email_intelligence_engine.py::TestEmailIntelligenceEngine::test_error_handling_in_analysis - AttributeError: 'NoneType' object has no attribute 'lower'
+FAILED tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_get_single_email_not_found - assert 500 == 404
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+FAILED tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_get_tasks - assert 500 == 200
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+FAILED tests/test_fastapi_endpoints.py::TestFastAPIEndpoints::test_reply_to_nonexistent_email - assert 500 == 404
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_convert_timestamp - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_convert_timestamp_none - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_recent_emails_success - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_recent_emails_database_error - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_search_emails_by_subject - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_search_emails_by_sender - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_search_emails_all_fields - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_email_by_id - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_email_not_found - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_email_count - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_email_count_error - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_unread_count - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_flagged_emails - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_get_emails_by_date_range - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_sql_injection_prevention - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_database_path_validation - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_connection_cleanup - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+ERROR tests/test_apple_mail_db_reader.py::TestAppleMailDBReader::test_empty_result_handling - FileNotFoundError: Apple Mail database not found at /Users/test/Library/Mail/V9/MailData/Envelope Index
+=================== 21 failed, 36 passed, 18 errors in 3.57s ===================

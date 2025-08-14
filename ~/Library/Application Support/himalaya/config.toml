@@ -1,0 +1,21 @@
+accounts.work.email = "abdulla.alfalasi@digitaldubai.ae"
+accounts.work.default = true
+
+# IMAP Configuration with OAuth2
+accounts.work.imap.host = "outlook.office365.com"
+accounts.work.imap.port = 993
+accounts.work.imap.ssl = true
+accounts.work.imap.login = "abdulla.alfalasi@digitaldubai.ae"
+accounts.work.imap.auth = "oauth2"
+accounts.work.imap.oauth2.method = "xoauth2"
+accounts.work.imap.oauth2.client-id = "facd6105-1e34-47b9-8005-e3d97aa94893"
+accounts.work.imap.oauth2.auth-url = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize"
+accounts.work.imap.oauth2.token-url = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
+
+# SMTP Configuration
+accounts.work.smtp.host = "smtp-mail.outlook.com"
+accounts.work.smtp.port = 587
+accounts.work.smtp.starttls = true
+accounts.work.smtp.login = "abdulla.alfalasi@digitaldubai.ae"
+accounts.work.smtp.auth = "oauth2"
+accounts.work.smtp.oauth2.method = "same_as_imap"

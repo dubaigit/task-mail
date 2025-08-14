@@ -1,0 +1,4 @@
+groq-sdk
+mcp>=1.0.0
+asyncio-mqtt
+asyncio-task-queue

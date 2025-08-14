@@ -1,0 +1,62 @@
+# Email Intelligence System - Complete Requirements
+# Core system requirements for all components
+
+# FastAPI and web framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# Redis for caching and queues
+redis==5.0.1
+aioredis==2.0.1
+
+# Real-time monitoring
+watchdog==3.0.0
+websockets==12.0
+
+# HTTP client for AI APIs
+aiohttp==3.9.1
+requests==2.31.0
+
+# Data processing
+numpy==1.24.3
+pandas==2.0.3
+
+# Email processing
+email-validator==2.1.0
+python-multipart==0.0.6
+
+# Task scheduling
+celery==5.3.4
+croniter==2.0.1
+
+# System monitoring
+psutil==5.9.6
+
+# Apple integration
+pyobjc-framework-Cocoa==10.0
+pyobjc-core==10.0
+
+# Development and testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+
+# Environment and configuration
+python-dotenv==1.0.0
+pyyaml==6.0.1
+
+# Date and time handling
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Logging and monitoring
+structlog==23.2.0
+prometheus-client==0.19.0
+
+# Security
+cryptography==41.0.7
+
+# Optional: for enhanced performance
+ujson==5.8.0
+orjson==3.9.10

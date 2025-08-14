@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task-Focused Email Workflow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        success: {
+                            50: '#f0fdf4',
+                            500: '#22c55e',
+                            600: '#16a34a'
+                        },
+                        warning: {
+                            50: '#fffbeb',
+                            500: '#f59e0b',
+                            600: '#d97706'
+                        },
+                        danger: {
+                            50: '#fef2f2',
+                            500: '#ef4444',
+                            600: '#dc2626'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-tasks text-primary-500 text-2xl mr-3"></i>
+                    <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Task-Focused Email Workflow</h1>
+                </div>
+                
+                <nav class="hidden md:flex space-x-1">
+                    <button class="nav-tab active" data-tab="inbox">
+                        <i class="fas fa-inbox mr-2"></i>Inbox <span id="inboxCount" class="ml-1 px-2 py-0.5 bg-gray-200 dark:bg-gray-700 rounded-full text-xs">0</span>
+                    </button>
+                    <button class="nav-tab" data-tab="tasks">
+                        <i class="fas fa-clipboard-check mr-2"></i>Tasks <span id="tasksCount" class="ml-1 px-2 py-0.5 bg-warning-500 text-white rounded-full text-xs">0</span>
+                    </button>
+                </nav>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                        <span id="connectionStatus" class="flex items-center">
+                            <i class="fas fa-circle text-green-500 text-xs mr-2"></i>
+                            Connected
+                        </span>
+                    </div>
+                    <button id="refreshBtn" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button id="darkModeToggle" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div class="md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+            <div class="px-4 py-2 flex space-x-1">
+                <button class="mobile-nav-tab active" data-tab="inbox">
+                    <i class="fas fa-inbox mr-1"></i>Inbox <span id="mobileInboxCount" class="ml-1 px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded-full text-xs">0</span>
+                </button>
+                <button class="mobile-nav-tab" data-tab="tasks">
+                    <i class="fas fa-clipboard-check mr-1"></i>Tasks <span id="mobileTasksCount" class="ml-1 px-1.5 py-0.5 bg-warning-500 text-white rounded-full text-xs">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-hidden">
+        <!-- Inbox Section -->
+        <section id="inboxSection" class="h-screen overflow-hidden">
+            <!-- Smart Filters -->
+            <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex flex-wrap gap-2">
+                        <button class="smart-filter active" data-filter="assigned">
+                            <i class="fas fa-user-check mr-1"></i>Assigned to Me <span class="count">0</span>
+                        </button>
+                        <button class="smart-filter" data-filter="urgent">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>Urgent <span class="count">0</span>
+                        </button>
+                        <button class="smart-filter" data-filter="action_required">
+                            <i class="fas fa-clipboard-check mr-1"></i>Action Required <span class="count">0</span>
+                        </button>
+                        <button class="smart-filter" data-filter="unread">
+                            <i class="fas fa-envelope mr-1"></i>Unread <span class="count">0</span>
+                        </button>
+                    </div>
+                    
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                        Filtering: <span id="filterStatus">Assigned emails only</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email List -->
+            <div class="flex h-full">
+                <div class="w-full lg:w-1/2 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
+                    <div id="emailList" class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <div class="p-8 text-center text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                            <p>Loading emails...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Email Detail -->
+                <div class="hidden lg:flex lg:flex-1 bg-white dark:bg-gray-800 flex-col" id="emailDetail">
+                    <div class="p-8 text-center text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-envelope-open text-4xl mb-4 opacity-50"></i>
+                        <h3 class="text-lg font-medium mb-2">Select an email</h3>
+                        <p>Choose an email to view its content and AI analysis</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tasks Section -->
+        <section id="tasksSection" class="hidden h-screen overflow-hidden">
+            <!-- Task Filters -->
+            <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex flex-wrap gap-2">
+                        <button class="task-filter active" data-filter="pending">
+                            <i class="fas fa-clock mr-1"></i>Pending <span class="count">0</span>
+                        </button>
+                        <button class="task-filter" data-filter="ready_to_send">
+                            <i class="fas fa-paper-plane mr-1"></i>Ready to Send <span class="count">0</span>
+                        </button>
+                        <button class="task-filter" data-filter="needs_info">
+                            <i class="fas fa-question-circle mr-1"></i>Needs Info <span class="count">0</span>
+                        </button>
+                        <button class="task-filter" data-filter="high_priority">
+                            <i class="fas fa-star mr-1"></i>High Priority <span class="count">0</span>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <button id="bulkSendBtn" class="px-4 py-2 bg-success-500 text-white rounded-lg hover:bg-success-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <i class="fas fa-paper-plane mr-2"></i>Send Selected (<span id="selectedCount">0</span>)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task List -->
+            <div class="flex h-full">
+                <div class="w-full lg:w-1/2 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
+                    <div id="taskList" class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <div class="p-8 text-center text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                            <p>Loading tasks...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Task Detail -->
+                <div class="hidden lg:flex lg:flex-1 bg-white dark:bg-gray-800 flex-col" id="taskDetail">
+                    <div class="p-8 text-center text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-tasks text-4xl mb-4 opacity-50"></i>
+                        <h3 class="text-lg font-medium mb-2">Select a task</h3>
+                        <p>Choose a task to view the draft reply and options</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Mobile Email Modal -->
+    <div id="mobileEmailModal" class="fixed inset-0 z-50 hidden lg:hidden">
+        <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="fixed inset-0 bg-white dark:bg-gray-800 flex flex-col">
+            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Email Details</h3>
+                <button id="closeMobileModal" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto" id="mobileEmailContent"></div>
+        </div>
+    </div>
+
+    <!-- Mobile Task Modal -->
+    <div id="mobileTaskModal" class="fixed inset-0 z-50 hidden lg:hidden">
+        <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="fixed inset-0 bg-white dark:bg-gray-800 flex flex-col">
+            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Task Details</h3>
+                <button id="closeMobileTaskModal" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto" id="mobileTaskContent"></div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <style>
+        .nav-tab {
+            @apply px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white border-b-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600 transition-colors duration-200 rounded-t-lg;
+        }
+        
+        .nav-tab.active {
+            @apply text-primary-600 dark:text-primary-400 border-primary-600 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20;
+        }
+        
+        .mobile-nav-tab {
+            @apply flex-1 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-lg text-center transition-colors;
+        }
+        
+        .mobile-nav-tab.active {
+            @apply text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20;
+        }
+        
+        .smart-filter, .task-filter {
+            @apply px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center;
+        }
+        
+        .smart-filter.active, .task-filter.active {
+            @apply bg-primary-500 text-white border-primary-500;
+        }
+        
+        .smart-filter .count, .task-filter .count {
+            @apply ml-2 px-2 py-0.5 bg-gray-200 dark:bg-gray-700 rounded-full text-xs;
+        }
+        
+        .smart-filter.active .count, .task-filter.active .count {
+            @apply bg-white bg-opacity-20;
+        }
+        
+        .email-item {
+            @apply p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors border-l-4 border-transparent;
+        }
+        
+        .email-item.urgent {
+            @apply border-l-danger-500 bg-danger-50 dark:bg-danger-900/10;
+        }
+        
+        .email-item.assigned {
+            @apply border-l-primary-500;
+        }
+        
+        .email-item.selected {
+            @apply bg-primary-50 dark:bg-primary-900/20 border-l-primary-500;
+        }
+        
+        .email-item.unread {
+            @apply bg-blue-50 dark:bg-blue-900/10;
+        }
+        
+        .task-item {
+            @apply p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors border-l-4 border-transparent relative;
+        }
+        
+        .task-item.ready {
+            @apply border-l-success-500 bg-success-50 dark:bg-success-900/10;
+        }
+        
+        .task-item.needs-info {
+            @apply border-l-warning-500 bg-warning-50 dark:bg-warning-900/10;
+        }
+        
+        .task-item.high-priority {
+            @apply border-l-danger-500;
+        }
+        
+        .task-item.selected {
+            @apply bg-primary-50 dark:bg-primary-900/20 border-l-primary-500;
+        }
+        
+        .classification-tag {
+            @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+        }
+        
+        .classification-urgent {
+            @apply bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400;
+        }
+        
+        .classification-action_required {
+            @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400;
+        }
+        
+        .classification-informational {
+            @apply bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400;
+        }
+        
+        .classification-assigned {
+            @apply bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400;
+        }
+        
+        .draft-editor {
+            @apply w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none;
+        }
+        
+        .toast {
+            @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 max-w-sm transform transition-all duration-300;
+        }
+        
+        .toast.success {
+            @apply border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20;
+        }
+        
+        .toast.error {
+            @apply border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20;
+        }
+        
+        .toast.info {
+            @apply border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20;
+        }
+    </style>
+
+    <script>
+        // Application State
+        let state = {
+            emails: [],
+            tasks: [],
+            selectedEmail: null,
+            selectedTask: null,
+            selectedTasks: new Set(),
+            currentTab: 'inbox',
+            currentEmailFilter: 'assigned',
+            currentTaskFilter: 'pending',
+            isDarkMode: localStorage.getItem('darkMode') === 'true'
+        };
+
+        // API Configuration
+        const API_BASE = 'http://localhost:8000';
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            setupEventListeners();
+            applyDarkMode();
+            loadData();
+            
+            // Set up periodic refresh
+            setInterval(loadData, 30000); // Refresh every 30 seconds
+        }
+
+        function setupEventListeners() {
+            // Tab Navigation
+            document.querySelectorAll('.nav-tab, .mobile-nav-tab').forEach(btn => {
+                btn.addEventListener('click', (e) => switchTab(e.target.dataset.tab));
+            });
+
+            // Email Filters
+            document.querySelectorAll('.smart-filter').forEach(btn => {
+                btn.addEventListener('click', (e) => setEmailFilter(e.target.dataset.filter));
+            });
+
+            // Task Filters
+            document.querySelectorAll('.task-filter').forEach(btn => {
+                btn.addEventListener('click', (e) => setTaskFilter(e.target.dataset.filter));
+            });
+
+            // Controls
+            document.getElementById('refreshBtn').addEventListener('click', refreshData);
+            document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+            document.getElementById('bulkSendBtn').addEventListener('click', bulkSendTasks);
+
+            // Mobile Modals
+            document.getElementById('closeMobileModal').addEventListener('click', () => {
+                document.getElementById('mobileEmailModal').classList.add('hidden');
+            });
+            document.getElementById('closeMobileTaskModal').addEventListener('click', () => {
+                document.getElementById('mobileTaskModal').classList.add('hidden');
+            });
+        }
+
+        function switchTab(tab) {
+            state.currentTab = tab;
+            
+            // Update navigation
+            document.querySelectorAll('.nav-tab, .mobile-nav-tab').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+
+            // Show/hide sections
+            document.getElementById('inboxSection').classList.toggle('hidden', tab !== 'inbox');
+            document.getElementById('tasksSection').classList.toggle('hidden', tab !== 'tasks');
+        }
+
+        function setEmailFilter(filter) {
+            state.currentEmailFilter = filter;
+            
+            // Update filter buttons
+            document.querySelectorAll('.smart-filter').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+            
+            updateFilterStatus(filter);
+            renderEmailList();
+        }
+
+        function setTaskFilter(filter) {
+            state.currentTaskFilter = filter;
+            
+            // Update filter buttons
+            document.querySelectorAll('.task-filter').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+            
+            renderTaskList();
+        }
+
+        function updateFilterStatus(filter) {
+            const statusElement = document.getElementById('filterStatus');
+            const statusMap = {
+                'assigned': 'Assigned emails only',
+                'urgent': 'Urgent emails requiring immediate attention',
+                'action_required': 'Emails requiring action',
+                'unread': 'Unread emails'
+            };
+            statusElement.textContent = statusMap[filter] || 'All emails';
+        }
+
+        function toggleDarkMode() {
+            state.isDarkMode = !state.isDarkMode;
+            localStorage.setItem('darkMode', state.isDarkMode);
+            applyDarkMode();
+        }
+
+        function applyDarkMode() {
+            document.documentElement.classList.toggle('dark', state.isDarkMode);
+        }
+
+        async function refreshData() {
+            const btn = document.getElementById('refreshBtn');
+            btn.classList.add('animate-spin');
+            
+            try {
+                await loadData();
+                showToast('Data refreshed successfully', 'success');
+            } catch (error) {
+                showToast('Failed to refresh data', 'error');
+            } finally {
+                btn.classList.remove('animate-spin');
+            }
+        }
+
+        // API Functions
+        async function apiCall(endpoint, options = {}) {
+            try {
+                updateConnectionStatus('connecting');
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                updateConnectionStatus('connected');
+                return await response.json();
+            } catch (error) {
+                console.error(`API call failed for ${endpoint}:`, error);
+                updateConnectionStatus('error');
+                throw error;
+            }
+        }
+
+        function updateConnectionStatus(status) {
+            const element = document.getElementById('connectionStatus');
+            const statusMap = {
+                'connected': { icon: 'fas fa-circle text-green-500', text: 'Connected' },
+                'connecting': { icon: 'fas fa-circle text-yellow-500', text: 'Connecting...' },
+                'error': { icon: 'fas fa-circle text-red-500', text: 'Connection Error' }
+            };
+            
+            const config = statusMap[status];
+            element.innerHTML = `<i class="${config.icon} text-xs mr-2"></i>${config.text}`;
+        }
+
+        async function loadData() {
+            try {
+                // Load emails and filter for smart filtering
+                const emailsData = await apiCall('/emails/');
+                if (emailsData) {
+                    state.emails = processEmailsForSmartFiltering(emailsData);
+                    renderEmailList();
+                    updateEmailCounts();
+                }
+
+                // Load tasks with draft replies
+                const tasksData = await apiCall('/tasks/');
+                if (tasksData) {
+                    state.tasks = tasksData;
+                    renderTaskList();
+                    updateTaskCounts();
+                }
+            } catch (error) {
+                console.error('Failed to load data:', error);
+            }
+        }
+
+        function processEmailsForSmartFiltering(emails) {
+            return emails.filter(email => {
+                // SKIP: Announcements, newsletters, marketing
+                const skipKeywords = ['newsletter', 'announcement', 'marketing', 'promotional', 'unsubscribe', 'no-reply'];
+                const emailText = `${email.subject} ${email.sender} ${email.body}`.toLowerCase();
+                
+                if (skipKeywords.some(keyword => emailText.includes(keyword))) {
+                    return false;
+                }
+                
+                // Only show emails that could be assigned to user
+                // This would ideally check against user's email/name
+                return true;
+            }).map(email => {
+                // Add assignment flag based on email content analysis
+                email.assigned_to_user = isEmailAssignedToUser(email);
+                return email;
+            });
+        }
+
+        function isEmailAssignedToUser(email) {
+            // Simple heuristic - in real implementation, this would use AI
+            const assignmentIndicators = ['please review', 'need your input', 'your feedback', 'assigned to you', 'task for you'];
+            const emailText = `${email.subject} ${email.body}`.toLowerCase();
+            return assignmentIndicators.some(indicator => emailText.includes(indicator)) || 
+                   email.classification === 'action_required' || 
+                   email.classification === 'urgent';
+        }
+
+        function getFilteredEmails() {
+            let filtered = [...state.emails];
+            
+            switch (state.currentEmailFilter) {
+                case 'assigned':
+                    filtered = filtered.filter(email => email.assigned_to_user);
+                    break;
+                case 'urgent':
+                    filtered = filtered.filter(email => email.classification === 'urgent');
+                    break;
+                case 'action_required':
+                    filtered = filtered.filter(email => email.classification === 'action_required');
+                    break;
+                case 'unread':
+                    filtered = filtered.filter(email => !email.read);
+                    break;
+            }
+            
+            return filtered.sort((a, b) => {
+                // Prioritize urgent emails
+                if (a.classification === 'urgent' && b.classification !== 'urgent') return -1;
+                if (b.classification === 'urgent' && a.classification !== 'urgent') return 1;
+                
+                // Then sort by date
+                return new Date(b.date) - new Date(a.date);
+            });
+        }
+
+        function getFilteredTasks() {
+            let filtered = [...state.tasks];
+            
+            switch (state.currentTaskFilter) {
+                case 'pending':
+                    filtered = filtered.filter(task => task.status === 'pending');
+                    break;
+                case 'ready_to_send':
+                    filtered = filtered.filter(task => task.status === 'ready' && task.draft_reply);
+                    break;
+                case 'needs_info':
+                    filtered = filtered.filter(task => task.status === 'needs_info');
+                    break;
+                case 'high_priority':
+                    filtered = filtered.filter(task => task.priority === 'high');
+                    break;
+            }
+            
+            return filtered.sort((a, b) => {
+                // Priority order: high > medium > low
+                const priorityOrder = { high: 3, medium: 2, low: 1 };
+                if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+                    return priorityOrder[b.priority] - priorityOrder[a.priority];
+                }
+                
+                return new Date(b.created_at) - new Date(a.created_at);
+            });
+        }
+
+        function renderEmailList() {
+            const container = document.getElementById('emailList');
+            const filteredEmails = getFilteredEmails();
+
+            if (filteredEmails.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-inbox text-4xl mb-4 opacity-50"></i>
+                        <h3 class="text-lg font-medium mb-2">No emails found</h3>
+                        <p>No emails match the current filter criteria</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredEmails.map(email => `
+                <div class="email-item ${email.classification || ''} ${email.assigned_to_user ? 'assigned' : ''} ${!email.read ? 'unread' : ''} ${state.selectedEmail?.id === email.id ? 'selected' : ''}" 
+                     onclick="selectEmail(${email.id})">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-medium text-gray-900 dark:text-white truncate">
+                                ${email.sender || 'Unknown Sender'}
+                            </h3>
+                            <h4 class="text-sm text-gray-700 dark:text-gray-300 truncate">
+                                ${email.subject || 'No Subject'}
+                            </h4>
+                        </div>
+                        <div class="flex flex-col items-end space-y-1">
+                            <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                ${formatDate(email.date)}
+                            </span>
+                            <div class="flex items-center space-x-1">
+                                ${!email.read ? '<i class="fas fa-circle text-blue-500 text-xs"></i>' : ''}
+                                ${email.assigned_to_user ? '<i class="fas fa-user-check text-green-500 text-xs" title="Assigned to you"></i>' : ''}
+                                ${email.classification === 'urgent' ? '<i class="fas fa-exclamation text-red-500 text-xs" title="Urgent"></i>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                        ${email.preview || email.body?.substring(0, 120) || 'No preview available'}...
+                    </p>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="classification-tag classification-${email.classification || 'informational'}">
+                            ${formatClassification(email.classification)}
+                        </span>
+                        ${email.ai_summary ? '<i class="fas fa-robot text-blue-500 text-sm" title="AI Analysis Available"></i>' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTaskList() {
+            const container = document.getElementById('taskList');
+            const filteredTasks = getFilteredTasks();
+
+            if (filteredTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-tasks text-4xl mb-4 opacity-50"></i>
+                        <h3 class="text-lg font-medium mb-2">No tasks found</h3>
+                        <p>No tasks match the current filter criteria</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredTasks.map(task => `
+                <div class="task-item ${task.status === 'ready' ? 'ready' : ''} ${task.status === 'needs_info' ? 'needs-info' : ''} ${task.priority === 'high' ? 'high-priority' : ''} ${state.selectedTask?.id === task.id ? 'selected' : ''}" 
+                     onclick="selectTask(${task.id})">
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0 mt-1">
+                            <input type="checkbox" class="task-checkbox" data-task-id="${task.id}" 
+                                   ${state.selectedTasks.has(task.id) ? 'checked' : ''}
+                                   onclick="toggleTaskSelection(event, ${task.id})"
+                                   class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                        </div>
+                        
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-medium text-gray-900 dark:text-white">
+                                    Reply to: ${task.email_subject || 'Email Task'}
+                                </h3>
+                                <div class="flex items-center space-x-2">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                        ${task.priority === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' : 
+                                          task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' : 
+                                          'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'}">
+                                        ${task.priority || 'normal'}
+                                    </span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                        ${formatDate(task.created_at)}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                From: ${task.email_sender || 'Unknown'}
+                            </p>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    ${task.draft_reply ? 
+                                        '<span class="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 text-xs rounded"><i class="fas fa-check mr-1"></i>Draft Ready</span>' : 
+                                        '<span class="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 text-xs rounded"><i class="fas fa-clock mr-1"></i>Generating...</span>'
+                                    }
+                                    ${task.status === 'needs_info' ? 
+                                        '<span class="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400 text-xs rounded"><i class="fas fa-question-circle mr-1"></i>Needs Info</span>' : ''
+                                    }
+                                </div>
+                                
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    Email #${task.email_id}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectEmail(emailId) {
+            const email = state.emails.find(e => e.id === emailId);
+            if (email) {
+                state.selectedEmail = email;
+                renderEmailDetail(email);
+                renderEmailList(); // Refresh to show selection
+                
+                // Mark as read if unread
+                if (!email.read) {
+                    markEmailAsRead(emailId);
+                }
+                
+                // Show mobile modal on small screens
+                if (window.innerWidth < 1024) {
+                    document.getElementById('mobileEmailModal').classList.remove('hidden');
+                }
+            }
+        }
+
+        function selectTask(taskId) {
+            const task = state.tasks.find(t => t.id === taskId);
+            if (task) {
+                state.selectedTask = task;
+                renderTaskDetail(task);
+                renderTaskList(); // Refresh to show selection
+                
+                // Show mobile modal on small screens
+                if (window.innerWidth < 1024) {
+                    document.getElementById('mobileTaskModal').classList.remove('hidden');
+                }
+            }
+        }
+
+        function toggleTaskSelection(event, taskId) {
+            event.stopPropagation();
+            
+            if (state.selectedTasks.has(taskId)) {
+                state.selectedTasks.delete(taskId);
+            } else {
+                state.selectedTasks.add(taskId);
+            }
+            
+            updateBulkSendButton();
+        }
+
+        function updateBulkSendButton() {
+            const btn = document.getElementById('bulkSendBtn');
+            const count = state.selectedTasks.size;
+            
+            document.getElementById('selectedCount').textContent = count;
+            btn.disabled = count === 0;
+        }
+
+        function renderEmailDetail(email) {
+            const content = `
+                <div class="border-b border-gray-200 dark:border-gray-700 p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                ${email.subject || 'No Subject'}
+                            </h2>
+                            <div class="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+                                <span><strong>From:</strong> ${email.sender || 'Unknown'}</span>
+                                <span><strong>Date:</strong> ${formatDate(email.date)}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="classification-tag classification-${email.classification || 'informational'}">
+                                ${formatClassification(email.classification)}
+                            </span>
+                            ${email.assigned_to_user ? '<i class="fas fa-user-check text-green-500" title="Assigned to you"></i>' : ''}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex-1 p-6 overflow-y-auto">
+                    <div class="prose dark:prose-invert max-w-none mb-6">
+                        ${email.body ? email.body.replace(/\n/g, '<br>') : 'No content available'}
+                    </div>
+                    
+                    ${email.ai_summary ? `
+                        <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                            <h3 class="font-medium text-blue-900 dark:text-blue-200 mb-2">
+                                <i class="fas fa-robot mr-2"></i>AI Analysis
+                            </h3>
+                            <p class="text-blue-800 dark:text-blue-300">${email.ai_summary}</p>
+                        </div>
+                    ` : ''}
+                    
+                    ${email.assigned_to_user ? `
+                        <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                            <h3 class="font-medium text-green-900 dark:text-green-200 mb-2">
+                                <i class="fas fa-user-check mr-2"></i>Assignment Status
+                            </h3>
+                            <p class="text-green-800 dark:text-green-300">This email appears to be assigned to you and may require action.</p>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div class="border-t border-gray-200 dark:border-gray-700 p-6">
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="createTask(${email.id})" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Create Task
+                        </button>
+                        <button onclick="quickReply(${email.id})" class="px-4 py-2 bg-success-500 text-white rounded-lg hover:bg-success-600 transition-colors">
+                            <i class="fas fa-reply mr-2"></i>Quick Reply
+                        </button>
+                        ${!email.read ? 
+                            `<button onclick="markEmailAsRead(${email.id})" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-eye mr-2"></i>Mark as Read
+                            </button>` : ''
+                        }
+                    </div>
+                </div>
+            `;
+            
+            const container = document.getElementById('emailDetail');
+            container.innerHTML = content;
+            container.classList.remove('hidden');
+            
+            // Update mobile content
+            document.getElementById('mobileEmailContent').innerHTML = content;
+        }
+
+        function renderTaskDetail(task) {
+            const content = `
+                <div class="border-b border-gray-200 dark:border-gray-700 p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                Reply to: ${task.email_subject || 'Email Task'}
+                            </h2>
+                            <div class="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+                                <span><strong>From:</strong> ${task.email_sender || 'Unknown'}</span>
+                                <span><strong>Created:</strong> ${formatDate(task.created_at)}</span>
+                                <span><strong>Email ID:</strong> #${task.email_id}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                ${task.priority === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' : 
+                                  task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' : 
+                                  'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'}">
+                                ${task.priority || 'normal'} priority
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex-1 p-6 overflow-y-auto">
+                    ${task.original_email ? `
+                        <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <h3 class="font-medium text-gray-900 dark:text-white mb-2">
+                                <i class="fas fa-envelope mr-2"></i>Original Email
+                            </h3>
+                            <div class="text-sm text-gray-700 dark:text-gray-300">
+                                ${task.original_email.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${task.draft_reply ? `
+                        <div class="mb-6">
+                            <h3 class="font-medium text-gray-900 dark:text-white mb-3">
+                                <i class="fas fa-robot mr-2"></i>AI-Generated Draft Reply
+                            </h3>
+                            <textarea id="draftReply${task.id}" class="draft-editor" rows="8" placeholder="AI is generating your draft reply...">${task.draft_reply}</textarea>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                You can edit this draft before sending. Generated by GPT-5-mini-2025-08-07
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                            <h3 class="font-medium text-yellow-900 dark:text-yellow-200 mb-2">
+                                <i class="fas fa-clock mr-2"></i>Draft in Progress
+                            </h3>
+                            <p class="text-yellow-800 dark:text-yellow-300">AI is generating a draft reply for this email...</p>
+                        </div>
+                    `}
+                    
+                    ${task.missing_info ? `
+                        <div class="mb-6 p-4 bg-warning-50 dark:bg-warning-900/20 rounded-lg">
+                            <h3 class="font-medium text-warning-900 dark:text-warning-200 mb-2">
+                                <i class="fas fa-question-circle mr-2"></i>Missing Information
+                            </h3>
+                            <ul class="list-disc list-inside text-warning-800 dark:text-warning-300">
+                                ${task.missing_info.map(info => `<li>${info}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    
+                    ${task.ai_context ? `
+                        <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                            <h3 class="font-medium text-blue-900 dark:text-blue-200 mb-2">
+                                <i class="fas fa-lightbulb mr-2"></i>AI Context & Suggestions
+                            </h3>
+                            <p class="text-blue-800 dark:text-blue-300">${task.ai_context}</p>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div class="border-t border-gray-200 dark:border-gray-700 p-6">
+                    <div class="flex flex-wrap gap-2">
+                        ${task.draft_reply ? `
+                            <button onclick="sendReply(${task.id})" class="px-4 py-2 bg-success-500 text-white rounded-lg hover:bg-success-600 transition-colors">
+                                <i class="fas fa-paper-plane mr-2"></i>Send Reply
+                            </button>
+                            <button onclick="editDraft(${task.id})" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">
+                                <i class="fas fa-edit mr-2"></i>Edit Draft
+                            </button>
+                        ` : ''}
+                        <button onclick="regenerateDraft(${task.id})" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                            <i class="fas fa-sync-alt mr-2"></i>Regenerate Draft
+                        </button>
+                        <button onclick="markTaskComplete(${task.id})" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                            <i class="fas fa-check mr-2"></i>Mark Complete
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            const container = document.getElementById('taskDetail');
+            container.innerHTML = content;
+            container.classList.remove('hidden');
+            
+            // Update mobile content
+            document.getElementById('mobileTaskContent').innerHTML = content;
+        }
+
+        function updateEmailCounts() {
+            const counts = {
+                assigned: state.emails.filter(e => e.assigned_to_user).length,
+                urgent: state.emails.filter(e => e.classification === 'urgent').length,
+                action_required: state.emails.filter(e => e.classification === 'action_required').length,
+                unread: state.emails.filter(e => !e.read).length
+            };
+            
+            document.querySelectorAll('.smart-filter').forEach(btn => {
+                const filter = btn.dataset.filter;
+                const count = counts[filter] || 0;
+                btn.querySelector('.count').textContent = count;
+            });
+            
+            const totalInbox = state.emails.filter(e => e.assigned_to_user).length;
+            document.getElementById('inboxCount').textContent = totalInbox;
+            document.getElementById('mobileInboxCount').textContent = totalInbox;
+        }
+
+        function updateTaskCounts() {
+            const counts = {
+                pending: state.tasks.filter(t => t.status === 'pending').length,
+                ready_to_send: state.tasks.filter(t => t.status === 'ready' && t.draft_reply).length,
+                needs_info: state.tasks.filter(t => t.status === 'needs_info').length,
+                high_priority: state.tasks.filter(t => t.priority === 'high').length
+            };
+            
+            document.querySelectorAll('.task-filter').forEach(btn => {
+                const filter = btn.dataset.filter;
+                const count = counts[filter] || 0;
+                btn.querySelector('.count').textContent = count;
+            });
+            
+            const totalTasks = state.tasks.length;
+            document.getElementById('tasksCount').textContent = totalTasks;
+            document.getElementById('mobileTasksCount').textContent = totalTasks;
+        }
+
+        // Task Actions
+        async function sendReply(taskId) {
+            const task = state.tasks.find(t => t.id === taskId);
+            if (!task || !task.draft_reply) return;
+            
+            const draftElement = document.getElementById(`draftReply${taskId}`);
+            const replyText = draftElement ? draftElement.value : task.draft_reply;
+            
+            try {
+                const result = await apiCall(`/tasks/${taskId}/send-reply`, {
+                    method: 'POST',
+                    body: JSON.stringify({ reply: replyText })
+                });
+                
+                if (result) {
+                    showToast('Reply sent successfully', 'success');
+                    state.tasks = state.tasks.filter(t => t.id !== taskId);
+                    state.selectedTasks.delete(taskId);
+                    renderTaskList();
+                    updateTaskCounts();
+                    updateBulkSendButton();
+                    
+                    // Clear detail if this task was selected
+                    if (state.selectedTask?.id === taskId) {
+                        document.getElementById('taskDetail').innerHTML = `
+                            <div class="p-8 text-center text-gray-500 dark:text-gray-400">
+                                <i class="fas fa-check-circle text-4xl mb-4 text-green-500"></i>
+                                <h3 class="text-lg font-medium mb-2">Reply Sent</h3>
+                                <p>The reply has been sent successfully</p>
+                            </div>
+                        `;
+                    }
+                }
+            } catch (error) {
+                showToast('Failed to send reply', 'error');
+            }
+        }
+
+        async function bulkSendTasks() {
+            const selectedTaskIds = Array.from(state.selectedTasks);
+            const readyTasks = selectedTaskIds.filter(id => {
+                const task = state.tasks.find(t => t.id === id);
+                return task && task.draft_reply;
+            });
+            
+            if (readyTasks.length === 0) {
+                showToast('No tasks with ready drafts selected', 'error');
+                return;
+            }
+            
+            if (!confirm(`Send ${readyTasks.length} draft replies?`)) {
+                return;
+            }
+            
+            let sent = 0;
+            for (const taskId of readyTasks) {
+                try {
+                    await sendReply(taskId);
+                    sent++;
+                } catch (error) {
+                    console.error(`Failed to send task ${taskId}:`, error);
+                }
+            }
+            
+            showToast(`Successfully sent ${sent} of ${readyTasks.length} replies`, sent === readyTasks.length ? 'success' : 'info');
+        }
+
+        async function createTask(emailId) {
+            try {
+                const result = await apiCall(`/emails/${emailId}/create-task`, {
+                    method: 'POST'
+                });
+                
+                if (result) {
+                    showToast('Task created successfully', 'success');
+                    // Switch to tasks tab
+                    switchTab('tasks');
+                    // Reload tasks
+                    setTimeout(loadData, 1000);
+                }
+            } catch (error) {
+                showToast('Failed to create task', 'error');
+            }
+        }
+
+        async function markEmailAsRead(emailId) {
+            try {
+                const result = await apiCall(`/emails/${emailId}/mark-read`, { method: 'POST' });
+                if (result) {
+                    const email = state.emails.find(e => e.id === emailId);
+                    if (email) {
+                        email.read = true;
+                        renderEmailList();
+                        updateEmailCounts();
+                    }
+                }
+            } catch (error) {
+                showToast('Failed to mark email as read', 'error');
+            }
+        }
+
+        async function regenerateDraft(taskId) {
+            try {
+                showToast('Regenerating draft...', 'info');
+                const result = await apiCall(`/tasks/${taskId}/regenerate-draft`, {
+                    method: 'POST'
+                });
+                
+                if (result) {
+                    showToast('Draft regenerated', 'success');
+                    // Reload the task
+                    const updatedTask = state.tasks.find(t => t.id === taskId);
+                    if (updatedTask && result.draft_reply) {
+                        updatedTask.draft_reply = result.draft_reply;
+                        if (state.selectedTask?.id === taskId) {
+                            renderTaskDetail(updatedTask);
+                        }
+                    }
+                }
+            } catch (error) {
+                showToast('Failed to regenerate draft', 'error');
+            }
+        }
+
+        function markTaskComplete(taskId) {
+            state.tasks = state.tasks.filter(t => t.id !== taskId);
+            state.selectedTasks.delete(taskId);
+            renderTaskList();
+            updateTaskCounts();
+            updateBulkSendButton();
+            showToast('Task marked as complete', 'success');
+        }
+
+        // Utility Functions
+        function formatDate(dateString) {
+            if (!dateString) return 'Unknown';
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            if (days === 0) {
+                return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            } else if (days === 1) {
+                return 'Yesterday';
+            } else if (days < 7) {
+                return `${days}d ago`;
+            } else {
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }
+        }
+
+        function formatClassification(classification) {
+            if (!classification) return 'Informational';
+            return classification.replace('_', ' ').split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? 'check-circle' : 
+                        type === 'error' ? 'exclamation-triangle' : 
+                        'info-circle';
+            
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${icon} mr-3 ${
+                        type === 'success' ? 'text-green-600 dark:text-green-400' :
+                        type === 'error' ? 'text-red-600 dark:text-red-400' :
+                        'text-blue-600 dark:text-blue-400'
+                    }"></i>
+                    <span class="text-gray-900 dark:text-white">${message}</span>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => container.removeChild(toast), 300);
+            }, 4000);
+        }
+
+        // Handle responsive behavior
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024) {
+                document.getElementById('mobileEmailModal').classList.add('hidden');
+                document.getElementById('mobileTaskModal').classList.add('hidden');
+            }
+        });
+
+        // Generate mock data for demonstration
+        function generateMockData() {
+            // Mock emails with smart filtering
+            state.emails = [
+                {
+                    id: 1,
+                    sender: 'john.doe@company.com',
+                    subject: 'Please review the quarterly report',
+                    body: 'Hi, I need your feedback on the Q3 quarterly report. Please review the attached document and let me know your thoughts by end of week.',
+                    date: new Date().toISOString(),
+                    read: false,
+                    classification: 'action_required',
+                    assigned_to_user: true,
+                    ai_summary: 'Request to review quarterly report with deadline by end of week.'
+                },
+                {
+                    id: 2,
+                    sender: 'urgent@client.com',
+                    subject: 'URGENT: Server downtime issue',
+                    body: 'We are experiencing critical server downtime. Need immediate assistance to resolve the issue.',
+                    date: new Date(Date.now() - 3600000).toISOString(),
+                    read: false,
+                    classification: 'urgent',
+                    assigned_to_user: true,
+                    ai_summary: 'Critical server downtime requiring immediate attention.'
+                },
+                {
+                    id: 3,
+                    sender: 'newsletter@company.com',
+                    subject: 'Weekly Company Newsletter',
+                    body: 'Here is your weekly company newsletter with updates...',
+                    date: new Date(Date.now() - 7200000).toISOString(),
+                    read: true,
+                    classification: 'informational',
+                    assigned_to_user: false
+                }
+            ];
+            
+            // Mock tasks with draft replies
+            state.tasks = [
+                {
+                    id: 1,
+                    email_id: 1,
+                    email_subject: 'Please review the quarterly report',
+                    email_sender: 'john.doe@company.com',
+                    status: 'ready',
+                    priority: 'medium',
+                    created_at: new Date().toISOString(),
+                    draft_reply: 'Hi John,\n\nThank you for sending the quarterly report. I have reviewed the document and have the following feedback:\n\n- The revenue projections look strong\n- I suggest adding more detail on the marketing initiatives\n- The financial analysis section could benefit from additional charts\n\nI will send my detailed comments by Thursday. Let me know if you need anything else.\n\nBest regards',
+                    ai_context: 'This appears to be a routine quarterly review request. The reply acknowledges receipt and provides constructive feedback.',
+                    original_email: 'Hi, I need your feedback on the Q3 quarterly report. Please review the attached document and let me know your thoughts by end of week.'
+                },
+                {
+                    id: 2,
+                    email_id: 2,
+                    email_subject: 'URGENT: Server downtime issue',
+                    email_sender: 'urgent@client.com',
+                    status: 'ready',
+                    priority: 'high',
+                    created_at: new Date(Date.now() - 3600000).toISOString(),
+                    draft_reply: 'Hi,\n\nI have received your urgent server downtime report. I am immediately escalating this to our technical team.\n\nOur senior system administrator is being contacted and will respond within 15 minutes with a resolution plan.\n\nI will keep you updated every 30 minutes until the issue is resolved.\n\nRegards',
+                    ai_context: 'This is a critical issue requiring immediate escalation. The reply shows urgency and provides a clear action plan.',
+                    original_email: 'We are experiencing critical server downtime. Need immediate assistance to resolve the issue.'
+                }
+            ];
+            
+            renderEmailList();
+            renderTaskList();
+            updateEmailCounts();
+            updateTaskCounts();
+        }
+
+        // Load mock data for demonstration if API is not available
+        setTimeout(() => {
+            if (state.emails.length === 0) {
+                generateMockData();
+                showToast('Demo mode: Using mock data', 'info');
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

@@ -15,7 +15,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, validates
-from sqlalchemy.dialects.postgresql import JSONB
+# JSON type import removed - using standard JSON from sqlalchemy
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # Base class for all models
@@ -40,9 +40,9 @@ class Email(Base):
     sender_name = Column(String(255), default='')
     
     # Recipients (stored as JSON for flexibility)
-    to_addresses = Column(JSONB, default=list)
-    cc_addresses = Column(JSONB, default=list)
-    bcc_addresses = Column(JSONB, default=list)
+    to_addresses = Column(JSON, default=list)
+    cc_addresses = Column(JSON, default=list)
+    bcc_addresses = Column(JSON, default=list)
     
     # Timestamps - critical for performance
     date_sent = Column(DateTime(timezone=True))
@@ -64,7 +64,7 @@ class Email(Base):
     # Content fields
     snippet = Column(Text)  # First 500 chars for preview
     full_content = Column(Text)
-    attachments = Column(JSONB, default=list)  # List of attachment info
+    attachments = Column(JSON, default=list)  # List of attachment info
     
     # Processing status
     processing_status = Column(
@@ -81,15 +81,12 @@ class Email(Base):
     intelligence = relationship("EmailIntelligence", back_populates="email", uselist=False)
     tasks = relationship("EmailTask", back_populates="email")
     
-    # Indexes for common queries
+    # Indexes for common queries - SQLite compatible
     __table_args__ = (
-        Index('idx_emails_date_received_desc', 'date_received', postgresql_using='btree'),
+        Index('idx_emails_date_received_desc', 'date_received'),
         Index('idx_emails_sender_date', 'sender_email', 'date_received'),
-        Index('idx_emails_unread', 'is_read', postgresql_where=text('is_read = false')),
-        Index('idx_emails_processing_pending', 'processing_status', 
-              postgresql_where=text("processing_status != 'completed'")),
-        Index('idx_emails_subject_gin', func.to_tsvector('english', 'subject_text'), 
-              postgresql_using='gin'),
+        Index('idx_emails_unread', 'is_read'),
+        Index('idx_emails_processing_pending', 'processing_status'),
         CheckConstraint("processing_status IN ('pending', 'processing', 'completed', 'failed')",
                        name='check_processing_status'),
     )
@@ -137,10 +134,10 @@ class EmailIntelligence(Base):
     created_at = Column(DateTime(timezone=True), default=func.now())
     
     # Structured data fields
-    action_items = Column(JSONB, default=list)  # ["Review proposal", "Schedule meeting"]
-    deadlines = Column(JSONB, default=list)     # [{"task": "Review", "date": "2024-12-15"}]
-    confidence_scores = Column(JSONB, default=dict)  # Detailed breakdown
-    key_entities = Column(JSONB, default=list)  # People, companies, dates
+    action_items = Column(JSON, default=list)  # ["Review proposal", "Schedule meeting"]
+    deadlines = Column(JSON, default=list)     # [{"task": "Review", "date": "2024-12-15"}]
+    confidence_scores = Column(JSON, default=dict)  # Detailed breakdown
+    key_entities = Column(JSON, default=list)  # People, companies, dates
     
     # Generated responses
     draft_reply = Column(Text)
@@ -158,8 +155,8 @@ class EmailIntelligence(Base):
     __table_args__ = (
         Index('idx_intelligence_classification', 'classification'),
         Index('idx_intelligence_urgency', 'urgency'),
-        Index('idx_intelligence_confidence_desc', 'overall_confidence', postgresql_using='btree'),
-        Index('idx_intelligence_created_desc', 'created_at', postgresql_using='btree'),
+        Index('idx_intelligence_confidence_desc', 'overall_confidence'),
+        Index('idx_intelligence_created_desc', 'created_at'),
         CheckConstraint("classification IN ('needs_reply', 'approval_required', 'create_task', "
                        "'delegate', 'fyi', 'meeting', 'newsletter', 'automated')",
                        name='check_classification'),
@@ -226,19 +223,16 @@ class EmailTask(Base):
     # Task metadata
     confidence = Column(Numeric(5, 4), default=0.5)
     extracted_from_action_item = Column(Integer)  # Index in action_items array
-    dependencies = Column(JSONB, default=list)   # Task dependencies
-    tags = Column(JSONB, default=list)           # Categorization tags
+    dependencies = Column(JSON, default=list)   # Task dependencies
+    tags = Column(JSON, default=list)           # Categorization tags
     
     # Relationship
     email = relationship("Email", back_populates="tasks")
     
     __table_args__ = (
-        Index('idx_tasks_status_pending', 'status', 
-              postgresql_where=text("status IN ('pending', 'in-progress')")),
-        Index('idx_tasks_priority_due', 'priority', 'due_date',
-              postgresql_where=text("status != 'completed'")),
-        Index('idx_tasks_assignee', 'assignee', 
-              postgresql_where=text('assignee IS NOT NULL')),
+        Index('idx_tasks_status_pending', 'status'),
+        Index('idx_tasks_priority_due', 'priority', 'due_date'),
+        Index('idx_tasks_assignee', 'assignee'),
         CheckConstraint("task_type IN ('reply', 'approval', 'development', 'delegation', "
                        "'follow-up', 'meeting', 'review')", name='check_task_type'),
         CheckConstraint("priority IN ('CRITICAL', 'HIGH', 'MEDIUM', 'LOW')",
@@ -294,10 +288,10 @@ class EmailBatch(Base):
     # Error tracking
     error_count = Column(Integer, default=0)
     last_error = Column(Text)
-    error_details = Column(JSONB, default=list)  # List of error descriptions
+    error_details = Column(JSON, default=list)  # List of error descriptions
     
     # Configuration used
-    config = Column(JSONB, default=dict)
+    config = Column(JSON, default=dict)
     
     __table_args__ = (
         Index('idx_batches_status_started', 'status', 'started_at'),
@@ -361,7 +355,7 @@ class PerformanceMetric(Base):
     
     __table_args__ = (
         UniqueConstraint('metric_date', 'metric_hour', name='uq_metric_time'),
-        Index('idx_metrics_date_hour_desc', 'metric_date', 'metric_hour', postgresql_using='btree'),
+        Index('idx_metrics_date_hour_desc', 'metric_date', 'metric_hour'),
         CheckConstraint('metric_hour >= 0 AND metric_hour <= 23', name='check_hour_range'),
     )
     
@@ -387,12 +381,11 @@ class SystemAlert(Base):
     resolved_at = Column(DateTime(timezone=True))
     
     # Additional context
-    context_data = Column(JSONB, default=dict)
+    context_data = Column(JSON, default=dict)
     
     __table_args__ = (
         Index('idx_alerts_type_severity', 'alert_type', 'severity'),
-        Index('idx_alerts_unresolved', 'resolved_at', 
-              postgresql_where=text('resolved_at IS NULL')),
+        Index('idx_alerts_unresolved', 'resolved_at'),
         CheckConstraint("alert_type IN ('error', 'warning', 'info')", name='check_alert_type'),
         CheckConstraint("severity IN ('critical', 'high', 'medium', 'low')", 
                        name='check_severity'),
@@ -417,7 +410,7 @@ class UserPreference(Base):
     # Notification preferences
     email_notifications = Column(Boolean, default=True)
     websocket_notifications = Column(Boolean, default=True)
-    notification_types = Column(JSONB, default=list)  # ['urgent', 'tasks', 'failures']
+    notification_types = Column(JSON, default=list)  # ['urgent', 'tasks', 'failures']
     
     # UI preferences
     ui_theme = Column(String(20), default='light')

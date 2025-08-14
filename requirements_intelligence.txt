@@ -1,0 +1,25 @@
+# Email Intelligence Engine Requirements
+# Lightweight ML dependencies for fast on-device processing
+
+# Core dependencies
+numpy>=1.21.0,<2.0.0
+
+# Optional ML libraries (uncomment as needed for enhanced models)
+# scikit-learn>=1.0.0,<2.0.0  # For more sophisticated classification
+# transformers>=4.20.0,<5.0.0  # For transformer-based models
+# torch>=1.12.0,<2.0.0  # For PyTorch models
+# onnxruntime>=1.12.0,<2.0.0  # For optimized inference
+
+# Text processing
+# nltk>=3.7,<4.0  # For advanced NLP features
+# spacy>=3.4.0,<4.0.0  # For entity recognition
+
+# Date/time parsing
+python-dateutil>=2.8.0,<3.0.0
+
+# Performance monitoring
+# psutil>=5.9.0,<6.0.0  # For system resource monitoring
+
+# Multilingual support
+# polyglot>=16.7.4  # For language detection
+# langdetect>=1.0.9  # Alternative language detection

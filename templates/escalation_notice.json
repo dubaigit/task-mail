@@ -1,0 +1,10 @@
+{
+  "subject": "🚨 Escalation Required: {issue_title}",
+  "body": "Hello {escalation_target},\n\nAn issue requires your immediate attention and has been escalated to your level:\n\n🚨 **Escalation Details:**\nIssue: {issue_description}\nOriginal assignee: {original_assignee}\nEscalation level: {escalation_level}\nEscalated by: {escalator}\nEscalation time: {escalation_time}\n\n⏰ **Timeline:**\nInitial assignment: {initial_assignment_time}\nTime in queue: {time_in_queue}\nSLA status: {sla_status}\n\n📊 **Impact Assessment:**\nSeverity: {severity}\nAffected systems: {affected_systems}\nUser impact: {user_impact}\nBusiness impact: {business_impact}\n\n🔍 **Attempted Actions:**\n{attempted_actions}\n\n📝 **Escalation Reason:**\n{escalation_reason}\n\n⚡ **Required Actions:**\n1. Review the issue details and context\n2. Assign appropriate resources or take direct action\n3. Communicate with stakeholders about resolution timeline\n4. Provide updates on progress\n\n📞 **Contacts:**\nOriginal reporter: {original_reporter}\nCurrent assignee: {current_assignee}\nEscalated by: {escalator}\n\nPlease acknowledge receipt of this escalation and provide an initial response within 1 hour.\n\nBest regards,\nEscalation Management System",
+  "severity_indicators": {
+    "CRITICAL": "🔴 CRITICAL",
+    "HIGH": "🟠 HIGH", 
+    "MEDIUM": "🟡 MEDIUM",
+    "LOW": "🟢 LOW"
+  }
+}
