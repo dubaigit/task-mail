@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Intelligence - Production Interface</title>
+    <link rel="stylesheet" href="production_styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <meta name="description" content="Production-ready email intelligence interface with real-time updates and virtual scrolling">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header" role="banner">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <i class="fas fa-brain" style="color: var(--color-primary-500); font-size: 1.5rem;"></i>
+                <h1 style="margin: 0; font-size: var(--font-size-xl); font-weight: 600;">Email Intelligence</h1>
+                
+                <!-- Connection Status -->
+                <div class="connection-status" id="connectionStatus">
+                    <div class="connection-indicator disconnected" id="connectionIndicator"></div>
+                    <span id="connectionText">Connecting...</span>
+                </div>
+            </div>
+
+            <!-- Header Controls -->
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <!-- Timeframe Selector -->
+                <div class="timeframe-selector">
+                    <label class="timeframe-label" for="timeframeSelect">Timeframe:</label>
+                    <select class="form-control" id="timeframeSelect" style="width: auto;">
+                        <option value="1w">1 Week</option>
+                        <option value="1m">1 Month</option>
+                        <option value="2m" selected>2 Months</option>
+                        <option value="6m">6 Months</option>
+                        <option value="1y">1 Year</option>
+                        <option value="all">All Time</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <button class="btn btn-secondary btn-sm" id="refreshBtn" title="Refresh data">
+                    <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                    <span class="sr-only">Refresh</span>
+                </button>
+                
+                <button class="btn btn-secondary btn-sm" id="themeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span class="sr-only">Toggle theme</span>
+                </button>
+
+                <!-- Mobile Menu Button -->
+                <button class="btn btn-secondary btn-sm" id="mobileMenuBtn" title="Open menu" style="display: none;">
+                    <i class="fas fa-bars"></i>
+                    <span class="sr-only">Menu</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Sidebar -->
+            <aside class="sidebar" role="complementary" id="sidebar">
+                <!-- Navigation -->
+                <nav style="padding: var(--space-4);" role="navigation" aria-label="Main navigation">
+                    <h2 class="sr-only">Navigation</h2>
+                    <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+                        <button class="btn btn-secondary" data-view="emails" id="emailsNav" style="justify-content: flex-start;">
+                            <i class="fas fa-inbox" style="margin-right: var(--space-2);"></i>
+                            Emails
+                            <span class="classification-tag classification-informational" id="emailsCount" style="margin-left: auto;">0</span>
+                        </button>
+                        <button class="btn btn-secondary" data-view="tasks" id="tasksNav" style="justify-content: flex-start;">
+                            <i class="fas fa-tasks" style="margin-right: var(--space-2);"></i>
+                            Tasks
+                            <span class="classification-tag classification-urgent" id="tasksCount" style="margin-left: auto;">0</span>
+                        </button>
+                        <button class="btn btn-secondary" data-view="analytics" id="analyticsNav" style="justify-content: flex-start;">
+                            <i class="fas fa-chart-bar" style="margin-right: var(--space-2);"></i>
+                            Analytics
+                        </button>
+                    </div>
+                </nav>
+
+                <!-- Quick Filters -->
+                <div style="padding: var(--space-4); border-top: 1px solid var(--color-border);">
+                    <h3 style="margin: 0 0 var(--space-3) 0; font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-secondary);">Quick Filters</h3>
+                    <div class="filter-chips" style="flex-direction: column; gap: var(--space-2);">
+                        <button class="filter-chip active" data-filter="all" style="justify-content: space-between; width: 100%;">
+                            <span>All Emails</span>
+                            <span class="count" id="filterAllCount">0</span>
+                        </button>
+                        <button class="filter-chip" data-filter="unread" style="justify-content: space-between; width: 100%;">
+                            <span>Unread</span>
+                            <span class="count" id="filterUnreadCount">0</span>
+                        </button>
+                        <button class="filter-chip" data-filter="urgent" style="justify-content: space-between; width: 100%;">
+                            <span>Urgent</span>
+                            <span class="count" id="filterUrgentCount">0</span>
+                        </button>
+                        <button class="filter-chip" data-filter="action_required" style="justify-content: space-between; width: 100%;">
+                            <span>Action Required</span>
+                            <span class="count" id="filterActionCount">0</span>
+                        </button>
+                        <button class="filter-chip" data-filter="informational" style="justify-content: space-between; width: 100%;">
+                            <span>Informational</span>
+                            <span class="count" id="filterInfoCount">0</span>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Emails View -->
+                <section id="emailsView" class="view active" style="display: flex; flex-direction: column; height: 100%;">
+                    <!-- Batch Operations Toolbar -->
+                    <div class="batch-toolbar" id="batchToolbar" style="display: none;">
+                        <div class="batch-selection-info">
+                            <span id="selectedEmailsCount">0</span> emails selected
+                        </div>
+                        <div class="batch-actions">
+                            <button class="btn btn-sm btn-secondary" id="selectAllBtn">
+                                <i class="fas fa-check-square"></i> Select All
+                            </button>
+                            <button class="btn btn-sm btn-primary" id="markReadBtn">
+                                <i class="fas fa-eye"></i> Mark as Read
+                            </button>
+                            <button class="btn btn-sm btn-warning" id="archiveBtn">
+                                <i class="fas fa-archive"></i> Archive
+                            </button>
+                            <button class="btn btn-sm btn-danger" id="deleteBtn">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Email List Container -->
+                    <div style="display: flex; flex: 1; overflow: hidden;">
+                        <!-- Email List -->
+                        <div style="flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--color-border);">
+                            <!-- Search and Filters -->
+                            <div style="padding: var(--space-4); border-bottom: 1px solid var(--color-border);">
+                                <div style="display: flex; gap: var(--space-3); margin-bottom: var(--space-3);">
+                                    <div style="flex: 1; position: relative;">
+                                        <i class="fas fa-search" style="position: absolute; left: var(--space-3); top: 50%; transform: translateY(-50%); color: var(--color-text-tertiary);"></i>
+                                        <input type="text" class="form-control" id="searchInput" placeholder="Search emails..." style="padding-left: 2.5rem;">
+                                    </div>
+                                    <button class="btn btn-primary" id="searchBtn">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Sort Options -->
+                                <div style="display: flex; align-items: center; gap: var(--space-3);">
+                                    <label style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">Sort by:</label>
+                                    <select class="form-control" id="sortSelect" style="width: auto;">
+                                        <option value="date_desc">Newest First</option>
+                                        <option value="date_asc">Oldest First</option>
+                                        <option value="sender">Sender</option>
+                                        <option value="subject">Subject</option>
+                                        <option value="priority">Priority</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Virtual Scroll Container -->
+                            <div id="emailListContainer" style="flex: 1; overflow: hidden; position: relative;">
+                                <!-- Loading State -->
+                                <div id="emailListLoading" style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column; gap: var(--space-3);">
+                                    <div class="loading-spinner" style="width: 2rem; height: 2rem;"></div>
+                                    <p style="color: var(--color-text-secondary);">Loading emails...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Email Detail -->
+                        <div id="emailDetail" style="flex: 1; display: flex; flex-direction: column; background-color: var(--color-bg-primary);">
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column; gap: var(--space-4); color: var(--color-text-tertiary);">
+                                <i class="fas fa-envelope-open" style="font-size: 3rem; opacity: 0.5;"></i>
+                                <div style="text-align: center;">
+                                    <h3 style="margin: 0 0 var(--space-2) 0; color: var(--color-text-secondary);">Select an email</h3>
+                                    <p style="margin: 0;">Choose an email from the list to view its contents</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tasks View -->
+                <section id="tasksView" class="view" style="display: none; flex-direction: column; height: 100%;">
+                    <!-- Task Filters -->
+                    <div style="padding: var(--space-4); border-bottom: 1px solid var(--color-border);">
+                        <div class="filter-chips">
+                            <button class="filter-chip active" data-task-filter="all">
+                                <span>All Tasks</span>
+                                <span class="count" id="taskFilterAllCount">0</span>
+                            </button>
+                            <button class="filter-chip" data-task-filter="pending">
+                                <span>Pending</span>
+                                <span class="count" id="taskFilterPendingCount">0</span>
+                            </button>
+                            <button class="filter-chip" data-task-filter="ready">
+                                <span>Ready to Send</span>
+                                <span class="count" id="taskFilterReadyCount">0</span>
+                            </button>
+                            <button class="filter-chip" data-task-filter="high_priority">
+                                <span>High Priority</span>
+                                <span class="count" id="taskFilterHighCount">0</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Task Content -->
+                    <div style="display: flex; flex: 1; overflow: hidden;">
+                        <!-- Task List -->
+                        <div style="flex: 1; border-right: 1px solid var(--color-border);">
+                            <div id="taskListContainer" style="height: 100%; overflow: auto;">
+                                <div id="taskListLoading" style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column; gap: var(--space-3);">
+                                    <div class="loading-spinner" style="width: 2rem; height: 2rem;"></div>
+                                    <p style="color: var(--color-text-secondary);">Loading tasks...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Task Detail -->
+                        <div id="taskDetail" style="flex: 1; display: flex; flex-direction: column; background-color: var(--color-bg-primary);">
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column; gap: var(--space-4); color: var(--color-text-tertiary);">
+                                <i class="fas fa-tasks" style="font-size: 3rem; opacity: 0.5;"></i>
+                                <div style="text-align: center;">
+                                    <h3 style="margin: 0 0 var(--space-2) 0; color: var(--color-text-secondary);">Select a task</h3>
+                                    <p style="margin: 0;">Choose a task to view and edit the draft reply</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Analytics View -->
+                <section id="analyticsView" class="view" style="display: none; padding: var(--space-6); overflow: auto;">
+                    <h2 style="margin: 0 0 var(--space-6) 0;">Email Analytics</h2>
+                    
+                    <!-- Stats Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-8);">
+                        <div style="background-color: var(--color-bg-primary); padding: var(--space-6); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                            <div style="display: flex; align-items: center; gap: var(--space-4);">
+                                <div style="padding: var(--space-3); background-color: var(--color-primary-100); border-radius: var(--radius-lg);">
+                                    <i class="fas fa-envelope" style="color: var(--color-primary-600); font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">Total Emails</p>
+                                    <p style="margin: 0; font-size: var(--font-size-2xl); font-weight: 600;" id="totalEmailsStat">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background-color: var(--color-bg-primary); padding: var(--space-6); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                            <div style="display: flex; align-items: center; gap: var(--space-4);">
+                                <div style="padding: var(--space-3); background-color: var(--color-danger-100); border-radius: var(--radius-lg);">
+                                    <i class="fas fa-exclamation-triangle" style="color: var(--color-danger-600); font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">Urgent</p>
+                                    <p style="margin: 0; font-size: var(--font-size-2xl); font-weight: 600;" id="urgentEmailsStat">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background-color: var(--color-bg-primary); padding: var(--space-6); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                            <div style="display: flex; align-items: center; gap: var(--space-4);">
+                                <div style="padding: var(--space-3); background-color: var(--color-warning-100); border-radius: var(--radius-lg);">
+                                    <i class="fas fa-clipboard-check" style="color: var(--color-warning-600); font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">Action Required</p>
+                                    <p style="margin: 0; font-size: var(--font-size-2xl); font-weight: 600;" id="actionRequiredStat">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background-color: var(--color-bg-primary); padding: var(--space-6); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                            <div style="display: flex; align-items: center; gap: var(--space-4);">
+                                <div style="padding: var(--space-3); background-color: var(--color-success-100); border-radius: var(--radius-lg);">
+                                    <i class="fas fa-check-circle" style="color: var(--color-success-600); font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">Processed</p>
+                                    <p style="margin: 0; font-size: var(--font-size-2xl); font-weight: 600;" id="processedEmailsStat">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Placeholder -->
+                    <div style="background-color: var(--color-bg-primary); padding: var(--space-6); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                        <h3 style="margin: 0 0 var(--space-4) 0;">Email Volume Trends</h3>
+                        <div style="height: 300px; display: flex; align-items: center; justify-content: center; color: var(--color-text-tertiary);">
+                            <div style="text-align: center;">
+                                <i class="fas fa-chart-line" style="font-size: 3rem; opacity: 0.5; margin-bottom: var(--space-3);"></i>
+                                <p style="margin: 0;">Chart visualization would be implemented here</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" style="position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.5); display: none; align-items: center; justify-content: center; z-index: var(--z-modal);">
+        <div style="background-color: var(--color-bg-primary); padding: var(--space-6); border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow-xl);">
+            <div class="loading-spinner" style="width: 2rem; height: 2rem; margin: 0 auto var(--space-3) auto;"></div>
+            <p style="margin: 0; color: var(--color-text-primary);" id="loadingText">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Progress Bar -->
+    <div id="progressBar" style="position: fixed; top: 0; left: 0; right: 0; height: 3px; background-color: var(--color-bg-tertiary); z-index: var(--z-modal); display: none;">
+        <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+    </div>
+
+    <!-- Custom Date Range Modal -->
+    <div id="dateRangeModal" style="position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.5); display: none; align-items: center; justify-content: center; z-index: var(--z-modal);">
+        <div style="background-color: var(--color-bg-primary); padding: var(--space-6); border-radius: var(--radius-lg); max-width: 400px; width: 90%; box-shadow: var(--shadow-xl);">
+            <h3 style="margin: 0 0 var(--space-4) 0;">Select Date Range</h3>
+            <div style="display: flex; flex-direction: column; gap: var(--space-4);">
+                <div>
+                    <label style="display: block; margin-bottom: var(--space-2); font-size: var(--font-size-sm); font-weight: 500;">From Date:</label>
+                    <input type="date" class="form-control" id="fromDate">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: var(--space-2); font-size: var(--font-size-sm); font-weight: 500;">To Date:</label>
+                    <input type="date" class="form-control" id="toDate">
+                </div>
+                <div style="display: flex; gap: var(--space-3); justify-content: flex-end;">
+                    <button class="btn btn-secondary" id="cancelDateRange">Cancel</button>
+                    <button class="btn btn-primary" id="applyDateRange">Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="email_virtualization.js"></script>
+    <script src="websocket_client.js"></script>
+    <script>
+        // Application State
+        class ProductionEmailApp {
+            constructor() {
+                this.state = {
+                    currentView: 'emails',
+                    currentFilter: 'all',
+                    currentTaskFilter: 'all',
+                    currentSort: 'date_desc',
+                    currentTimeframe: '2m',
+                    searchQuery: '',
+                    selectedEmails: new Set(),
+                    selectedTasks: new Set(),
+                    theme: localStorage.getItem('theme') || 'light',
+                    emails: [],
+                    tasks: [],
+                    analytics: {}
+                };
+
+                this.api = {
+                    baseUrl: 'http://localhost:8000',
+                    endpoints: {
+                        emails: '/api/emails',
+                        tasks: '/api/tasks',
+                        analytics: '/api/analytics',
+                        websocket: 'ws://localhost:8001/ws'
+                    }
+                };
+
+                this.virtualizer = null;
+                this.wsClient = null;
+                this.realTimeManager = null;
+
+                this.init();
+            }
+
+            async init() {
+                this.setupEventListeners();
+                this.applyTheme();
+                this.initializeWebSocket();
+                await this.loadInitialData();
+                this.initializeVirtualScrolling();
+                this.setupRealTimeManager();
+            }
+
+            setupEventListeners() {
+                // Navigation
+                document.querySelectorAll('[data-view]').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.switchView(e.target.dataset.view));
+                });
+
+                // Theme toggle
+                document.getElementById('themeToggle').addEventListener('click', () => this.toggleTheme());
+
+                // Refresh
+                document.getElementById('refreshBtn').addEventListener('click', () => this.refreshData());
+
+                // Search
+                document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearch(e.target.value));
+                document.getElementById('searchBtn').addEventListener('click', () => this.performSearch());
+
+                // Sort
+                document.getElementById('sortSelect').addEventListener('change', (e) => this.changeSort(e.target.value));
+
+                // Timeframe
+                document.getElementById('timeframeSelect').addEventListener('change', (e) => this.changeTimeframe(e.target.value));
+
+                // Filters
+                document.querySelectorAll('[data-filter]').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.setFilter(e.target.dataset.filter));
+                });
+
+                document.querySelectorAll('[data-task-filter]').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.setTaskFilter(e.target.dataset.taskFilter));
+                });
+
+                // Batch operations
+                document.getElementById('selectAllBtn').addEventListener('click', () => this.selectAllEmails());
+                document.getElementById('markReadBtn').addEventListener('click', () => this.batchMarkAsRead());
+                document.getElementById('archiveBtn').addEventListener('click', () => this.batchArchive());
+                document.getElementById('deleteBtn').addEventListener('click', () => this.batchDelete());
+
+                // Date range modal
+                document.getElementById('cancelDateRange').addEventListener('click', () => this.closeDateRangeModal());
+                document.getElementById('applyDateRange').addEventListener('click', () => this.applyDateRange());
+
+                // Responsive handling
+                window.addEventListener('resize', () => this.handleResize());
+                this.handleResize(); // Initial call
+            }
+
+            switchView(view) {
+                this.state.currentView = view;
+
+                // Update navigation
+                document.querySelectorAll('[data-view]').forEach(btn => {
+                    btn.classList.toggle('btn-primary', btn.dataset.view === view);
+                    btn.classList.toggle('btn-secondary', btn.dataset.view !== view);
+                });
+
+                // Show/hide views
+                document.querySelectorAll('.view').forEach(section => {
+                    const isActive = section.id === `${view}View`;
+                    section.style.display = isActive ? 'flex' : 'none';
+                    if (isActive) section.classList.add('active');
+                    else section.classList.remove('active');
+                });
+
+                // Load view-specific data if needed
+                if (view === 'analytics' && !this.state.analytics.loaded) {
+                    this.loadAnalytics();
+                }
+            }
+
+            toggleTheme() {
+                this.state.theme = this.state.theme === 'light' ? 'dark' : 'light';
+                localStorage.setItem('theme', this.state.theme);
+                this.applyTheme();
+            }
+
+            applyTheme() {
+                document.documentElement.setAttribute('data-theme', this.state.theme);
+                const icon = document.getElementById('themeIcon');
+                icon.className = this.state.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            }
+
+            async refreshData() {
+                this.showProgress();
+                const refreshIcon = document.getElementById('refreshIcon');
+                refreshIcon.style.animation = 'spin 1s linear infinite';
+
+                try {
+                    await this.loadEmails();
+                    await this.loadTasks();
+                    this.showToast('Data refreshed successfully', 'success');
+                } catch (error) {
+                    this.showToast('Failed to refresh data', 'error');
+                    console.error('Refresh error:', error);
+                } finally {
+                    this.hideProgress();
+                    refreshIcon.style.animation = '';
+                }
+            }
+
+            handleSearch(query) {
+                this.state.searchQuery = query;
+                this.debounceSearch();
+            }
+
+            debounceSearch() {
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => {
+                    this.filterEmails();
+                }, 300);
+            }
+
+            performSearch() {
+                this.filterEmails();
+            }
+
+            changeSort(sortValue) {
+                this.state.currentSort = sortValue;
+                this.sortEmails();
+            }
+
+            changeTimeframe(timeframe) {
+                if (timeframe === 'custom') {
+                    this.showDateRangeModal();
+                    return;
+                }
+
+                this.state.currentTimeframe = timeframe;
+                this.loadEmails();
+            }
+
+            setFilter(filter) {
+                this.state.currentFilter = filter;
+                
+                // Update filter UI
+                document.querySelectorAll('[data-filter]').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.filter === filter);
+                });
+
+                this.filterEmails();
+            }
+
+            setTaskFilter(filter) {
+                this.state.currentTaskFilter = filter;
+                
+                // Update filter UI
+                document.querySelectorAll('[data-task-filter]').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.taskFilter === filter);
+                });
+
+                this.filterTasks();
+            }
+
+            initializeWebSocket() {
+                try {
+                    this.wsClient = new WebSocketClient(this.api.endpoints.websocket, {
+                        enableLogging: true,
+                        reconnectInterval: 3000,
+                        maxReconnectAttempts: 10
+                    });
+
+                    this.wsClient.on('connected', () => {
+                        this.updateConnectionStatus('connected');
+                        this.wsClient.authenticate('current_user'); // Replace with actual user ID
+                    });
+
+                    this.wsClient.on('disconnected', () => {
+                        this.updateConnectionStatus('disconnected');
+                    });
+
+                    this.wsClient.on('reconnecting', (data) => {
+                        this.updateConnectionStatus('reconnecting', data);
+                    });
+
+                    this.wsClient.on('error', (error) => {
+                        console.error('WebSocket error:', error);
+                        this.showToast('Connection error occurred', 'error');
+                    });
+
+                } catch (error) {
+                    console.error('Failed to initialize WebSocket:', error);
+                    this.updateConnectionStatus('error');
+                }
+            }
+
+            updateConnectionStatus(status, data = {}) {
+                const indicator = document.getElementById('connectionIndicator');
+                const text = document.getElementById('connectionText');
+
+                indicator.className = `connection-indicator ${status}`;
+
+                switch (status) {
+                    case 'connected':
+                        text.textContent = 'Connected';
+                        break;
+                    case 'disconnected':
+                        text.textContent = 'Disconnected';
+                        break;
+                    case 'reconnecting':
+                        text.textContent = `Reconnecting... (${data.attempt || 1})`;
+                        break;
+                    case 'error':
+                        text.textContent = 'Connection Error';
+                        break;
+                    default:
+                        text.textContent = 'Connecting...';
+                }
+            }
+
+            async loadInitialData() {
+                this.showLoading('Loading initial data...');
+                
+                try {
+                    await Promise.all([
+                        this.loadEmails(),
+                        this.loadTasks()
+                    ]);
+                } catch (error) {
+                    console.error('Failed to load initial data:', error);
+                    this.showToast('Failed to load initial data', 'error');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async loadEmails() {
+                try {
+                    // Show loading state
+                    document.getElementById('emailListLoading').style.display = 'flex';
+
+                    const params = new URLSearchParams({
+                        timeframe: this.state.currentTimeframe,
+                        sort: this.state.currentSort,
+                        limit: 10000 // Load more for virtual scrolling
+                    });
+
+                    if (this.state.searchQuery) {
+                        params.append('search', this.state.searchQuery);
+                    }
+
+                    const response = await fetch(`${this.api.baseUrl}${this.api.endpoints.emails}?${params}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    this.state.emails = Array.isArray(data) ? data : data.emails || [];
+                    
+                    this.updateEmailCounts();
+                    this.filterEmails();
+
+                } catch (error) {
+                    console.error('Failed to load emails:', error);
+                    this.showToast('Failed to load emails', 'error');
+                    
+                    // Use mock data in development
+                    if (location.hostname === 'localhost') {
+                        this.loadMockEmails();
+                    }
+                } finally {
+                    document.getElementById('emailListLoading').style.display = 'none';
+                }
+            }
+
+            async loadTasks() {
+                try {
+                    document.getElementById('taskListLoading').style.display = 'flex';
+
+                    const response = await fetch(`${this.api.baseUrl}${this.api.endpoints.tasks}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    this.state.tasks = Array.isArray(data) ? data : data.tasks || [];
+                    
+                    this.updateTaskCounts();
+                    this.filterTasks();
+
+                } catch (error) {
+                    console.error('Failed to load tasks:', error);
+                    this.showToast('Failed to load tasks', 'error');
+                    
+                    if (location.hostname === 'localhost') {
+                        this.loadMockTasks();
+                    }
+                } finally {
+                    document.getElementById('taskListLoading').style.display = 'none';
+                }
+            }
+
+            async loadAnalytics() {
+                try {
+                    const response = await fetch(`${this.api.baseUrl}${this.api.endpoints.analytics}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    this.state.analytics = { ...data, loaded: true };
+                    
+                    this.updateAnalyticsDisplay();
+
+                } catch (error) {
+                    console.error('Failed to load analytics:', error);
+                    this.loadMockAnalytics();
+                }
+            }
+
+            initializeVirtualScrolling() {
+                const container = document.getElementById('emailListContainer');
+                
+                this.virtualizer = new EmailVirtualization(container, {
+                    itemHeight: 120,
+                    bufferSize: 5,
+                    overscan: 3
+                });
+
+                this.virtualizer.setRenderFunction((email, index) => {
+                    return this.renderEmailItem(email, index);
+                });
+
+                // Handle scroll events for performance monitoring
+                this.virtualizer.on('dataChanged', (data) => {
+                    console.log('Virtual scroller data changed:', data.data.length, 'items');
+                });
+            }
+
+            renderEmailItem(email, index) {
+                const div = document.createElement('div');
+                div.className = `email-item ${email.read ? '' : 'unread'} ${email.classification || ''}`;
+                div.setAttribute('role', 'button');
+                div.setAttribute('tabindex', '0');
+                div.setAttribute('aria-label', `Email from ${email.sender}: ${email.subject}`);
+                
+                const isSelected = this.state.selectedEmails.has(email.id);
+                if (isSelected) {
+                    div.classList.add('selected');
+                }
+
+                div.innerHTML = `
+                    <input type="checkbox" class="email-checkbox" ${isSelected ? 'checked' : ''} 
+                           data-email-id="${email.id}" aria-label="Select email">
+                    <div class="email-content">
+                        <div class="email-header">
+                            <div class="email-sender">${this.escapeHtml(email.sender || 'Unknown Sender')}</div>
+                            <div class="email-date">${this.formatDate(email.date)}</div>
+                        </div>
+                        <div class="email-subject">${this.escapeHtml(email.subject || 'No Subject')}</div>
+                        <div class="email-preview">${this.escapeHtml(email.preview || email.body?.substring(0, 100) || 'No preview available')}...</div>
+                        <div class="email-meta">
+                            <span class="classification-tag classification-${email.classification || 'informational'}">
+                                ${this.formatClassification(email.classification)}
+                            </span>
+                            <div style="display: flex; gap: var(--space-2);">
+                                ${!email.read ? '<i class="fas fa-circle" style="color: var(--color-primary-500); font-size: 0.5rem;"></i>' : ''}
+                                ${email.has_attachments ? '<i class="fas fa-paperclip" title="Has attachments"></i>' : ''}
+                                ${email.priority === 'high' ? '<i class="fas fa-exclamation" style="color: var(--color-danger-500);" title="High priority"></i>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Event listeners
+                div.addEventListener('click', (e) => {
+                    if (!e.target.matches('.email-checkbox')) {
+                        this.selectEmail(email, index);
+                    }
+                });
+
+                div.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.selectEmail(email, index);
+                    }
+                });
+
+                const checkbox = div.querySelector('.email-checkbox');
+                checkbox.addEventListener('change', (e) => {
+                    e.stopPropagation();
+                    this.toggleEmailSelection(email.id);
+                });
+
+                return div;
+            }
+
+            selectEmail(email, index) {
+                // Update selected state
+                this.state.selectedEmail = email;
+                
+                // Update visual selection in virtualizer
+                this.virtualizer.data.forEach((item, idx) => {
+                    const element = this.virtualizer.visibleItems.get(idx);
+                    if (element) {
+                        element.classList.toggle('selected', item.id === email.id);
+                    }
+                });
+
+                // Render email detail
+                this.renderEmailDetail(email);
+
+                // Mark as read if unread
+                if (!email.read) {
+                    this.markEmailAsRead(email.id);
+                }
+            }
+
+            renderEmailDetail(email) {
+                const container = document.getElementById('emailDetail');
+                
+                container.innerHTML = `
+                    <div style="border-bottom: 1px solid var(--color-border); padding: var(--space-6);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-4);">
+                            <div style="flex: 1; min-width: 0;">
+                                <h2 style="margin: 0 0 var(--space-2) 0; font-size: var(--font-size-xl); font-weight: 600; color: var(--color-text-primary);">
+                                    ${this.escapeHtml(email.subject || 'No Subject')}
+                                </h2>
+                                <div style="display: flex; flex-wrap: wrap; gap: var(--space-4); font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                                    <span><strong>From:</strong> ${this.escapeHtml(email.sender || 'Unknown')}</span>
+                                    <span><strong>Date:</strong> ${this.formatDateTime(email.date)}</span>
+                                    ${email.to ? `<span><strong>To:</strong> ${this.escapeHtml(email.to)}</span>` : ''}
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: var(--space-2); margin-left: var(--space-4);">
+                                <span class="classification-tag classification-${email.classification || 'informational'}">
+                                    ${this.formatClassification(email.classification)}
+                                </span>
+                                ${email.priority === 'high' ? '<i class="fas fa-exclamation" style="color: var(--color-danger-500);" title="High priority"></i>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="flex: 1; padding: var(--space-6); overflow-y: auto;">
+                        <div style="line-height: 1.6; margin-bottom: var(--space-6);">
+                            ${email.body ? this.formatEmailBody(email.body) : '<p style="color: var(--color-text-tertiary); font-style: italic;">No content available</p>'}
+                        </div>
+                        
+                        ${email.ai_summary ? `
+                            <div style="padding: var(--space-4); background-color: var(--color-primary-50); border-radius: var(--radius-lg); margin-bottom: var(--space-4);">
+                                <h3 style="margin: 0 0 var(--space-2) 0; color: var(--color-primary-700); display: flex; align-items: center; gap: var(--space-2);">
+                                    <i class="fas fa-robot"></i>AI Summary
+                                </h3>
+                                <p style="margin: 0; color: var(--color-primary-600);">${this.escapeHtml(email.ai_summary)}</p>
+                            </div>
+                        ` : ''}
+                        
+                        ${email.suggested_actions?.length ? `
+                            <div style="padding: var(--space-4); background-color: var(--color-warning-50); border-radius: var(--radius-lg); margin-bottom: var(--space-4);">
+                                <h3 style="margin: 0 0 var(--space-2) 0; color: var(--color-warning-700); display: flex; align-items: center; gap: var(--space-2);">
+                                    <i class="fas fa-lightbulb"></i>Suggested Actions
+                                </h3>
+                                <ul style="margin: 0; padding-left: var(--space-5); color: var(--color-warning-600);">
+                                    ${email.suggested_actions.map(action => `<li>${this.escapeHtml(action)}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div style="border-top: 1px solid var(--color-border); padding: var(--space-6);">
+                        <div style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
+                            <button class="btn btn-primary" onclick="app.replyToEmail('${email.id}')">
+                                <i class="fas fa-reply" style="margin-right: var(--space-2);"></i>Reply
+                            </button>
+                            <button class="btn btn-secondary" onclick="app.forwardEmail('${email.id}')">
+                                <i class="fas fa-share" style="margin-right: var(--space-2);"></i>Forward
+                            </button>
+                            <button class="btn btn-secondary" onclick="app.createTaskFromEmail('${email.id}')">
+                                <i class="fas fa-plus" style="margin-right: var(--space-2);"></i>Create Task
+                            </button>
+                            ${!email.read ? `
+                                <button class="btn btn-secondary" onclick="app.markEmailAsRead('${email.id}')">
+                                    <i class="fas fa-eye" style="margin-right: var(--space-2);"></i>Mark as Read
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            filterEmails() {
+                let filteredEmails = [...this.state.emails];
+
+                // Apply search filter
+                if (this.state.searchQuery) {
+                    const query = this.state.searchQuery.toLowerCase();
+                    filteredEmails = filteredEmails.filter(email => 
+                        (email.subject?.toLowerCase().includes(query)) ||
+                        (email.sender?.toLowerCase().includes(query)) ||
+                        (email.body?.toLowerCase().includes(query))
+                    );
+                }
+
+                // Apply classification filter
+                if (this.state.currentFilter !== 'all') {
+                    if (this.state.currentFilter === 'unread') {
+                        filteredEmails = filteredEmails.filter(email => !email.read);
+                    } else {
+                        filteredEmails = filteredEmails.filter(email => 
+                            email.classification === this.state.currentFilter
+                        );
+                    }
+                }
+
+                // Apply sorting
+                this.sortFilteredEmails(filteredEmails);
+
+                // Update virtual scroller
+                if (this.virtualizer) {
+                    this.virtualizer.setData(filteredEmails);
+                }
+            }
+
+            sortFilteredEmails(emails) {
+                const [field, direction] = this.state.currentSort.split('_');
+
+                emails.sort((a, b) => {
+                    let aVal, bVal;
+
+                    switch (field) {
+                        case 'date':
+                            aVal = new Date(a.date || 0);
+                            bVal = new Date(b.date || 0);
+                            break;
+                        case 'sender':
+                            aVal = (a.sender || '').toLowerCase();
+                            bVal = (b.sender || '').toLowerCase();
+                            break;
+                        case 'subject':
+                            aVal = (a.subject || '').toLowerCase();
+                            bVal = (b.subject || '').toLowerCase();
+                            break;
+                        case 'priority':
+                            const priorityMap = { high: 3, medium: 2, low: 1 };
+                            aVal = priorityMap[a.priority] || 1;
+                            bVal = priorityMap[b.priority] || 1;
+                            break;
+                        default:
+                            return 0;
+                    }
+
+                    if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            toggleEmailSelection(emailId) {
+                if (this.state.selectedEmails.has(emailId)) {
+                    this.state.selectedEmails.delete(emailId);
+                } else {
+                    this.state.selectedEmails.add(emailId);
+                }
+
+                this.updateBatchToolbar();
+                this.updateEmailSelectionUI(emailId);
+            }
+
+            updateBatchToolbar() {
+                const toolbar = document.getElementById('batchToolbar');
+                const count = this.state.selectedEmails.size;
+                
+                toolbar.style.display = count > 0 ? 'flex' : 'none';
+                document.getElementById('selectedEmailsCount').textContent = count;
+            }
+
+            updateEmailSelectionUI(emailId) {
+                // Update checkbox in virtual scroller
+                const emailElements = document.querySelectorAll(`[data-email-id="${emailId}"]`);
+                emailElements.forEach(checkbox => {
+                    checkbox.checked = this.state.selectedEmails.has(emailId);
+                });
+            }
+
+            selectAllEmails() {
+                const visibleEmails = this.virtualizer?.data || this.state.emails;
+                const allSelected = visibleEmails.every(email => this.state.selectedEmails.has(email.id));
+
+                if (allSelected) {
+                    // Deselect all
+                    visibleEmails.forEach(email => this.state.selectedEmails.delete(email.id));
+                } else {
+                    // Select all
+                    visibleEmails.forEach(email => this.state.selectedEmails.add(email.id));
+                }
+
+                this.updateBatchToolbar();
+                this.refreshEmailSelectionUI();
+            }
+
+            refreshEmailSelectionUI() {
+                document.querySelectorAll('.email-checkbox').forEach(checkbox => {
+                    const emailId = checkbox.dataset.emailId;
+                    checkbox.checked = this.state.selectedEmails.has(parseInt(emailId));
+                });
+            }
+
+            async batchMarkAsRead() {
+                const emailIds = Array.from(this.state.selectedEmails);
+                if (emailIds.length === 0) return;
+
+                this.showProgress();
+                try {
+                    // API call would go here
+                    await this.simulateApiCall();
+                    
+                    // Update local state
+                    emailIds.forEach(id => {
+                        const email = this.state.emails.find(e => e.id === id);
+                        if (email) email.read = true;
+                    });
+
+                    this.state.selectedEmails.clear();
+                    this.updateBatchToolbar();
+                    this.filterEmails();
+                    this.updateEmailCounts();
+                    
+                    this.showToast(`Marked ${emailIds.length} emails as read`, 'success');
+                } catch (error) {
+                    this.showToast('Failed to mark emails as read', 'error');
+                } finally {
+                    this.hideProgress();
+                }
+            }
+
+            async batchArchive() {
+                const emailIds = Array.from(this.state.selectedEmails);
+                if (emailIds.length === 0) return;
+
+                if (!confirm(`Archive ${emailIds.length} emails?`)) return;
+
+                this.showProgress();
+                try {
+                    await this.simulateApiCall();
+                    
+                    // Remove from local state
+                    this.state.emails = this.state.emails.filter(email => !emailIds.includes(email.id));
+                    this.state.selectedEmails.clear();
+                    
+                    this.updateBatchToolbar();
+                    this.filterEmails();
+                    this.updateEmailCounts();
+                    
+                    this.showToast(`Archived ${emailIds.length} emails`, 'success');
+                } catch (error) {
+                    this.showToast('Failed to archive emails', 'error');
+                } finally {
+                    this.hideProgress();
+                }
+            }
+
+            async batchDelete() {
+                const emailIds = Array.from(this.state.selectedEmails);
+                if (emailIds.length === 0) return;
+
+                if (!confirm(`Permanently delete ${emailIds.length} emails? This action cannot be undone.`)) return;
+
+                this.showProgress();
+                try {
+                    await this.simulateApiCall();
+                    
+                    // Remove from local state
+                    this.state.emails = this.state.emails.filter(email => !emailIds.includes(email.id));
+                    this.state.selectedEmails.clear();
+                    
+                    this.updateBatchToolbar();
+                    this.filterEmails();
+                    this.updateEmailCounts();
+                    
+                    this.showToast(`Deleted ${emailIds.length} emails`, 'success');
+                } catch (error) {
+                    this.showToast('Failed to delete emails', 'error');
+                } finally {
+                    this.hideProgress();
+                }
+            }
+
+            updateEmailCounts() {
+                const emails = this.state.emails;
+                
+                const counts = {
+                    all: emails.length,
+                    unread: emails.filter(e => !e.read).length,
+                    urgent: emails.filter(e => e.classification === 'urgent').length,
+                    action_required: emails.filter(e => e.classification === 'action_required').length,
+                    informational: emails.filter(e => e.classification === 'informational').length
+                };
+
+                // Update sidebar counts
+                document.getElementById('emailsCount').textContent = counts.all;
+                
+                // Update filter counts
+                document.getElementById('filterAllCount').textContent = counts.all;
+                document.getElementById('filterUnreadCount').textContent = counts.unread;
+                document.getElementById('filterUrgentCount').textContent = counts.urgent;
+                document.getElementById('filterActionCount').textContent = counts.action_required;
+                document.getElementById('filterInfoCount').textContent = counts.informational;
+
+                // Update analytics if in view
+                if (this.state.currentView === 'analytics') {
+                    document.getElementById('totalEmailsStat').textContent = counts.all;
+                    document.getElementById('urgentEmailsStat').textContent = counts.urgent;
+                    document.getElementById('actionRequiredStat').textContent = counts.action_required;
+                    document.getElementById('processedEmailsStat').textContent = emails.filter(e => e.read).length;
+                }
+            }
+
+            updateTaskCounts() {
+                const tasks = this.state.tasks;
+                
+                const counts = {
+                    all: tasks.length,
+                    pending: tasks.filter(t => t.status === 'pending').length,
+                    ready: tasks.filter(t => t.status === 'ready').length,
+                    high_priority: tasks.filter(t => t.priority === 'high').length
+                };
+
+                document.getElementById('tasksCount').textContent = counts.all;
+                
+                // Update task filter counts
+                const elements = {
+                    taskFilterAllCount: counts.all,
+                    taskFilterPendingCount: counts.pending,
+                    taskFilterReadyCount: counts.ready,
+                    taskFilterHighCount: counts.high_priority
+                };
+
+                Object.entries(elements).forEach(([id, count]) => {
+                    const element = document.getElementById(id);
+                    if (element) element.textContent = count;
+                });
+            }
+
+            filterTasks() {
+                let filteredTasks = [...this.state.tasks];
+
+                if (this.state.currentTaskFilter !== 'all') {
+                    switch (this.state.currentTaskFilter) {
+                        case 'pending':
+                            filteredTasks = filteredTasks.filter(task => task.status === 'pending');
+                            break;
+                        case 'ready':
+                            filteredTasks = filteredTasks.filter(task => task.status === 'ready');
+                            break;
+                        case 'high_priority':
+                            filteredTasks = filteredTasks.filter(task => task.priority === 'high');
+                            break;
+                    }
+                }
+
+                this.renderTaskList(filteredTasks);
+            }
+
+            renderTaskList(tasks) {
+                const container = document.getElementById('taskListContainer');
+                
+                if (tasks.length === 0) {
+                    container.innerHTML = `
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column; gap: var(--space-4); color: var(--color-text-tertiary);">
+                            <i class="fas fa-tasks" style="font-size: 3rem; opacity: 0.5;"></i>
+                            <div style="text-align: center;">
+                                <h3 style="margin: 0 0 var(--space-2) 0; color: var(--color-text-secondary);">No tasks found</h3>
+                                <p style="margin: 0;">Tasks will appear here when emails are processed</p>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = tasks.map(task => `
+                    <div class="task-item ${task.status || ''} ${task.priority === 'high' ? 'high-priority' : ''}"
+                         onclick="app.selectTask('${task.id}')" role="button" tabindex="0">
+                        <div style="display: flex; gap: var(--space-3);">
+                            <input type="checkbox" class="task-checkbox" data-task-id="${task.id}"
+                                   onclick="event.stopPropagation(); app.toggleTaskSelection('${task.id}')"
+                                   aria-label="Select task">
+                            
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-2);">
+                                    <h3 style="margin: 0; font-weight: 600; color: var(--color-text-primary);">
+                                        Reply to: ${this.escapeHtml(task.email_subject || 'Email Task')}
+                                    </h3>
+                                    <div style="display: flex; align-items: center; gap: var(--space-2);">
+                                        <span class="classification-tag classification-${task.priority === 'high' ? 'urgent' : task.priority === 'medium' ? 'action_required' : 'informational'}">
+                                            ${task.priority || 'normal'}
+                                        </span>
+                                        <span style="font-size: var(--font-size-xs); color: var(--color-text-tertiary); white-space: nowrap;">
+                                            ${this.formatDate(task.created_at)}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <p style="margin: 0 0 var(--space-2) 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                                    From: ${this.escapeHtml(task.email_sender || 'Unknown')}
+                                </p>
+                                
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: var(--space-2);">
+                                        ${task.draft_reply ? 
+                                            '<span class="classification-tag classification-assigned"><i class="fas fa-check" style="margin-right: var(--space-1);"></i>Draft Ready</span>' : 
+                                            '<span class="classification-tag classification-informational"><i class="fas fa-clock" style="margin-right: var(--space-1);"></i>Generating...</span>'
+                                        }
+                                        ${task.status === 'needs_info' ? 
+                                            '<span class="classification-tag classification-action_required"><i class="fas fa-question-circle" style="margin-right: var(--space-1);"></i>Needs Info</span>' : ''
+                                        }
+                                    </div>
+                                    
+                                    <div style="font-size: var(--font-size-xs); color: var(--color-text-tertiary);">
+                                        Email #${task.email_id}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Task management methods
+            selectTask(taskId) {
+                const task = this.state.tasks.find(t => t.id === taskId);
+                if (!task) return;
+
+                this.state.selectedTask = task;
+                this.renderTaskDetail(task);
+
+                // Update visual selection
+                document.querySelectorAll('.task-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                event.currentTarget.classList.add('selected');
+            }
+
+            renderTaskDetail(task) {
+                const container = document.getElementById('taskDetail');
+                
+                container.innerHTML = `
+                    <div style="border-bottom: 1px solid var(--color-border); padding: var(--space-6);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-4);">
+                            <div style="flex: 1;">
+                                <h2 style="margin: 0 0 var(--space-2) 0; font-size: var(--font-size-xl); font-weight: 600; color: var(--color-text-primary);">
+                                    Reply to: ${this.escapeHtml(task.email_subject || 'Email Task')}
+                                </h2>
+                                <div style="display: flex; flex-wrap: wrap; gap: var(--space-4); font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                                    <span><strong>From:</strong> ${this.escapeHtml(task.email_sender || 'Unknown')}</span>
+                                    <span><strong>Created:</strong> ${this.formatDateTime(task.created_at)}</span>
+                                    <span><strong>Email ID:</strong> #${task.email_id}</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: var(--space-2);">
+                                <span class="classification-tag classification-${task.priority === 'high' ? 'urgent' : task.priority === 'medium' ? 'action_required' : 'informational'}">
+                                    ${task.priority || 'normal'} priority
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="flex: 1; padding: var(--space-6); overflow-y: auto;">
+                        ${task.original_email ? `
+                            <div style="margin-bottom: var(--space-6); padding: var(--space-4); background-color: var(--color-bg-tertiary); border-radius: var(--radius-lg);">
+                                <h3 style="margin: 0 0 var(--space-2) 0; color: var(--color-text-primary); display: flex; align-items: center; gap: var(--space-2);">
+                                    <i class="fas fa-envelope"></i>Original Email
+                                </h3>
+                                <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: 1.6;">
+                                    ${this.formatEmailBody(task.original_email)}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        ${task.draft_reply ? `
+                            <div style="margin-bottom: var(--space-6);">
+                                <h3 style="margin: 0 0 var(--space-3) 0; color: var(--color-text-primary); display: flex; align-items: center; gap: var(--space-2);">
+                                    <i class="fas fa-robot"></i>AI-Generated Draft Reply
+                                </h3>
+                                <textarea class="form-control" rows="8" style="resize: vertical;" 
+                                          placeholder="AI is generating your draft reply..." 
+                                          id="draftReply${task.id}">${this.escapeHtml(task.draft_reply)}</textarea>
+                                <div style="margin-top: var(--space-2); font-size: var(--font-size-xs); color: var(--color-text-tertiary);">
+                                    You can edit this draft before sending. Generated by AI Assistant
+                                </div>
+                            </div>
+                        ` : `
+                            <div style="margin-bottom: var(--space-6); padding: var(--space-4); background-color: var(--color-warning-50); border-radius: var(--radius-lg);">
+                                <h3 style="margin: 0 0 var(--space-2) 0; color: var(--color-warning-700); display: flex; align-items: center; gap: var(--space-2);">
+                                    <i class="fas fa-clock"></i>Draft in Progress
+                                </h3>
+                                <p style="margin: 0; color: var(--color-warning-600);">AI is generating a draft reply for this email...</p>
+                            </div>
+                        `}
+                        
+                        ${task.ai_context ? `
+                            <div style="margin-bottom: var(--space-6); padding: var(--space-4); background-color: var(--color-primary-50); border-radius: var(--radius-lg);">
+                                <h3 style="margin: 0 0 var(--space-2) 0; color: var(--color-primary-700); display: flex; align-items: center; gap: var(--space-2);">
+                                    <i class="fas fa-lightbulb"></i>AI Context & Suggestions
+                                </h3>
+                                <p style="margin: 0; color: var(--color-primary-600);">${this.escapeHtml(task.ai_context)}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div style="border-top: 1px solid var(--color-border); padding: var(--space-6);">
+                        <div style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
+                            ${task.draft_reply ? `
+                                <button class="btn btn-success" onclick="app.sendTaskReply('${task.id}')">
+                                    <i class="fas fa-paper-plane" style="margin-right: var(--space-2);"></i>Send Reply
+                                </button>
+                                <button class="btn btn-primary" onclick="app.editTaskDraft('${task.id}')">
+                                    <i class="fas fa-edit" style="margin-right: var(--space-2);"></i>Edit Draft
+                                </button>
+                            ` : ''}
+                            <button class="btn btn-secondary" onclick="app.regenerateTaskDraft('${task.id}')">
+                                <i class="fas fa-sync-alt" style="margin-right: var(--space-2);"></i>Regenerate Draft
+                            </button>
+                            <button class="btn btn-secondary" onclick="app.markTaskComplete('${task.id}')">
+                                <i class="fas fa-check" style="margin-right: var(--space-2);"></i>Mark Complete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Task action methods
+            async sendTaskReply(taskId) {
+                const task = this.state.tasks.find(t => t.id === taskId);
+                if (!task) return;
+
+                const draftElement = document.getElementById(`draftReply${taskId}`);
+                const replyText = draftElement ? draftElement.value : task.draft_reply;
+
+                if (!replyText.trim()) {
+                    this.showToast('Draft reply is empty', 'error');
+                    return;
+                }
+
+                this.showProgress();
+                try {
+                    // API call would go here
+                    await this.simulateApiCall();
+                    
+                    // Remove task from list
+                    this.state.tasks = this.state.tasks.filter(t => t.id !== taskId);
+                    this.filterTasks();
+                    this.updateTaskCounts();
+                    
+                    // Clear detail view
+                    this.clearTaskDetail();
+                    
+                    this.showToast('Reply sent successfully', 'success');
+                } catch (error) {
+                    this.showToast('Failed to send reply', 'error');
+                } finally {
+                    this.hideProgress();
+                }
+            }
+
+            clearTaskDetail() {
+                const container = document.getElementById('taskDetail');
+                container.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column; gap: var(--space-4); color: var(--color-text-tertiary);">
+                        <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--color-success-500);"></i>
+                        <div style="text-align: center;">
+                            <h3 style="margin: 0 0 var(--space-2) 0; color: var(--color-text-secondary);">Task Completed</h3>
+                            <p style="margin: 0;">The reply has been sent successfully</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Action methods
+            async replyToEmail(emailId) {
+                // This would open a compose dialog
+                this.showToast('Reply functionality would be implemented here', 'info');
+            }
+
+            async forwardEmail(emailId) {
+                this.showToast('Forward functionality would be implemented here', 'info');
+            }
+
+            async createTaskFromEmail(emailId) {
+                this.showProgress();
+                try {
+                    await this.simulateApiCall();
+                    this.showToast('Task created successfully', 'success');
+                    
+                    // Switch to tasks view
+                    this.switchView('tasks');
+                    
+                    // Reload tasks after a delay
+                    setTimeout(() => this.loadTasks(), 1000);
+                } catch (error) {
+                    this.showToast('Failed to create task', 'error');
+                } finally {
+                    this.hideProgress();
+                }
+            }
+
+            async markEmailAsRead(emailId) {
+                try {
+                    // Update local state immediately for better UX
+                    const email = this.state.emails.find(e => e.id === emailId);
+                    if (email) {
+                        email.read = true;
+                        this.updateEmailCounts();
+                        this.filterEmails(); // Refresh display
+                    }
+
+                    // API call would go here
+                    await this.simulateApiCall();
+                } catch (error) {
+                    // Revert local state on error
+                    if (email) {
+                        email.read = false;
+                        this.updateEmailCounts();
+                        this.filterEmails();
+                    }
+                    this.showToast('Failed to mark email as read', 'error');
+                }
+            }
+
+            // Date range modal
+            showDateRangeModal() {
+                document.getElementById('dateRangeModal').style.display = 'flex';
+                
+                // Set default dates (last 2 months to today)
+                const today = new Date();
+                const twoMonthsAgo = new Date();
+                twoMonthsAgo.setMonth(today.getMonth() - 2);
+                
+                document.getElementById('fromDate').value = twoMonthsAgo.toISOString().split('T')[0];
+                document.getElementById('toDate').value = today.toISOString().split('T')[0];
+            }
+
+            closeDateRangeModal() {
+                document.getElementById('dateRangeModal').style.display = 'none';
+                
+                // Reset timeframe selector
+                document.getElementById('timeframeSelect').value = this.state.currentTimeframe;
+            }
+
+            applyDateRange() {
+                const fromDate = document.getElementById('fromDate').value;
+                const toDate = document.getElementById('toDate').value;
+                
+                if (!fromDate || !toDate) {
+                    this.showToast('Please select both from and to dates', 'error');
+                    return;
+                }
+                
+                if (new Date(fromDate) > new Date(toDate)) {
+                    this.showToast('From date must be before to date', 'error');
+                    return;
+                }
+
+                this.state.customDateRange = { from: fromDate, to: toDate };
+                this.state.currentTimeframe = 'custom';
+                
+                this.closeDateRangeModal();
+                this.loadEmails();
+            }
+
+            // Responsive handling
+            handleResize() {
+                const isMobile = window.innerWidth < 1024;
+                const sidebar = document.getElementById('sidebar');
+                const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+                
+                mobileMenuBtn.style.display = isMobile ? 'block' : 'none';
+                
+                if (!isMobile) {
+                    sidebar.classList.remove('open');
+                }
+            }
+
+            // Progress and loading
+            showProgress() {
+                document.getElementById('progressBar').style.display = 'block';
+                document.getElementById('progressBarFill').style.width = '30%';
+                
+                setTimeout(() => {
+                    document.getElementById('progressBarFill').style.width = '60%';
+                }, 500);
+            }
+
+            hideProgress() {
+                document.getElementById('progressBarFill').style.width = '100%';
+                
+                setTimeout(() => {
+                    document.getElementById('progressBar').style.display = 'none';
+                    document.getElementById('progressBarFill').style.width = '0%';
+                }, 200);
+            }
+
+            showLoading(text = 'Loading...') {
+                document.getElementById('loadingText').textContent = text;
+                document.getElementById('loadingOverlay').style.display = 'flex';
+            }
+
+            hideLoading() {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+
+            // Toast notifications
+            showToast(message, type = 'info', duration = 4000) {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                
+                const icons = {
+                    success: 'fa-check-circle',
+                    error: 'fa-exclamation-triangle',
+                    warning: 'fa-exclamation-triangle',
+                    info: 'fa-info-circle'
+                };
+
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `
+                    <i class="fas ${icons[type] || icons.info}" style="color: var(--color-${type === 'error' ? 'danger' : type}-500);"></i>
+                    <span>${this.escapeHtml(message)}</span>
+                `;
+
+                container.appendChild(toast);
+
+                // Trigger animation
+                requestAnimationFrame(() => {
+                    toast.classList.add('show');
+                });
+
+                // Auto remove
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.parentNode.removeChild(toast);
+                        }
+                    }, 300);
+                }, duration);
+            }
+
+            // Utility methods
+            escapeHtml(text) {
+                if (typeof text !== 'string') return text;
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            formatDate(dateString) {
+                if (!dateString) return 'Unknown';
+                
+                const date = new Date(dateString);
+                const now = new Date();
+                const diff = now - date;
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                
+                if (days === 0) {
+                    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                } else if (days === 1) {
+                    return 'Yesterday';
+                } else if (days < 7) {
+                    return `${days}d ago`;
+                } else {
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                }
+            }
+
+            formatDateTime(dateString) {
+                if (!dateString) return 'Unknown';
+                
+                const date = new Date(dateString);
+                return date.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            formatClassification(classification) {
+                if (!classification) return 'Informational';
+                return classification.replace('_', ' ').split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+
+            formatEmailBody(body) {
+                if (!body) return '';
+                
+                // Convert line breaks to HTML
+                return body.replace(/\n/g, '<br>');
+            }
+
+            // Mock data for development
+            async simulateApiCall(delay = 1000) {
+                return new Promise(resolve => setTimeout(resolve, delay));
+            }
+
+            loadMockEmails() {
+                this.state.emails = [
+                    {
+                        id: 1,
+                        sender: 'john.doe@company.com',
+                        subject: 'Quarterly Review Meeting - Action Required',
+                        body: 'Hi Team,\n\nWe need to schedule our quarterly review meeting for next week. Please review the attached documents and come prepared with your departmental updates.\n\nThe meeting will cover:\n- Q3 Performance Review\n- Q4 Planning\n- Budget Allocations\n- Team Updates\n\nPlease confirm your availability for Tuesday or Wednesday afternoon.\n\nBest regards,\nJohn',
+                        preview: 'We need to schedule our quarterly review meeting for next week. Please review the attached documents...',
+                        date: new Date().toISOString(),
+                        read: false,
+                        classification: 'action_required',
+                        priority: 'high',
+                        has_attachments: true,
+                        ai_summary: 'Request to schedule quarterly review meeting with agenda items and preparation requirements.'
+                    },
+                    {
+                        id: 2,
+                        sender: 'urgent-alerts@system.com',
+                        subject: 'URGENT: System Maintenance Required',
+                        body: 'URGENT NOTICE: Critical system maintenance is required tonight at 11 PM EST. Expected downtime is 2-3 hours. Please save all work and log out by 10:45 PM.',
+                        preview: 'URGENT NOTICE: Critical system maintenance is required tonight at 11 PM EST...',
+                        date: new Date(Date.now() - 3600000).toISOString(),
+                        read: false,
+                        classification: 'urgent',
+                        priority: 'high',
+                        has_attachments: false,
+                        ai_summary: 'Critical system maintenance notification with specific timing and action requirements.'
+                    },
+                    {
+                        id: 3,
+                        sender: 'newsletter@company.com',
+                        subject: 'Weekly Company Newsletter - Latest Updates',
+                        body: 'Here are this week\'s company updates, achievements, and upcoming events...',
+                        preview: 'Here are this week\'s company updates, achievements, and upcoming events...',
+                        date: new Date(Date.now() - 86400000).toISOString(),
+                        read: true,
+                        classification: 'informational',
+                        priority: 'low',
+                        has_attachments: false,
+                        ai_summary: 'Weekly company newsletter with updates and announcements.'
+                    }
+                ];
+
+                // Generate additional mock emails for testing virtual scrolling
+                for (let i = 4; i <= 100; i++) {
+                    this.state.emails.push({
+                        id: i,
+                        sender: `user${i}@example.com`,
+                        subject: `Email Subject ${i} - ${['Meeting Request', 'Status Update', 'Project Review', 'Question about'][i % 4]} ${Math.floor(i / 4)}`,
+                        body: `This is the body content for email ${i}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
+                        preview: `This is the preview for email ${i}. Lorem ipsum dolor sit amet...`,
+                        date: new Date(Date.now() - (i * 3600000)).toISOString(),
+                        read: Math.random() > 0.3,
+                        classification: ['urgent', 'action_required', 'informational'][i % 3],
+                        priority: ['high', 'medium', 'low'][i % 3],
+                        has_attachments: Math.random() > 0.7,
+                        ai_summary: `AI-generated summary for email ${i} describing the key points and action items.`
+                    });
+                }
+
+                this.updateEmailCounts();
+                this.filterEmails();
+            }
+
+            loadMockTasks() {
+                this.state.tasks = [
+                    {
+                        id: 1,
+                        email_id: 1,
+                        email_subject: 'Quarterly Review Meeting - Action Required',
+                        email_sender: 'john.doe@company.com',
+                        status: 'ready',
+                        priority: 'high',
+                        created_at: new Date().toISOString(),
+                        draft_reply: 'Hi John,\n\nThank you for organizing the quarterly review meeting. I can confirm my availability for Tuesday afternoon at 2 PM.\n\nI have reviewed the attached documents and prepared my departmental updates covering:\n- Q3 achievements and challenges\n- Key metrics and performance indicators\n- Q4 strategic initiatives\n- Budget requirements and justifications\n\nI look forward to the productive discussion.\n\nBest regards',
+                        ai_context: 'This appears to be a routine quarterly review scheduling request. The reply confirms attendance and shows preparation.',
+                        original_email: 'Hi Team,\n\nWe need to schedule our quarterly review meeting for next week...'
+                    },
+                    {
+                        id: 2,
+                        email_id: 2,
+                        email_subject: 'URGENT: System Maintenance Required',
+                        email_sender: 'urgent-alerts@system.com',
+                        status: 'ready',
+                        priority: 'high',
+                        created_at: new Date(Date.now() - 1800000).toISOString(),
+                        draft_reply: 'Acknowledged. I will ensure all team members are notified about the system maintenance window tonight from 11 PM EST.\n\nWe will:\n- Save all current work\n- Log out by 10:45 PM\n- Notify all active users\n- Resume work tomorrow morning after system verification\n\nPlease confirm when maintenance is complete.',
+                        ai_context: 'This is a critical system maintenance notification requiring immediate acknowledgment and team coordination.',
+                        original_email: 'URGENT NOTICE: Critical system maintenance is required tonight at 11 PM EST...'
+                    }
+                ];
+
+                this.updateTaskCounts();
+                this.filterTasks();
+            }
+
+            loadMockAnalytics() {
+                this.state.analytics = {
+                    totalEmails: this.state.emails.length,
+                    urgentEmails: this.state.emails.filter(e => e.classification === 'urgent').length,
+                    actionRequired: this.state.emails.filter(e => e.classification === 'action_required').length,
+                    processedEmails: this.state.emails.filter(e => e.read).length,
+                    loaded: true
+                };
+
+                this.updateAnalyticsDisplay();
+            }
+
+            updateAnalyticsDisplay() {
+                if (this.state.analytics.loaded) {
+                    document.getElementById('totalEmailsStat').textContent = this.state.analytics.totalEmails || 0;
+                    document.getElementById('urgentEmailsStat').textContent = this.state.analytics.urgentEmails || 0;
+                    document.getElementById('actionRequiredStat').textContent = this.state.analytics.actionRequired || 0;
+                    document.getElementById('processedEmailsStat').textContent = this.state.analytics.processedEmails || 0;
+                }
+            }
+        }
+
+        // Initialize the application
+        let app;
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new ProductionEmailApp();
+        });
+
+        // Global error handling
+        window.addEventListener('error', (event) => {
+            console.error('Global error:', event.error);
+            if (app) {
+                app.showToast('An unexpected error occurred', 'error');
+            }
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Unhandled promise rejection:', event.reason);
+            if (app) {
+                app.showToast('An unexpected error occurred', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
