@@ -11,7 +11,7 @@ python-multipart==0.0.6
 # HTTP Clients and Async Support
 aiohttp==3.9.1
 httpx==0.25.2
-anyio==3.9.0
+anyio==3.7.1
 
 # Database Support
 # SQLite (built-in with Python)
