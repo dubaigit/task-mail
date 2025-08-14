@@ -4,12 +4,14 @@ import { Badge, Button, Card } from '../ui';
 
 interface Task {
   id: number;
-  title: string;
+  task_id: string;
+  subject: string;
   description: string;
-  status: string;
+  task_type: string;
   priority: string;
+  assignee: string;
   due_date: string | null;
-  email_id: number | null;
+  status: string;
 }
 
 const TaskList: React.FC = () => {
@@ -26,7 +28,7 @@ const TaskList: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('http://localhost:8000/tasks/');
+      const response = await fetch('http://localhost:8002/tasks/');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -103,7 +105,7 @@ const TaskList: React.FC = () => {
             <Card key={task.id} className="p-4">
               <div className="space-y-3">
                 <div className="flex items-start justify-between">
-                  <h2 className="text-lg font-semibold">{task.title}</h2>
+                  <h2 className="text-lg font-semibold">{task.subject}</h2>
                   <div className="flex items-center space-x-2">
                     <Badge className={getStatusColor(task.status)}>
                       {task.status}
@@ -123,14 +125,12 @@ const TaskList: React.FC = () => {
                       Due: {new Date(task.due_date).toLocaleDateString()}
                     </div>
                   )}
-                  {task.email_id && (
-                    <Button
-                      variant="outline"
-                      onClick={() => window.location.href = `/?email=${task.email_id}`}
-                    >
-                      View Email
-                    </Button>
-                  )}
+                  <Button
+                    variant="outline"
+                    onClick={() => window.location.href = `/?task=${task.task_id}`}
+                  >
+                    View Details
+                  </Button>
                 </div>
               </div>
             </Card>

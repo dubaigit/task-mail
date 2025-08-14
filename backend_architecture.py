@@ -534,6 +534,7 @@ async def get_batch_status(batch_id: int, user: dict = Depends(get_current_user_
 
 # Task endpoints
 @app.get("/tasks")
+@app.get("/tasks/")
 async def get_tasks(
     status: Optional[str] = None,
     priority: Optional[str] = None,
@@ -609,18 +610,76 @@ async def update_task_status(
 @app.get("/analytics/dashboard")
 async def get_dashboard_analytics(user: dict = Depends(get_current_user_optional)):
     """Get dashboard analytics data"""
-    # Return mock analytics data for testing
+    # Return mock analytics data compatible with frontend interface
     analytics = {
         "total_emails": 1247,
         "unread_emails": 23,
-        "urgent_emails": 5,
-        "pending_tasks": 8,
-        "processing_rate": "41.6 emails/day",
-        "system_health": "excellent", 
-        "last_updated": datetime.now().isoformat()
+        "classifications": {
+            "NEEDS_REPLY": 156,
+            "FYI": 423,
+            "APPROVAL_REQUIRED": 89,
+            "CREATE_TASK": 67,
+            "DELEGATE": 34,
+            "MEETING": 78,
+            "NEWSLETTER": 234,
+            "AUTOMATED": 166
+        },
+        "urgencies": {
+            "CRITICAL": 12,
+            "HIGH": 89,
+            "MEDIUM": 456,
+            "LOW": 690
+        },
+        "processing_stats": {
+            "accuracy_estimates": {
+                "critical_classes": "94.2%",
+                "general_classification": "91.7%", 
+                "urgency_detection": "88.9%",
+                "sentiment_analysis": "85.3%"
+            }
+        }
     }
     
     return analytics
+
+# Draft endpoints
+@app.get("/drafts")
+@app.get("/drafts/")
+async def get_drafts(user: dict = Depends(get_current_user_optional)):
+    """Get draft replies"""
+    # Return mock draft data for testing
+    mock_drafts = [
+        {
+            "id": 1,
+            "email_id": 1,
+            "content": """Hi John,
+
+Thank you for reaching out about tomorrow's meeting. I'll be there and have prepared the quarterly review materials we discussed.
+
+Looking forward to our discussion.
+
+Best regards,
+[Your Name]""",
+            "confidence": 0.89,
+            "created_at": (datetime.now() - timedelta(minutes=30)).isoformat()
+        },
+        {
+            "id": 2,
+            "email_id": 3,
+            "content": """Hi Sarah,
+
+I've reviewed the client proposal and it looks comprehensive. I have a few suggestions for the timeline section that I think would improve our delivery schedule.
+
+Can we schedule a call to discuss these changes?
+
+Best,
+[Your Name]""",
+            "confidence": 0.94,
+            "created_at": (datetime.now() - timedelta(hours=1)).isoformat()
+        }
+    ]
+    
+    return mock_drafts
 
 # ============================================================================
 # WebSocket Endpoints

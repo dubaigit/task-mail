@@ -26,7 +26,7 @@ const DraftList: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('http://localhost:8000/drafts/');
+      const response = await fetch('http://localhost:8002/drafts/');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

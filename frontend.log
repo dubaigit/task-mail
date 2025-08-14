@@ -5263,3 +5263,79 @@ Compiling...
 Compiled successfully!
 webpack compiled successfully
 No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/components/Tasks/TaskList.tsx:108:63
+TS2339: Property 'title' does not exist on type 'Task'.
+    106 |               <div className="space-y-3">
+    107 |                 <div className="flex items-start justify-between">
+  > 108 |                   <h2 className="text-lg font-semibold">{task.title}</h2>
+        |                                                               ^^^^^
+    109 |                   <div className="flex items-center space-x-2">
+    110 |                     <Badge className={getStatusColor(task.status)}>
+    111 |                       {task.status}
+
+ERROR in src/components/Tasks/TaskList.tsx:128:25
+TS2339: Property 'email_id' does not exist on type 'Task'.
+    126 |                     </div>
+    127 |                   )}
+  > 128 |                   {task.email_id && (
+        |                         ^^^^^^^^
+    129 |                     <Button
+    130 |                       variant="outline"
+    131 |                       onClick={() => window.location.href = `/?email=${task.email_id}`}
+
+ERROR in src/components/Tasks/TaskList.tsx:131:77
+TS2339: Property 'email_id' does not exist on type 'Task'.
+    129 |                     <Button
+    130 |                       variant="outline"
+  > 131 |                       onClick={() => window.location.href = `/?email=${task.email_id}`}
+        |                                                                             ^^^^^^^^
+    132 |                     >
+    133 |                       View Email
+    134 |                     </Button>
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/components/Tasks/TaskList.tsx:128:25
+TS2339: Property 'email_id' does not exist on type 'Task'.
+    126 |                     </div>
+    127 |                   )}
+  > 128 |                   {task.email_id && (
+        |                         ^^^^^^^^
+    129 |                     <Button
+    130 |                       variant="outline"
+    131 |                       onClick={() => window.location.href = `/?email=${task.email_id}`}
+
+ERROR in src/components/Tasks/TaskList.tsx:131:77
+TS2339: Property 'email_id' does not exist on type 'Task'.
+    129 |                     <Button
+    130 |                       variant="outline"
+  > 131 |                       onClick={() => window.location.href = `/?email=${task.email_id}`}
+        |                                                                             ^^^^^^^^
+    132 |                     >
+    133 |                       View Email
+    134 |                     </Button>
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.

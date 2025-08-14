@@ -28,7 +28,7 @@ const Analytics: React.FC = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('http://localhost:8000/stats/');
+      const response = await fetch('http://localhost:8002/analytics/dashboard');
       const data = await response.json();
       setStats(data);
       setLoading(false);
