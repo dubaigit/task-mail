@@ -70,12 +70,12 @@ const DraftList: React.FC = () => {
     console.log('Sending draft:', draftId);
   };
 
-  if (loading) return <div className="flex justify-center items-center py-8">Loading drafts...</div>;
+  if (loading) return <div className="flex justify-center items-center py-8 text-muted-foreground">Loading drafts...</div>;
   if (error) return (
-    <div className="text-red-500 p-4 border border-red-300 rounded-lg bg-red-50">
+    <div className="text-destructive p-4 border border-destructive/20 rounded-lg bg-destructive/10">
       <p className="font-semibold">Error loading drafts:</p>
       <p>{error}</p>
-      <Button onClick={fetchDrafts} className="mt-2">
+      <Button onClick={fetchDrafts} className="mt-2" variant="danger">
         Try Again
       </Button>
     </div>
@@ -84,7 +84,7 @@ const DraftList: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Draft Replies</h1>
+        <h1 className="text-2xl font-bold text-foreground">Draft Replies</h1>
         <Button onClick={fetchDrafts}>Refresh</Button>
       </div>
 
@@ -94,10 +94,10 @@ const DraftList: React.FC = () => {
           <Card key={draft.id} className="p-4">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Badge className="bg-blue-100 text-blue-800">
+                <Badge variant="info">
                   {Math.round(draft.confidence * 100)}% confidence
                 </Badge>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-muted-foreground">
                   Created: {new Date(draft.created_at).toLocaleString()}
                 </span>
               </div>
@@ -124,7 +124,7 @@ const DraftList: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <pre className="whitespace-pre-wrap font-sans">
+                  <pre className="whitespace-pre-wrap font-sans text-foreground">
                     {draft.content}
                   </pre>
                   <div className="flex justify-end space-x-2">
@@ -146,7 +146,7 @@ const DraftList: React.FC = () => {
           </Card>
           ))
         ) : (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted-foreground">
             <p className="text-lg">No draft replies found</p>
             <p className="text-sm">Draft replies will appear here when AI generates responses</p>
           </div>

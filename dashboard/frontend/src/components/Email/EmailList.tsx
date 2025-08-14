@@ -54,37 +54,37 @@ const EmailList: React.FC = () => {
   const getClassificationColor = (classification: string) => {
     switch (classification) {
       case 'NEEDS_REPLY':
-        return 'bg-blue-100 text-blue-800';
+        return 'info';
       case 'APPROVAL_REQUIRED':
-        return 'bg-red-100 text-red-800';
+        return 'danger';
       case 'CREATE_TASK':
-        return 'bg-purple-100 text-purple-800';
+        return 'warning';
       case 'DELEGATE':
-        return 'bg-orange-100 text-orange-800';
+        return 'warning';
       case 'FYI_ONLY':
-        return 'bg-green-100 text-green-800';
+        return 'success';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'default';
     }
   };
 
   const getUrgencyIcon = (urgency: string) => {
     switch (urgency) {
       case 'CRITICAL':
-        return <span className="w-5 h-5 text-red-500 font-bold">!</span>;
+        return <span className="w-5 h-5 text-destructive font-bold">!</span>;
       case 'HIGH':
-        return <span className="w-5 h-5 text-orange-500 font-bold">★</span>;
+        return <span className="w-5 h-5 text-warning font-bold">★</span>;
       default:
         return null;
     }
   };
 
-  if (loading) return <div className="flex justify-center items-center py-8">Loading emails...</div>;
+  if (loading) return <div className="flex justify-center items-center py-8 text-muted-foreground">Loading emails...</div>;
   if (error) return (
-    <div className="text-red-500 p-4 border border-red-300 rounded-lg bg-red-50">
+    <div className="text-destructive p-4 border border-destructive/20 rounded-lg bg-destructive/10">
       <p className="font-semibold">Error loading emails:</p>
       <p>{error}</p>
-      <Button onClick={fetchEmails} className="mt-2">
+      <Button onClick={fetchEmails} className="mt-2" variant="danger">
         Try Again
       </Button>
     </div>
@@ -93,7 +93,7 @@ const EmailList: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Inbox</h1>
+        <h1 className="text-2xl font-bold text-foreground">Inbox</h1>
         <Button onClick={fetchEmails}>Refresh</Button>
       </div>
 
@@ -105,32 +105,32 @@ const EmailList: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     {getUrgencyIcon(email.urgency)}
-                    <h2 className="text-lg font-semibold">{email.subject}</h2>
+                    <h2 className="text-lg font-semibold text-foreground">{email.subject}</h2>
                   </div>
-                  <p className="text-gray-600">{email.sender}</p>
+                  <p className="text-muted-foreground">{email.sender}</p>
                   <div className="flex items-center space-x-2">
-                    <Badge className={getClassificationColor(email.classification)}>
+                    <Badge variant={getClassificationColor(email.classification)}>
                       {email.classification}
                     </Badge>
-                    <Badge className="bg-gray-100">
+                    <Badge variant="default">
                       {Math.round(email.confidence * 100)}% confidence
                     </Badge>
                     {email.has_draft && (
-                      <Badge className="bg-green-100 text-green-800">
-                        <span className="w-4 h-4 mr-1 text-green-600 font-bold">✓</span>
+                      <Badge variant="success">
+                        <span className="w-4 h-4 mr-1 font-bold">✓</span>
                         Draft Ready
                       </Badge>
                     )}
                   </div>
                 </div>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-muted-foreground">
                   {new Date(email.date).toLocaleString()}
                 </span>
               </div>
             </Card>
           ))
         ) : (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted-foreground">
             <p className="text-lg">No emails found</p>
             <p className="text-sm">Try refreshing or check your email configuration</p>
           </div>

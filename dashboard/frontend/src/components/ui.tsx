@@ -8,7 +8,7 @@ interface CardProps {
 
 export const Card: React.FC<CardProps> = ({ children, className = '' }) => {
   return (
-    <div className={`bg-white shadow rounded-lg p-6 ${className}`}>
+    <div className={`email-card p-6 ${className}`}>
       {children}
     </div>
   );
@@ -27,15 +27,15 @@ export const Badge: React.FC<BadgeProps> = ({
   className = '' 
 }) => {
   const variantClasses = {
-    default: 'bg-gray-100 text-gray-800',
-    success: 'bg-green-100 text-green-800',
-    warning: 'bg-yellow-100 text-yellow-800',
-    danger: 'bg-red-100 text-red-800',
-    info: 'bg-blue-100 text-blue-800'
+    default: 'bg-secondary text-secondary-foreground',
+    success: 'bg-success/10 text-success border-success/20 border',
+    warning: 'bg-warning/10 text-warning border-warning/20 border',
+    danger: 'bg-destructive/10 text-destructive border-destructive/20 border',
+    info: 'bg-primary/10 text-primary border-primary/20 border'
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variantClasses[variant]} ${className}`}>
+    <span className={`email-badge ${variantClasses[variant]} ${className}`}>
       {children}
     </span>
   );
@@ -56,10 +56,10 @@ export const Button: React.FC<ButtonProps> = ({
   ...props 
 }) => {
   const variantClasses = {
-    primary: 'bg-indigo-600 text-white hover:bg-indigo-700',
-    secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300',
-    danger: 'bg-red-600 text-white hover:bg-red-700',
-    outline: 'border border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+    primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
+    secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+    danger: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+    outline: 'border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground'
   };
 
   const sizeClasses = {
@@ -70,7 +70,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={`inline-flex items-center font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+      className={`email-button focus:ring-primary ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
       {...props}
     >
       {children}
@@ -89,7 +89,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
 }) => {
   return (
     <textarea
-      className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${className}`}
+      className={`block w-full rounded-md border-input bg-background text-foreground shadow-sm focus:border-primary focus:ring-primary sm:text-sm transition-colors ${className}`}
       {...props}
     />
   );

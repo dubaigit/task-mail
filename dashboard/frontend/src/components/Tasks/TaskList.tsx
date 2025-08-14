@@ -55,35 +55,35 @@ const TaskList: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'warning';
       case 'in_progress':
-        return 'bg-blue-100 text-blue-800';
+        return 'info';
       case 'completed':
-        return 'bg-green-100 text-green-800';
+        return 'success';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'default';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
       case 'high':
-        return 'bg-red-100 text-red-800';
+        return 'danger';
       case 'normal':
-        return 'bg-blue-100 text-blue-800';
+        return 'info';
       case 'low':
-        return 'bg-green-100 text-green-800';
+        return 'success';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'default';
     }
   };
 
-  if (loading) return <div className="flex justify-center items-center py-8">Loading tasks...</div>;
+  if (loading) return <div className="flex justify-center items-center py-8 text-muted-foreground">Loading tasks...</div>;
   if (error) return (
-    <div className="text-red-500 p-4 border border-red-300 rounded-lg bg-red-50">
+    <div className="text-destructive p-4 border border-destructive/20 rounded-lg bg-destructive/10">
       <p className="font-semibold">Error loading tasks:</p>
       <p>{error}</p>
-      <Button onClick={fetchTasks} className="mt-2">
+      <Button onClick={fetchTasks} className="mt-2" variant="danger">
         Try Again
       </Button>
     </div>
@@ -92,7 +92,7 @@ const TaskList: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Tasks</h1>
+        <h1 className="text-2xl font-bold text-foreground">Tasks</h1>
         <Button onClick={fetchTasks}>
           <span className="w-5 h-5 mr-2 font-bold">↻</span>
           Refresh
@@ -105,22 +105,22 @@ const TaskList: React.FC = () => {
             <Card key={task.id} className="p-4">
               <div className="space-y-3">
                 <div className="flex items-start justify-between">
-                  <h2 className="text-lg font-semibold">{task.subject}</h2>
+                  <h2 className="text-lg font-semibold text-foreground">{task.subject}</h2>
                   <div className="flex items-center space-x-2">
-                    <Badge className={getStatusColor(task.status)}>
+                    <Badge variant={getStatusColor(task.status)}>
                       {task.status}
                     </Badge>
-                    <Badge className={getPriorityColor(task.priority)}>
+                    <Badge variant={getPriorityColor(task.priority)}>
                       {task.priority} priority
                     </Badge>
                   </div>
                 </div>
 
-                <p className="text-gray-600">{task.description}</p>
+                <p className="text-muted-foreground">{task.description}</p>
 
                 <div className="flex items-center justify-between">
                   {task.due_date && (
-                    <div className="flex items-center text-gray-500">
+                    <div className="flex items-center text-muted-foreground">
                       <span className="w-5 h-5 mr-1 font-bold">📅</span>
                       Due: {new Date(task.due_date).toLocaleDateString()}
                     </div>
@@ -136,7 +136,7 @@ const TaskList: React.FC = () => {
             </Card>
           ))
         ) : (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted-foreground">
             <p className="text-lg">No tasks found</p>
             <p className="text-sm">Tasks will appear here when emails require action</p>
           </div>
