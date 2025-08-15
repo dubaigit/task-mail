@@ -1,31 +1,34 @@
 # Agent Coordination Hub
 
 ## Direction Snapshot
-**Phase**: Real Data Integration & UI Enhancement  
-**Health**: 🟡 Yellow  
-**Course**: Integrate 2+ months of real Apple Mail data with enhanced UI/UX  
-**Last Updated**: 2025-08-14T14:30:00Z  
+
+**North Star:** Transform Email Intelligence Dashboard into production-ready application with modern UI/UX, dark mode, live Apple Mail data integration, and zero missing functionality
+
+**Phase:** Analysis • **Health:** 🟡 yellow — Current interface functional but needs complete redesign for production standards
+
+**Course Signal:** ↻ pivot — Moving from functional prototype to production-grade application with modern design system
 
 ## Status Pulse
-### ✅ Implementation Phase Complete
-All 4 implementation agents have successfully delivered production-ready components:
-- **Backend (IMPL-001)**: FastAPI architecture with WebSocket, PostgreSQL, Redis caching
-- **Performance (IMPL-002)**: 50%+ cost reduction through batching, handles 100+ emails/sec
-- **AI Integration (IMPL-003)**: Real GPT-5 with voice matching, intelligent task extraction
-- **UI (IMPL-004)**: React with virtual scrolling, supports 10,000+ emails smoothly
 
-**Production Readiness**: All critical requirements met, system tested at scale
+### Now
+- ✅ Current dashboard works with live Apple Mail data (8,018 emails verified)
+- ✅ Date range filtering functional but basic interface
+- ⚠️ No dark mode, limited accessibility, basic styling
+- ✅ All core backend APIs operational with real data
 
-### Current Objective
-Integrate real Apple Mail database data (2+ months) with enhanced configurable UI/UX and comprehensive interface improvements.
+### Next
+- Design system research and architecture
+- Modern UI/UX implementation with dark mode
+- Complete feature audit and enhancement
+- Component library selection and integration
+- Accessibility improvements (WCAG 2.1 AA compliance)
 
-### Critical Requirements
-- 🔄 Connect to real Apple Mail database instead of mock data - IN PROGRESS
-- 🔄 Implement configurable date range controls (2+ months default) - IN PROGRESS
-- 🔄 Enhanced UI/UX across all dashboard components - IN PROGRESS
-- ✅ Real-time task generation with GPT-5 integration - COMPLETED
-- ✅ Production-ready backend architecture - COMPLETED
-- 🔄 Comprehensive interface improvements for all aspects - IN PROGRESS
+### Later
+- Performance optimization with virtualization
+- Advanced email intelligence features (ML-powered insights)
+- Mobile responsive enhancements
+- Real-time email updates via WebSocket
+- Export functionality (CSV, PDF reports)
 
 ## Context Summary
 
@@ -55,29 +58,40 @@ All components tested and ready for integration and deployment.
 
 ### Active Tasks
 
-| Task ID | Agent | Status | Priority | Description | Dependencies | Started | ETA |
-|---------|-------|--------|----------|-------------|--------------|---------|-----|
-| REAL-001 | database-engineer | PENDING | CRITICAL | Integrate real Apple Mail database connection | None | - | 3h |
-| REAL-002 | backend-engineer | PENDING | CRITICAL | Replace mock data with real email fetching | REAL-001 | - | 2h |
-| REAL-003 | ui-ux-designer | PENDING | HIGH | Enhance all UI/UX components comprehensively | None | - | 4h |
-| REAL-004 | frontend-developer | PENDING | HIGH | Implement configurable date range controls | REAL-002 | - | 2h |
-| REAL-005 | integration-engineer | PENDING | HIGH | Connect enhanced UI with real data pipeline | REAL-002, REAL-004 | - | 2h |
-| REAL-006 | testing-engineer | PENDING | MEDIUM | Test with 2+ months of real email data | REAL-005 | - | 2h |
+| Task ID | Description | Owner | Status | Due | Dependencies |
+|---------|-------------|-------|--------|-----|--------------|
+| UI-001 | Design system framework selection | UI/UX Designer | 🔴 Not Started | Immediate | None |
+| UI-002 | Dark mode implementation strategy | Frontend Developer | 🔴 Not Started | Immediate | UI-001 |
+| UI-003 | Component library audit | Frontend Developer | 🔴 Not Started | Day 1 | UI-001 |
+| UI-004 | Accessibility audit current state | QA Engineer | 🔴 Not Started | Day 1 | None |
+| BE-001 | Live data validation complete | Backend Architect | ✅ Complete | - | None |
 
 ### Completed Tasks
 
-| Task ID | Agent | Completed | Description | Output |
-|---------|-------|-----------|-------------|--------|
-| IMPL-001 | backend-architect | 2025-08-14 10:00 | Design scalable email processing pipeline | FastAPI + PostgreSQL + Redis architecture |
-| IMPL-002 | performance-optimizer | 2025-08-14 10:30 | Implement caching and batching for 10k+ emails | 50%+ cost reduction, 100+ emails/sec |
-| IMPL-003 | gpt5-integrator | 2025-08-14 11:00 | Integrate GPT-5 for task generation | Voice matching + intelligent batching |
-| IMPL-004 | ui-developer | 2025-08-14 11:30 | Build expandable timeframe controls | Virtual scrolling for 10k+ emails |
+| Task ID | Description | Completed | Notes |
+|---------|-------------|-----------|-------|
+| BE-001 | Apple Mail database integration | 2025-01-15 | 8,018 emails successfully loaded |
+| FE-001 | Basic date range filtering | 2025-01-15 | Functional but needs UI enhancement |
 
-### Blocked Tasks
+## Risks & Watchpoints
 
-| Task ID | Blocker | Description | Resolution Path |
-|---------|---------|-------------|-----------------|
-| - | - | - | - |
+| Risk | Impact | Mitigation | Owner |
+|------|--------|------------|-------|
+| UI redesign may break existing functionality | High | Thorough testing, incremental rollout | Frontend Developer |
+| Dark mode implementation complexity | Medium | Design system research, use established patterns | UI/UX Designer |
+| Live data integration validation needed | Medium | Backend verification, data integrity checks | Backend Architect |
+| Performance degradation with large datasets | High | Implement virtualization, pagination | Frontend Developer |
+| Accessibility compliance gaps | High | WCAG audit, automated testing tools | QA Engineer |
+
+## Open Decisions
+
+| Decision | Options | Owner | Due | Status |
+|----------|---------|-------|-----|--------|
+| Design system framework | Tailwind CSS, Material-UI, Ant Design, Custom | UI/UX Designer | Immediate | 🔴 Pending |
+| Dark mode approach | CSS variables, Theme provider, Tailwind dark: | Frontend Developer | Immediate | 🔴 Pending |
+| State management | Context API, Redux, Zustand, Jotai | Frontend Developer | Day 1 | 🔴 Pending |
+| Component library | Shadcn/ui, Headless UI, Radix UI | Frontend Developer | Day 1 | 🔴 Pending |
+| Chart library enhancement | Keep Recharts, Switch to Visx, Chart.js | Frontend Developer | Day 2 | 🔴 Pending |
 
 ## Agent Registry
 
