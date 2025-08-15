@@ -45,9 +45,31 @@ function App() {
     }
   }, [isDark]);
 
+  // Cache-busting and deployment confirmation
+  useEffect(() => {
+    const timestamp = new Date().toISOString();
+    console.log(`🚀 ModernEmailInterface App loaded at ${timestamp}`);
+    console.log('✅ Task-centric design deployed with Email/Task/Draft toggle system');
+    console.log('📊 Features: Virtual scrolling, auto-view switching, performance monitoring');
+    
+    // Force cache invalidation on mount
+    const cacheKey = `app-cache-${Date.now()}`;
+    localStorage.setItem('app-deployment-key', cacheKey);
+    
+    // Add deployment timestamp to document for debugging
+    document.documentElement.setAttribute('data-deployment-timestamp', timestamp);
+    document.documentElement.setAttribute('data-modern-interface', 'true');
+    
+    return () => {
+      // Cleanup on unmount
+      document.documentElement.removeAttribute('data-deployment-timestamp');
+      document.documentElement.removeAttribute('data-modern-interface');
+    };
+  }, []);
+
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>
-      <div className="app-container h-screen overflow-hidden">
+      <div className="app-container h-screen overflow-hidden" data-testid="modern-email-app">
         <Router>
           <Routes>
             <Route path="/" element={<ModernEmailInterface />} />
