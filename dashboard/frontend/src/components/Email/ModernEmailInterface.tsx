@@ -15,17 +15,11 @@ import {
   MoonIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
-  TagIcon,
   CalendarDaysIcon,
-  UserIcon,
   EyeIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   ArrowPathIcon,
   XMarkIcon,
-  PlusIcon,
-  FunnelIcon,
-  ChevronDownIcon
+  PlusIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 
@@ -149,7 +143,7 @@ const VirtualEmailList: React.FC<VirtualEmailListProps> = ({
         });
       });
     }
-  }, [emails.length, virtualizer.getVirtualItems().length, onPerformanceUpdate]);
+  }, [emails.length, virtualizer, onPerformanceUpdate]);
 
   if (emails.length === 0) {
     return (
@@ -301,11 +295,7 @@ const ModernEmailInterface: React.FC = () => {
     { id: 'trash', label: 'Trash', icon: TrashIcon, count: 1 },
   ];
 
-  useEffect(() => {
-    fetchEmails();
-  }, []);
-
-  const fetchEmails = async () => {
+  const fetchEmails = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -323,43 +313,36 @@ const ModernEmailInterface: React.FC = () => {
         throw new Error('Invalid API response format');
       }
       
-      // Enhance emails with additional properties
-      const enhancedEmails = data.map((email, index) => ({
-        ...email,
-        isRead: Math.random() > 0.4,
-        isStarred: Math.random() > 0.8,
-        preview: `This is a preview of the email content from ${email.sender}. The email discusses important matters that require your attention...`,
-        content: `<div class="email-content">
-          <p>Dear Colleague,</p>
-          <p>This is the full email content from <strong>${email.sender}</strong>. The email discusses the following important points:</p>
-          <ul>
-            <li>Priority matters requiring immediate attention</li>
-            <li>Follow-up actions and next steps</li>
-            <li>Collaboration opportunities</li>
-          </ul>
-          <p>Please review and respond at your earliest convenience.</p>
-          <p>Best regards,<br/>${email.sender}</p>
-        </div>`,
-        tags: ['work', 'important', 'priority'].slice(0, Math.floor(Math.random() * 3)),
-        estimatedResponseTime: ['2 min', '5 min', '15 min', '1 hour'][Math.floor(Math.random() * 4)],
-        senderEmail: email.sender.toLowerCase().replace(' ', '.') + '@company.com'
+      const processedEmails = data.map((email: any, index: number) => ({
+        id: email.id || index,
+        subject: email.subject || 'No Subject',
+        sender: email.sender || 'Unknown Sender',
+        senderEmail: email.senderEmail || email.sender_email || '',
+        date: email.date || new Date().toISOString(),
+        classification: email.classification || 'UNCLASSIFIED',
+        urgency: email.urgency || 'LOW',
+        confidence: email.confidence || 0,
+        has_draft: email.has_draft || false,
+        preview: email.preview || email.content?.substring(0, 150) + '...' || '',
+        content: email.content || '',
+        isRead: email.isRead ?? email.is_read ?? false,
+        isStarred: email.isStarred ?? email.is_starred ?? false,
+        tags: email.tags || []
       }));
       
-      setEmails(enhancedEmails);
-      // Auto-select first email and analyze view mode
-      if (enhancedEmails.length > 0) {
-        setSelectedEmail(enhancedEmails[0]);
-        // Trigger view mode analysis for first email
-        setTimeout(() => handleAutoViewSwitch(enhancedEmails[0]), 100);
-      }
-    } catch (err) {
-      console.error('Failed to fetch emails:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch emails');
-      setEmails([]);
+      setEmails(processedEmails);
+    } catch (error) {
+      console.error('Error fetching emails:', error);
+      setError(error instanceof Error ? error.message : 'Unknown error occurred');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchEmails();
+  }, [fetchEmails]);
+
 
   const getClassificationColor = (classification: string) => {
     switch (classification) {
@@ -632,7 +615,7 @@ const ModernEmailInterface: React.FC = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const result = await response.json();
+      await response.json();
       
       // Update email in list
       setEmails(prev => prev.map(email => 

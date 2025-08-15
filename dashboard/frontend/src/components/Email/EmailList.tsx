@@ -47,7 +47,7 @@ interface VirtualizedEmailGridProps {
   onEmailSelect: (emailId: number) => void;
   onEmailAction: (emailId: number, action: string) => void;
   getUrgencyIcon: (urgency: string) => React.ReactNode;
-  getClassificationColor: (classification: string) => string;
+  getClassificationColor: (classification: string) => 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'outline';
   getClassificationIcon: (classification: string) => React.ReactNode;
   viewMode: 'list' | 'compact';
   searchQuery: string;
@@ -368,7 +368,7 @@ const EmailList: React.FC = () => {
     }
   };
 
-  const getClassificationColor = (classification: string) => {
+  const getClassificationColor = (classification: string): 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'outline' => {
     switch (classification) {
       case 'NEEDS_REPLY':
         return 'info';

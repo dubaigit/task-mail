@@ -96,6 +96,7 @@ interface CardProps {
   className?: string;
   hover?: boolean;
   interactive?: boolean;
+  style?: React.CSSProperties;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -104,7 +105,8 @@ export const Card: React.FC<CardProps> = ({
   padding = 'md',
   className = '',
   hover = false,
-  interactive = false
+  interactive = false,
+  style
 }) => {
   const variantClasses = {
     default: 'bg-card text-card-foreground border border-border',
@@ -132,6 +134,7 @@ export const Card: React.FC<CardProps> = ({
         interactive && 'cursor-pointer select-none active:scale-[0.99]',
         className
       )}
+      style={style}
     >
       {children}
     </div>
