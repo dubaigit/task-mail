@@ -412,7 +412,8 @@ const ModernEmailInterface: React.FC = () => {
         setShowDraftPanel(false);
         break;
     }
-  }, [focusedEmailIndex, selectedEmail]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedEmailIndex, selectedEmail, emails.length]);
 
   // Add keyboard event listener
   useEffect(() => {
@@ -539,9 +540,10 @@ const ModernEmailInterface: React.FC = () => {
       setCurrentViewMode(analysis.suggestedView);
       showToast(`Switched to ${analysis.suggestedView} view: ${analysis.reasoning}`, 'info');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoSwitchEnabled, analyzeOptimalViewMode, tasks, drafts, currentViewMode]);
   
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
     // Announce to screen readers
     announceToScreenReader(message);
     
@@ -562,7 +564,7 @@ const ModernEmailInterface: React.FC = () => {
         document.body.removeChild(toastElement);
       }
     }, 3000);
-  };
+  }, []);
 
   // AI Task Generation
   const handleGenerateTasks = async () => {
@@ -932,7 +934,7 @@ const ModernEmailInterface: React.FC = () => {
       </main>
 
       {/* Right Panel - Email Detail */}
-      <aside className="flex-1 flex flex-col email-content-panel" role="complementary" aria-label="Email content and actions">
+      <aside className="flex-1 flex flex-col email-content-panel" aria-label="Email content and actions">
         {selectedEmail ? (
           <>
             {/* Email Header */}
