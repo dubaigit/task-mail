@@ -554,13 +554,11 @@ class ProductionEmailIntelligenceEngine:
             if ai_classification:
                 classification, confidence = ai_classification
             else:
-                # Fallback to pattern-based classification
-                self.logger.info("Using fallback classification")
-                from email_intelligence_engine import EmailIntelligenceEngine
-                fallback_engine = EmailIntelligenceEngine()
-                fallback_result = fallback_engine.analyze_email(subject, body, sender)
-                classification = fallback_result.classification
-                confidence = fallback_result.confidence
+                # Use comprehensive fallback analysis
+                self.logger.info("AI classification failed, using comprehensive fallback analysis")
+                fallback_result = self._analyze_email_fallback(subject, body, sender)
+                # Use fallback result directly since it includes all fields
+                return fallback_result
             
             # Extract other features (could also be AI-enhanced)
             urgency = self._extract_urgency_ai_enhanced(f"{subject} {body}")
@@ -686,19 +684,37 @@ class ProductionEmailIntelligenceEngine:
 
     def batch_process_emails(self, emails: List[Dict], 
                            max_concurrent: int = None) -> List[EmailIntelligence]:
-        """Process multiple emails with batch optimization"""
+        """Process multiple emails with optimized batch processing and memory management"""
+        import gc
+        import psutil
+        import os
+        
         max_concurrent = max_concurrent or self.config['batch_processing']['max_concurrent_batches']
         batch_size = self.config['batch_processing']['batch_size']
         
         results = []
+        processed_count = 0
+        
+        # Memory monitoring
+        process = psutil.Process(os.getpid())
+        initial_memory = process.memory_info().rss / 1024 / 1024  # MB
         
         # Sort emails by urgency indicators for priority processing
         urgent_threshold = self.config['batch_processing']['urgent_priority_threshold']
         sorted_emails = self._sort_emails_by_priority(emails)
         
-        # Process in batches
-        for i in range(0, len(sorted_emails), batch_size):
-            batch = sorted_emails[i:i + batch_size]
+        # Process in smaller chunks to manage memory
+        effective_batch_size = min(batch_size, 20)  # Limit to 20 emails per batch
+        
+        # Process in batches with memory management
+        for i in range(0, len(sorted_emails), effective_batch_size):
+            batch = sorted_emails[i:i + effective_batch_size]
+            
+            # Memory check before processing batch
+            current_memory = process.memory_info().rss / 1024 / 1024  # MB
+            if current_memory > initial_memory * 2:  # If memory usage doubled
+                self.logger.warning(f"High memory usage detected: {current_memory:.1f}MB. Running garbage collection.")
+                gc.collect()
             
             # Use ThreadPoolExecutor for concurrent processing within batch
             batch_futures = []
@@ -713,30 +729,168 @@ class ProductionEmailIntelligenceEngine:
                 )
                 batch_futures.append(future)
             
-            # Collect results
+            # Collect results with enhanced error handling
             for future in batch_futures:
                 try:
                     result = future.result(timeout=self.config['performance']['timeout_seconds'])
                     results.append(result)
-                except Exception as e:
-                    self.logger.error(f"Batch processing failed for email: {e}")
-                    # Add fallback result with all required positional arguments
+                except TimeoutError as e:
+                    self.logger.error(f"Batch processing timeout: {e}")
                     fallback_result = EmailIntelligence(
                         classification=EmailClass.FYI_ONLY,
                         confidence=0.0,
                         urgency=Urgency.MEDIUM,
                         sentiment=Sentiment.NEUTRAL,
-                        intent="batch_processing_failed",
+                        intent="processing_timeout",
                         action_items=[],
                         deadlines=[],
                         confidence_scores={},
                         processing_time_ms=0.0
                     )
                     results.append(fallback_result)
-                    self.logger.error(f"Batch processing failed for email: Processing error")
+                except Exception as e:
+                    # Enhanced error categorization for better debugging
+                    error_type = "unknown_error"
+                    if "401" in str(e) or "Unauthorized" in str(e):
+                        error_type = "openai_auth_error"
+                        self.logger.error(f"OpenAI authentication failed: {e}")
+                    elif "429" in str(e) or "rate limit" in str(e).lower():
+                        error_type = "openai_rate_limit"
+                        self.logger.error(f"OpenAI rate limit exceeded: {e}")
+                    elif "timeout" in str(e).lower() or "request timed out" in str(e).lower():
+                        error_type = "openai_timeout"
+                        self.logger.error(f"OpenAI request timeout: {e}")
+                    elif "network" in str(e).lower() or "connection" in str(e).lower():
+                        error_type = "network_error"
+                        self.logger.error(f"Network connectivity issue: {e}")
+                    else:
+                        self.logger.error(f"Batch processing failed for email: {e}")
+                    
+                    # Create fallback result with error context
+                    fallback_result = EmailIntelligence(
+                        classification=EmailClass.FYI_ONLY,
+                        confidence=0.0,
+                        urgency=Urgency.MEDIUM,
+                        sentiment=Sentiment.NEUTRAL,
+                        intent=f"batch_processing_failed_{error_type}",
+                        action_items=[],
+                        deadlines=[],
+                        confidence_scores={"error_type": error_type},
+                        processing_time_ms=0.0
+                    )
+                    results.append(fallback_result)
+            
+            processed_count += len(batch)
+            
+            # Cleanup batch futures to free memory
+            del batch_futures
+            del batch
+            
+            # Log progress every 50 emails
+            if processed_count % 50 == 0:
+                current_memory = process.memory_info().rss / 1024 / 1024
+                self.logger.info(f"Processed {processed_count}/{len(emails)} emails. Memory: {current_memory:.1f}MB")
+                # Force garbage collection every 50 emails
+                gc.collect()
         
-        self.logger.info(f"Batch processed {len(emails)} emails successfully")
+        # Final memory cleanup
+        final_memory = process.memory_info().rss / 1024 / 1024
+        memory_increase = final_memory - initial_memory
+        
+        self.logger.info(f"Batch processed {len(emails)} emails successfully. "
+                        f"Memory usage: {initial_memory:.1f}MB → {final_memory:.1f}MB "
+                        f"(+{memory_increase:.1f}MB)")
+        
+        # Final garbage collection
+        gc.collect()
+        
         return results
+
+    def _analyze_email_fallback(self, subject: str, body: str, sender: str) -> EmailIntelligence:
+        """Robust fallback analysis when AI services are unavailable"""
+        start_time = time.time()
+        
+        # Use pattern-based analysis for classification
+        subject_lower = subject.lower()
+        body_lower = body.lower()
+        combined_text = f"{subject_lower} {body_lower}"
+        
+        # Classification logic
+        classification = EmailClass.FYI_ONLY  # Default
+        confidence = 0.6  # Moderate confidence for rule-based
+        
+        # Question detection for needs_reply
+        if '?' in subject or '?' in body:
+            classification = EmailClass.NEEDS_REPLY
+            confidence = 0.8
+        
+        # Approval patterns
+        approval_patterns = ['approve', 'approval', 'authorize', 'sign-off', 'review and approve']
+        if any(pattern in combined_text for pattern in approval_patterns):
+            classification = EmailClass.APPROVAL_REQUIRED
+            confidence = 0.7
+        
+        # Task creation patterns
+        task_patterns = ['implement', 'create', 'build', 'develop', 'design', 'need to']
+        if any(pattern in combined_text for pattern in task_patterns):
+            classification = EmailClass.CREATE_TASK
+            confidence = 0.6
+        
+        # Delegate patterns
+        delegate_patterns = ['forward', 'delegate', 'pass along', 'expertise', 'specialist']
+        if any(pattern in combined_text for pattern in delegate_patterns):
+            classification = EmailClass.DELEGATE
+            confidence = 0.6
+        
+        # Follow-up patterns
+        followup_patterns = ['follow up', 'following up', 'checking in', 'any update']
+        if any(pattern in combined_text for pattern in followup_patterns):
+            classification = EmailClass.FOLLOW_UP
+            confidence = 0.7
+        
+        # Urgency detection
+        urgency = self._extract_urgency_ai_enhanced(combined_text)
+        
+        # Sentiment analysis (simple pattern-based)
+        sentiment = Sentiment.NEUTRAL  # Default
+        positive_words = ['thank', 'great', 'excellent', 'appreciate', 'wonderful']
+        negative_words = ['problem', 'issue', 'urgent', 'critical', 'failed', 'error']
+        frustrated_words = ['frustrated', 'disappointed', 'unacceptable', 'ridiculous']
+        
+        if any(word in combined_text for word in frustrated_words):
+            sentiment = Sentiment.FRUSTRATED
+        elif any(word in combined_text for word in negative_words):
+            sentiment = Sentiment.NEGATIVE
+        elif any(word in combined_text for word in positive_words):
+            sentiment = Sentiment.POSITIVE
+        
+        # Extract basic action items and deadlines
+        action_items = self._extract_action_items(combined_text)
+        deadlines = self._extract_deadlines(combined_text)
+        
+        # Build confidence scores
+        confidence_scores = {
+            'classification': confidence,
+            'urgency': 0.7,
+            'sentiment': 0.5,
+            'action_items': 0.6,
+            'deadlines': 0.6,
+            'fallback_mode': True
+        }
+        
+        processing_time = (time.time() - start_time) * 1000
+        
+        return EmailIntelligence(
+            classification=classification,
+            confidence=confidence,
+            urgency=urgency,
+            sentiment=sentiment,
+            intent=f"fallback_analysis_{classification.value}",
+            action_items=action_items,
+            deadlines=deadlines,
+            confidence_scores=confidence_scores,
+            processing_time_ms=processing_time
+        )
 
     def _sort_emails_by_priority(self, emails: List[Dict]) -> List[Dict]:
         """Sort emails by priority for processing order"""
