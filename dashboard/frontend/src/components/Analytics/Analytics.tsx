@@ -4,8 +4,8 @@ import {
   ClockIcon,
   EnvelopeIcon,
   ExclamationTriangleIcon,
-  TrendingUpIcon,
-  TrendingDownIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
   CalendarDaysIcon,
   FunnelIcon,
   ArrowPathIcon,
@@ -425,7 +425,7 @@ const Analytics: React.FC = () => {
               <p className="text-sm font-medium text-muted-foreground">Total Emails</p>
               <p className="text-2xl font-bold text-foreground">{formatNumber(data.totalEmails)}</p>
               <div className="flex items-center gap-1 mt-1">
-                <TrendingUpIcon className="w-3 h-3 text-green-500" />
+                <ArrowTrendingUpIcon className="w-3 h-3 text-green-500" />
                 <span className="text-xs text-green-600">+12% from last period</span>
               </div>
             </div>
@@ -441,7 +441,7 @@ const Analytics: React.FC = () => {
               <p className="text-sm font-medium text-muted-foreground">Unread</p>
               <p className="text-2xl font-bold text-foreground">{formatNumber(data.unreadEmails)}</p>
               <div className="flex items-center gap-1 mt-1">
-                <TrendingDownIcon className="w-3 h-3 text-red-500" />
+                <ArrowTrendingDownIcon className="w-3 h-3 text-red-500" />
                 <span className="text-xs text-red-600">-5% from yesterday</span>
               </div>
             </div>
@@ -457,7 +457,7 @@ const Analytics: React.FC = () => {
               <p className="text-sm font-medium text-muted-foreground">Response Rate</p>
               <p className="text-2xl font-bold text-foreground">{data.responseRate}%</p>
               <div className="flex items-center gap-1 mt-1">
-                <TrendingUpIcon className="w-3 h-3 text-green-500" />
+                <ArrowTrendingUpIcon className="w-3 h-3 text-green-500" />
                 <span className="text-xs text-green-600">+3.2% this week</span>
               </div>
             </div>
@@ -473,7 +473,7 @@ const Analytics: React.FC = () => {
               <p className="text-sm font-medium text-muted-foreground">Avg Response Time</p>
               <p className="text-2xl font-bold text-foreground">{data.avgResponseTime}</p>
               <div className="flex items-center gap-1 mt-1">
-                <TrendingDownIcon className="w-3 h-3 text-green-500" />
+                <ArrowTrendingDownIcon className="w-3 h-3 text-green-500" />
                 <span className="text-xs text-green-600">18% faster</span>
               </div>
             </div>
@@ -561,13 +561,13 @@ const Analytics: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-foreground">Weekly Email Trends</h3>
           <div className="flex gap-2">
-            <Badge variant={selectedMetric === 'volume' ? 'primary' : 'outline'} className="cursor-pointer" onClick={() => setSelectedMetric('volume')}>
+            <Badge variant={selectedMetric === 'volume' ? 'primary' : 'outline'} className="cursor-pointer">
               Volume
             </Badge>
-            <Badge variant={selectedMetric === 'response' ? 'primary' : 'outline'} className="cursor-pointer" onClick={() => setSelectedMetric('response')}>
+            <Badge variant={selectedMetric === 'response' ? 'primary' : 'outline'} className="cursor-pointer">
               Response
             </Badge>
-            <Badge variant={selectedMetric === 'productivity' ? 'primary' : 'outline'} className="cursor-pointer" onClick={() => setSelectedMetric('productivity')}>
+            <Badge variant={selectedMetric === 'productivity' ? 'primary' : 'outline'} className="cursor-pointer">
               Productivity
             </Badge>
           </div>
@@ -673,7 +673,7 @@ const Analytics: React.FC = () => {
         <Card padding="lg" variant="elevated">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-foreground">Today's Productivity</h3>
-            <TrendingUpIcon className="w-5 h-5 text-muted-foreground" />
+            <ArrowTrendingUpIcon className="w-5 h-5 text-muted-foreground" />
           </div>
           
           <div className="grid grid-cols-2 gap-4">

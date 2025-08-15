@@ -48,7 +48,7 @@ const DateRangePickerExample: React.FC = () => {
           placeholder="Select date range"
         />
         <div style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
-          Selected: {dateRange2.start.toLocaleDateString()} - {dateRange2.end.toLocaleDateString()}
+          Selected: {dateRange2.start?.toLocaleDateString() || 'None'} - {dateRange2.end?.toLocaleDateString() || 'None'}
         </div>
       </div>
 
@@ -63,7 +63,7 @@ const DateRangePickerExample: React.FC = () => {
           placeholder="Select within 2024"
         />
         <div style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
-          Selected: {dateRange3.start.toLocaleDateString()} - {dateRange3.end.toLocaleDateString()}
+          Selected: {dateRange3.start?.toLocaleDateString() || 'None'} - {dateRange3.end?.toLocaleDateString() || 'None'}
         </div>
       </div>
 

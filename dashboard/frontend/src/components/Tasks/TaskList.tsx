@@ -233,15 +233,15 @@ const TaskList: React.FC = () => {
   };
 
   const TaskCard = ({ task }: { task: Task }) => (
-    <Card
+    <div
       key={task.id}
-      padding="md"
       className={`cursor-pointer transition-all duration-200 hover:shadow-md group ${
         selectedTasks.includes(task.id) ? 'ring-2 ring-primary/50 bg-primary/5' : ''
       }`}
       draggable
       onDragStart={() => handleDragStart(task)}
     >
+      <Card padding="md">
       <div className="space-y-3">
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
@@ -338,7 +338,8 @@ const TaskList: React.FC = () => {
           </div>
         )}
       </div>
-    </Card>
+      </Card>
+    </div>
   );
 
   if (loading) {
