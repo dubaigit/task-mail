@@ -20,12 +20,7 @@ import {
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import { Badge, Button, Card, Input, Select, Skeleton, Alert, Tooltip } from '../ui';
-import { DateRangePicker } from '../DateRangePicker';
-
-interface DateRange {
-  start: Date | null;
-  end: Date | null;
-}
+import { DateRangePicker, DateRange } from '../DateRangePicker';
 
 interface Email {
   id: number;
@@ -356,13 +351,14 @@ const EmailList: React.FC = () => {
             
             {/* Custom Date Range Picker */}
             <div className="border-l border-border pl-3 ml-3">
-              <DateRangePicker
-                value={dateRange}
-                onChange={handleDateRangeChange}
-                placeholder="Custom range..."
-                className="min-w-[260px]"
-                maxDate={new Date()}
-              />
+              <div className="min-w-[260px]">
+                <DateRangePicker
+                  initialRange={dateRange}
+                  onDateRangeChange={handleDateRangeChange}
+                  placeholder="Custom range..."
+                  maxDate={new Date()}
+                />
+              </div>
             </div>
           </div>
         </div>
