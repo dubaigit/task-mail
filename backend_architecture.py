@@ -698,19 +698,48 @@ async def get_auth_system_status():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
+    """Health check endpoint with enhanced database status"""
     auth_status = get_auth_status()
+    
+    # Get comprehensive database health check
+    try:
+        db_health = await db_manager.health_check()
+        database_status = db_health["overall_status"]
+        redis_status = db_health["components"].get("redis", {}).get("status", "unknown")
+        apple_mail_status = db_health["components"].get("apple_mail", {}).get("status", "unknown")
+    except Exception as e:
+        logger.error(f"Health check error: {e}")
+        database_status = "error"
+        redis_status = "error"
+        apple_mail_status = "error"
+    
     return {
-        "status": "healthy",
+        "status": "healthy" if database_status in ["healthy", "mock"] else "degraded",
         "timestamp": datetime.now(),
         "version": "1.0.0",
-        "database": "connected" if db_manager.engine else "disconnected",
-        "redis": "connected" if db_manager.redis else "disconnected",
+        "database": database_status,
+        "redis": redis_status,
+        "apple_mail": apple_mail_status,
         "auth": {
             "production_mode": auth_status["production_mode"],
             "secret_configured": auth_status["secret_configured"]
         }
     }
+
+@app.get("/health/detailed")
+async def detailed_health_check(current_user: UserModel = Depends(get_current_user)):
+    """Detailed health check endpoint with full database diagnostics"""
+    try:
+        health_status = await db_manager.health_check()
+        return health_status
+    except Exception as e:
+        logger.error(f"Detailed health check error: {e}")
+        return {
+            "overall_status": "error",
+            "timestamp": datetime.now().isoformat(),
+            "error": str(e),
+            "components": {}
+        }
 
 @app.get("/metrics")
 async def metrics():
