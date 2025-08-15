@@ -3,6 +3,19 @@
 Production Backend Architecture for Email Intelligence System
 FastAPI-based backend with WebSocket support, Redis caching, and PostgreSQL
 Optimized for processing 10k+ emails with real-time features
+
+CORS Security Environment Variables:
+    ALLOWED_ORIGINS: JSON array of allowed origins, e.g.:
+        Development: '["http://localhost:3000", "http://localhost:3001"]'
+        Production: '["https://app.yourdomain.com", "https://api.yourdomain.com"]'
+    PRODUCTION_MODE: "true" for production, "false" for development
+    
+Security Requirements:
+    - Production mode enforces HTTPS-only origins (except localhost for testing)
+    - Wildcard origins (*) are blocked in production
+    - HTTP methods restricted to: GET, POST, PUT, DELETE, OPTIONS
+    - Headers limited to security-essential only
+    - Automatic validation and startup checks prevent misconfigurations
 """
 
 import asyncio
@@ -16,7 +29,7 @@ import os
 from pathlib import Path
 
 # Core frameworks
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, BackgroundTasks, Depends
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, BackgroundTasks, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -48,6 +61,28 @@ from enum import Enum
 # Import Apple Mail connector for real data
 from email_data_connector import AppleMailConnector, Email as AppleEmail
 
+# Import enhanced mail reader for full content access
+from email_processor import EnhancedAppleMailReader, ProcessingConfig
+
+# Import background auto processor
+from email_auto_processor import EmailAutoProcessor, get_auto_processor, start_auto_processing, stop_auto_processing
+
+# Import authentication middleware
+from auth_middleware import (
+    get_current_user, 
+    get_current_user_optional, 
+    require_permission,
+    require_admin,
+    authenticate_user,
+    create_user_tokens,
+    validate_refresh_token_and_create_new,
+    get_auth_status,
+    UserModel,
+    LoginRequest,
+    TokenResponse,
+    auth_config
+)
+
 # Configure structured logging - simplified for testing
 import logging
 logger = logging.getLogger(__name__)
@@ -58,6 +93,28 @@ logger = logging.getLogger(__name__)
 # ACTIVE_CONNECTIONS = Gauge('websocket_connections_active', 'Active WebSocket connections')
 # EMAILS_PROCESSED = Counter('emails_processed_total', 'Total emails processed')
 # PROCESSING_TIME = Histogram('email_processing_seconds', 'Email processing time')
+
+# ============================================================================
+# Security Functions
+# ============================================================================
+
+def _get_validated_jwt_secret() -> str:
+    """Get and validate JWT secret key with security requirements"""
+    import secrets
+    
+    secret = os.getenv("JWT_SECRET")
+    
+    if not secret:
+        # Generate secure random secret for development
+        secret = secrets.token_urlsafe(64)
+        logger.warning("No JWT_SECRET environment variable found. Generated temporary secret. "
+                      "Set JWT_SECRET environment variable for production use.")
+    
+    if len(secret) < 32:
+        raise ValueError("JWT_SECRET must be at least 32 characters long for security")
+    
+    logger.info(f"JWT secret validated: {len(secret)} characters")
+    return secret
 
 # ============================================================================
 # Configuration and Settings
@@ -85,9 +142,49 @@ class Settings(BaseModel):
     DEFAULT_EMAIL_MONTHS: int = 2
     
     # Security
-    JWT_SECRET: str = "your-secret-key"
-    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8080", "http://127.0.0.1:3000"]
-    DEVELOPMENT_MODE: bool = True  # Bypass auth in development
+    JWT_SECRET: str = Field(default_factory=lambda: auth_config.JWT_SECRET)
+    
+    # Production CORS Configuration
+    @property
+    def ALLOWED_ORIGINS(self) -> List[str]:
+        """Get CORS origins based on environment with production security"""
+        env_origins = os.getenv("ALLOWED_ORIGINS", "")
+        
+        if env_origins:
+            # Parse JSON array from environment variable
+            try:
+                import json
+                origins = json.loads(env_origins)
+                if isinstance(origins, list):
+                    # Validate and sanitize origins in production
+                    if auth_config.PRODUCTION_MODE:
+                        validated_origins = []
+                        for origin in origins:
+                            if isinstance(origin, str) and origin.startswith("https://"):
+                                validated_origins.append(origin)
+                            elif "localhost" in origin and not auth_config.PRODUCTION_MODE:
+                                validated_origins.append(origin)
+                        return validated_origins if validated_origins else ["https://api.yourdomain.com"]
+                    return origins
+            except (json.JSONDecodeError, TypeError):
+                logger.warning("Invalid ALLOWED_ORIGINS format, using defaults")
+        
+        # Environment-based defaults
+        if auth_config.PRODUCTION_MODE:
+            return [
+                "https://app.yourdomain.com",
+                "https://api.yourdomain.com",
+                "https://dashboard.yourdomain.com"
+            ]
+        else:
+            return [
+                "http://localhost:3000", 
+                "http://localhost:3001",
+                "http://localhost:8080", 
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:3001"
+            ]
+    # DEVELOPMENT_MODE removed - using proper JWT authentication only
     
     # Monitoring
     ENABLE_METRICS: bool = True
@@ -99,6 +196,7 @@ class Settings(BaseModel):
 
     class Config:
         env_file = ".env"
+        env_file_encoding = 'utf-8'
 
 settings = Settings()
 
@@ -168,6 +266,19 @@ class WebSocketMessage(BaseModel):
     data: Dict[str, Any]
     timestamp: datetime = Field(default_factory=datetime.now)
 
+class EmailContentResponse(BaseModel):
+    """Email full content response model"""
+    email_id: int
+    subject: str
+    sender: str
+    recipient: str
+    date_received: datetime
+    content: str
+    content_type: str = "html"
+    content_length: int
+    attachments: List[Dict[str, Any]] = []
+    retrieved_at: datetime = Field(default_factory=datetime.now)
+
 # ============================================================================
 # Database Connection Management
 # ============================================================================
@@ -180,6 +291,7 @@ class DatabaseManager:
         self.session_maker = None
         self.redis = None
         self.apple_mail_connector = None
+        self.enhanced_mail_reader = None
     
     async def initialize(self):
         """Initialize database connections and Apple Mail connector"""
@@ -194,10 +306,16 @@ class DatabaseManager:
             stats = self.apple_mail_connector.get_mailbox_stats()
             logger.info(f"Apple Mail stats: {stats['total_messages']} total messages")
             
+            # Initialize enhanced mail reader for full content access
+            processing_config = ProcessingConfig()
+            self.enhanced_mail_reader = EnhancedAppleMailReader(processing_config)
+            logger.info("Enhanced Apple Mail reader initialized for full content access")
+            
         except Exception as e:
             logger.error(f"Failed to initialize Apple Mail connector: {e}")
             # Continue without Apple Mail if not available (fallback to mock data)
             self.apple_mail_connector = None
+            self.enhanced_mail_reader = None
     
     async def get_session(self):
         """Get database session - mock for testing"""
@@ -211,6 +329,7 @@ class DatabaseManager:
         """Close database connections"""
         logger.info("Closing database connections")
         self.apple_mail_connector = None
+        self.enhanced_mail_reader = None
 
 # Global database manager
 db_manager = DatabaseManager()
@@ -344,24 +463,10 @@ manager = ConnectionManager()
 # ============================================================================
 # Authentication and Security
 # ============================================================================
+# Using proper JWT authentication middleware - DEVELOPMENT_MODE bypass removed
 
-security = HTTPBearer()
-
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Extract user from JWT token (simplified for demo)"""
-    # In production, verify JWT token and extract user info
-    return {"user_id": "demo_user", "permissions": ["read", "write"]}
-
-async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False))):
-    """Optional authentication for development mode"""
-    if settings.DEVELOPMENT_MODE:
-        # Return demo user in development mode (no auth required)
-        return {"user_id": "dev_user", "permissions": ["read", "write"]}
-    else:
-        # In production, require authentication
-        if not credentials:
-            raise HTTPException(status_code=401, detail="Authentication required")
-        return await get_current_user(credentials)
+# All authentication functions are imported from auth_middleware.py
+# Remove the old insecure functions and use the secure JWT implementation
 
 # ============================================================================
 # FastAPI Application Setup
@@ -374,10 +479,20 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Email Intelligence Backend")
     await db_manager.initialize()
     
+    # Initialize and start background auto processor
+    auto_processor = get_auto_processor()
+    # Connect WebSocket manager to auto processor
+    auto_processor.websocket_manager = manager
+    
+    # Start background processing in a separate task
+    asyncio.create_task(start_auto_processing())
+    logger.info("Background auto processing started")
+    
     yield
     
     # Shutdown
     logger.info("Shutting down Email Intelligence Backend")
+    await stop_auto_processing()
     await db_manager.close()
 
 app = FastAPI(
@@ -387,29 +502,152 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Middleware
+# Production-Grade CORS Security Configuration
+# Implementing strict CORS controls to eliminate security vulnerabilities
+def configure_cors_security():
+    """Configure production-grade CORS with environment-based restrictions"""
+    cors_origins = settings.ALLOWED_ORIGINS
+    
+    # Log CORS configuration for security audit
+    logger.info(f"CORS Configuration - Production Mode: {auth_config.PRODUCTION_MODE}")
+    logger.info(f"CORS Origins: {cors_origins}")
+    
+    if auth_config.PRODUCTION_MODE:
+        # Production: Extremely restrictive CORS policy
+        cors_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        cors_headers = [
+            "Authorization", 
+            "Content-Type", 
+            "Accept",
+            "X-Requested-With",
+            "X-API-Key"
+        ]
+        
+        # Validate production origins for HTTPS only
+        for origin in cors_origins:
+            if not origin.startswith("https://") and "localhost" not in origin:
+                logger.error(f"SECURITY WARNING: Non-HTTPS origin in production: {origin}")
+                raise ValueError(f"Production mode requires HTTPS origins only. Found: {origin}")
+        
+        logger.info("Production CORS: Restrictive policy applied")
+        
+    else:
+        # Development: Controlled flexibility for local development
+        cors_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
+        cors_headers = [
+            "Authorization", 
+            "Content-Type", 
+            "Accept",
+            "X-Requested-With",
+            "X-API-Key",
+            "Cache-Control"
+        ]
+        logger.info("Development CORS: Enhanced but flexible policy applied")
+    
+    return cors_origins, cors_methods, cors_headers
+
+# Apply CORS configuration
+cors_origins, cors_methods, cors_headers = configure_cors_security()
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=cors_methods,
+    allow_headers=cors_headers,
+    max_age=600,  # Cache preflight requests for 10 minutes
 )
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# CORS Security Validation
+def validate_cors_security_on_startup():
+    """Validate CORS configuration meets security requirements"""
+    try:
+        origins = settings.ALLOWED_ORIGINS
+        
+        if auth_config.PRODUCTION_MODE:
+            # Production security checks
+            if not origins:
+                raise ValueError("CORS origins cannot be empty in production")
+            
+            for origin in origins:
+                if origin == "*":
+                    raise ValueError("Wildcard CORS origins not allowed in production")
+                if not origin.startswith("https://") and "localhost" not in origin:
+                    raise ValueError(f"Non-HTTPS origin not allowed in production: {origin}")
+            
+            logger.info("✅ Production CORS security validation passed")
+        else:
+            logger.info("✅ Development CORS configuration validated")
+            
+        return True
+        
+    except Exception as e:
+        logger.error(f"❌ CORS security validation failed: {e}")
+        if auth_config.PRODUCTION_MODE:
+            raise  # Fail fast in production
+        return False
+
+# Validate CORS security on startup
+validate_cors_security_on_startup()
 
 # ============================================================================
 # API Endpoints
 # ============================================================================
 
+# ============================================================================
+# Authentication Endpoints
+# ============================================================================
+
+@app.post("/auth/login", response_model=TokenResponse)
+async def login(request: LoginRequest):
+    """Authenticate user and return JWT tokens"""
+    user = authenticate_user(request.email, request.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    
+    tokens = create_user_tokens(user)
+    logger.info(f"User {request.email} successfully logged in")
+    return tokens
+
+@app.post("/auth/refresh", response_model=TokenResponse)
+async def refresh_token(refresh_token: str):
+    """Refresh access token using refresh token"""
+    new_tokens = validate_refresh_token_and_create_new(refresh_token)
+    return new_tokens
+
+@app.get("/auth/me")
+async def get_user_profile(current_user: UserModel = Depends(get_current_user)):
+    """Get current user profile"""
+    return current_user
+
+@app.get("/auth/status")
+async def get_auth_system_status():
+    """Get authentication system status (public endpoint for health checks)"""
+    return get_auth_status()
+
+# ============================================================================
+# Health and System Endpoints  
+# ============================================================================
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
+    auth_status = get_auth_status()
     return {
         "status": "healthy",
         "timestamp": datetime.now(),
         "version": "1.0.0",
         "database": "connected" if db_manager.engine else "disconnected",
-        "redis": "connected" if db_manager.redis else "disconnected"
+        "redis": "connected" if db_manager.redis else "disconnected",
+        "auth": {
+            "production_mode": auth_status["production_mode"],
+            "secret_configured": auth_status["secret_configured"]
+        }
     }
 
 @app.get("/metrics")
@@ -430,7 +668,7 @@ async def get_emails(
     urgency: Optional[UrgencyLevel] = None,
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
-    user: dict = Depends(get_current_user_optional)
+    current_user: UserModel = Depends(get_current_user)
 ):
     """Get emails with filtering and pagination using real Apple Mail data"""
     
@@ -537,7 +775,7 @@ async def get_emails(
 @app.get("/emails/{email_id}")
 async def get_email(
     email_id: int, 
-    user: dict = Depends(get_current_user_optional)
+    current_user: UserModel = Depends(get_current_user)
 ):
     """Get specific email with full details using real Apple Mail data"""
     
@@ -586,11 +824,70 @@ async def get_email(
     else:
         raise HTTPException(status_code=404, detail="Email not found")
 
+@app.get("/emails/{email_id}/content", response_model=EmailContentResponse)
+async def get_email_content(
+    email_id: int, 
+    current_user: UserModel = Depends(get_current_user)
+):
+    """Get full email content using enhanced Apple Mail reader"""
+    
+    # Check if enhanced mail reader is available
+    if not db_manager.enhanced_mail_reader:
+        raise HTTPException(
+            status_code=503, 
+            detail="Enhanced mail reader not available - Apple Mail connection required"
+        )
+    
+    try:
+        # First verify the email exists
+        if db_manager.apple_mail_connector:
+            apple_email = db_manager.apple_mail_connector.get_email_by_id(email_id)
+            if not apple_email:
+                raise HTTPException(status_code=404, detail="Email not found")
+        
+        # Get full email content
+        full_content = await db_manager.enhanced_mail_reader.get_full_email_content(email_id)
+        
+        if not full_content:
+            raise HTTPException(status_code=404, detail="Email content not found or not accessible")
+        
+        # Get basic email metadata
+        apple_email = None
+        if db_manager.apple_mail_connector:
+            try:
+                apple_email = db_manager.apple_mail_connector.get_email_by_id(email_id)
+            except Exception as e:
+                logger.warning(f"Could not retrieve email metadata for {email_id}: {e}")
+        
+        # Return structured response with content and metadata
+        return EmailContentResponse(
+            email_id=email_id,
+            subject=apple_email.subject_text if apple_email else f"Email {email_id}",
+            sender=apple_email.sender_email if apple_email else "unknown@example.com",
+            recipient="user@company.com",  # Default recipient
+            date_received=apple_email.date_received if apple_email else datetime.now(),
+            content=full_content,
+            content_type="text/plain" if not "<html" in full_content.lower() else "html",
+            content_length=len(full_content),
+            attachments=[],  # TODO: Implement attachment extraction
+            retrieved_at=datetime.now()
+        )
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+    except Exception as e:
+        logger.error(f"Error retrieving full content for email {email_id}: {e}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Failed to retrieve email content: {str(e)}"
+        )
+
 @app.post("/emails/batch/process")
 async def start_batch_processing(
     request: BatchRequest,
     background_tasks: BackgroundTasks,
-    user: dict = Depends(get_current_user)
+    current_user: UserModel = Depends(require_permission("write"))
 ):
     """Start batch email processing using real Apple Mail data"""
     # Default to 2 months if no dates specified
@@ -634,7 +931,7 @@ async def start_batch_processing(
     }
 
 @app.get("/emails/batch/{batch_id}/status")
-async def get_batch_status(batch_id: int, user: dict = Depends(get_current_user_optional)):
+async def get_batch_status(batch_id: int, current_user: UserModel = Depends(get_current_user)):
     """Get batch processing status with real Apple Mail data"""
     
     # Use Apple Mail connector for real data
@@ -684,7 +981,7 @@ async def get_tasks(
     priority: Optional[str] = None,
     assignee: Optional[str] = None,
     limit: int = 100,
-    user: dict = Depends(get_current_user_optional)
+    current_user: UserModel = Depends(get_current_user)
 ):
     """Get tasks with filtering"""
     # Return mock task data for testing
@@ -732,7 +1029,7 @@ async def get_tasks(
 async def update_task_status(
     task_id: str,
     status: str,
-    user: dict = Depends(get_current_user)
+    current_user: UserModel = Depends(require_permission("write"))
 ):
     """Update task status"""
     # Mock implementation for testing
@@ -750,9 +1047,113 @@ async def update_task_status(
     
     return {"task_id": task_id, "status": status}
 
+# Background Processing Endpoints
+@app.post("/processing/start")
+async def start_background_processing(current_user: UserModel = Depends(get_current_user)):
+    """Start background auto processing"""
+    try:
+        auto_processor = get_auto_processor()
+        if not auto_processor.is_running:
+            asyncio.create_task(auto_processor.start_background_processing())
+            return {"status": "started", "message": "Background processing started successfully"}
+        else:
+            return {"status": "already_running", "message": "Background processing is already active"}
+    except Exception as e:
+        logger.error(f"Error starting background processing: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/processing/stop")
+async def stop_background_processing_endpoint(current_user: UserModel = Depends(get_current_user)):
+    """Stop background auto processing"""
+    try:
+        auto_processor = get_auto_processor()
+        await auto_processor.stop_background_processing()
+        return {"status": "stopped", "message": "Background processing stopped successfully"}
+    except Exception as e:
+        logger.error(f"Error stopping background processing: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/processing/status")
+async def get_processing_status(current_user: UserModel = Depends(get_current_user)):
+    """Get background processing status and statistics"""
+    try:
+        auto_processor = get_auto_processor()
+        stats = auto_processor.get_processing_stats()
+        health = auto_processor.get_health_status()
+        
+        return {
+            "statistics": stats,
+            "health": health,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Error getting processing status: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/processing/email/{email_id}")
+async def process_email_manually(email_id: int, current_user: UserModel = Depends(get_current_user)):
+    """Manually trigger processing for a specific email"""
+    try:
+        auto_processor = get_auto_processor()
+        result = await auto_processor.process_email_manually(email_id)
+        
+        return {
+            "email_id": email_id,
+            "result": {
+                "classification": result.classification,
+                "urgency": result.urgency,
+                "confidence": result.confidence,
+                "tasks_generated": len(result.tasks_generated),
+                "drafts_generated": len(result.drafts_generated),
+                "processing_time_ms": result.processing_time_ms,
+                "status": result.status.value
+            }
+        }
+    except Exception as e:
+        logger.error(f"Error processing email {email_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# WebSocket endpoint for auto processing updates
+@app.websocket("/ws/auto-processing")
+async def websocket_auto_processing(websocket: WebSocket):
+    """WebSocket endpoint for real-time auto processing updates"""
+    client_id = None
+    try:
+        client_id = await manager.connect_client(websocket)
+        logger.info(f"Auto processing WebSocket client {client_id} connected")
+        
+        # Subscribe to auto processing updates
+        await manager.subscribe(client_id, "auto_processing")
+        
+        # Send initial status
+        auto_processor = get_auto_processor()
+        initial_status = {
+            "type": "processing_status",
+            "data": auto_processor.get_processing_stats()
+        }
+        await websocket.send_text(json.dumps(initial_status))
+        
+        # Keep connection alive
+        while True:
+            # Send periodic status updates
+            await asyncio.sleep(30)
+            status_update = {
+                "type": "processing_status",
+                "data": auto_processor.get_processing_stats()
+            }
+            await websocket.send_text(json.dumps(status_update))
+            
+    except WebSocketDisconnect:
+        logger.info(f"Auto processing WebSocket client {client_id} disconnected")
+    except Exception as e:
+        logger.error(f"Auto processing WebSocket error: {e}")
+    finally:
+        if client_id:
+            await manager.disconnect_client(client_id)
+
 # Analytics endpoints
 @app.get("/analytics/dashboard")
-async def get_dashboard_analytics(user: dict = Depends(get_current_user_optional)):
+async def get_dashboard_analytics(current_user: UserModel = Depends(get_current_user)):
     """Get dashboard analytics data using real Apple Mail data"""
     
     # Use Apple Mail connector for real data
@@ -849,7 +1250,7 @@ async def get_dashboard_analytics(user: dict = Depends(get_current_user_optional
     return analytics
 
 @app.get("/analytics/mailbox-stats")
-async def get_mailbox_stats(user: dict = Depends(get_current_user_optional)):
+async def get_mailbox_stats(current_user: UserModel = Depends(get_current_user)):
     """Get detailed mailbox statistics using real Apple Mail data"""
     
     if db_manager.apple_mail_connector:
@@ -875,72 +1276,7 @@ async def get_mailbox_stats(user: dict = Depends(get_current_user_optional)):
 # Draft endpoints
 @app.get("/drafts")
 @app.get("/drafts/")
-async def get_drafts(user: dict = Depends(get_current_user_optional)):
-    """Get draft replies - enhanced with Apple Mail data"""
-    
-    # Use Apple Mail connector for real data
-    if db_manager.apple_mail_connector:
-        try:
-            # Get recent emails that might need drafts
-            recent_emails = db_manager.apple_mail_connector.get_recent_emails(days=7, limit=50)
-            
-            # Mock draft generation for now
-            mock_drafts = []
-            for i, email in enumerate(recent_emails[:5]):  # Limit to 5 drafts
-                mock_drafts.append({
-                    "id": i + 1,
-                    "email_id": email.message_id,
-                    "content": f"Re: {email.subject_text}\n\nThank you for your email. I'll review and get back to you shortly.\n\nBest regards,\n[Your Name]",
-                    "confidence": 0.85 + (i * 0.02),
-                    "created_at": (datetime.now() - timedelta(minutes=30 * (i + 1))).isoformat(),
-                    "subject": email.subject_text,
-                    "sender": email.sender_email
-                })
-            
-            return mock_drafts
-            
-        except Exception as e:
-            logger.error(f"Error getting drafts from Apple Mail: {e}")
-            # Fall through to mock drafts
-    
-    # Fallback to mock drafts
-    mock_drafts = [
-        {
-            "id": 1,
-            "email_id": 1,
-            "content": """Hi John,
-
-Thank you for reaching out about tomorrow's meeting. I'll be there and have prepared the quarterly review materials we discussed.
-
-Looking forward to our discussion.
-
-Best regards,
-[Your Name]""",
-            "confidence": 0.89,
-            "created_at": (datetime.now() - timedelta(minutes=30)).isoformat()
-        },
-        {
-            "id": 2,
-            "email_id": 3,
-            "content": """Hi Sarah,
-
-I've reviewed the client proposal and it looks comprehensive. I have a few suggestions for the timeline section that I think would improve our delivery schedule.
-
-Can we schedule a call to discuss these changes?
-
-Best,
-[Your Name]""",
-            "confidence": 0.94,
-            "created_at": (datetime.now() - timedelta(hours=1)).isoformat()
-        }
-    ]
-    
-    return mock_drafts
-
-# Draft endpoints
-@app.get("/drafts")
-@app.get("/drafts/")
-async def get_drafts(user: dict = Depends(get_current_user_optional)):
+async def get_drafts(current_user: UserModel = Depends(get_current_user)):
     """Get draft replies - enhanced with Apple Mail data"""
     
     # Use Apple Mail connector for real data
