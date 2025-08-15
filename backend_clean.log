@@ -2802,3 +2802,4 @@ INFO:     127.0.0.1:57676 - "GET /emails HTTP/1.1" 200 OK
 INFO:     127.0.0.1:57676 - "GET /emails HTTP/1.1" 200 OK
 INFO:     127.0.0.1:57678 - "GET /stats HTTP/1.1" 200 OK
 INFO:     127.0.0.1:57678 - "GET /stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62496 - "GET /health HTTP/1.1" 404 Not Found

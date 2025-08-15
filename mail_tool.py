@@ -21,10 +21,19 @@ class MailTool:
         self.timeout = 30
     
     def run_applescript(self, script: str) -> str:
-        """Execute AppleScript and return output."""
+        """Execute AppleScript and return output with comprehensive security."""
+        # Import security sanitizer
+        try:
+            from security_middleware import AppleScriptSanitizer
+            # Sanitize the script for injection prevention
+            sanitized_script = AppleScriptSanitizer.sanitize_applescript_input(script, "mail_tool_script")
+        except ImportError:
+            # Fallback basic sanitization if security middleware not available
+            sanitized_script = self._basic_sanitize_script(script)
+        
         try:
             result = subprocess.run(
-                ['osascript', '-e', script],
+                ['osascript', '-e', sanitized_script],
                 capture_output=True,
                 text=True,
                 timeout=self.timeout
@@ -36,6 +45,33 @@ class MailTool:
             raise Exception("AppleScript execution timed out")
         except Exception as e:
             raise Exception(f"Failed to execute AppleScript: {e}")
+    
+    def _basic_sanitize_script(self, script: str) -> str:
+        """Basic script sanitization fallback"""
+        import re
+        
+        # Check for dangerous patterns
+        dangerous_patterns = [
+            r'do\s+shell\s+script',
+            r'tell\s+application\s+"Terminal"',
+            r'system\s+events\s+keystroke',
+            r'with\s+administrator\s+privileges',
+            r'rm\s+-rf',
+            r'sudo\s+',
+            r'curl.*\|.*sh',
+            r'wget.*\|.*sh'
+        ]
+        
+        script_lower = script.lower()
+        for pattern in dangerous_patterns:
+            if re.search(pattern, script_lower, re.IGNORECASE):
+                raise Exception(f"Potentially dangerous AppleScript pattern detected: {pattern}")
+        
+        # Basic escaping
+        sanitized = script.replace('\\', '\\\\')
+        sanitized = sanitized.replace('"', '\\"')
+        
+        return sanitized
     
     # ==================== READING EMAILS ====================
     

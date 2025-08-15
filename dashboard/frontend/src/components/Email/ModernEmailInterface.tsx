@@ -78,6 +78,7 @@ interface VirtualEmailListProps {
   getUrgencyIcon: (urgency: string) => React.ReactNode;
   getClassificationColor: (classification: string) => string;
   formatTime: (dateString: string) => string;
+  focusedIndex?: number;
   onPerformanceUpdate?: (metrics: {
     memoryUsage: number;
     renderTime: number;
@@ -113,6 +114,7 @@ const VirtualEmailList: React.FC<VirtualEmailListProps> = ({
   getUrgencyIcon,
   getClassificationColor,
   formatTime,
+  focusedIndex = 0,
   onPerformanceUpdate
 }) => {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -147,9 +149,9 @@ const VirtualEmailList: React.FC<VirtualEmailListProps> = ({
 
   if (emails.length === 0) {
     return (
-      <div className="flex-1 overflow-y-auto scrollbar-custom">
+      <div className="flex-1 overflow-y-auto scrollbar-custom" role="status" aria-live="polite">
         <div className="p-8 text-center">
-          <EnvelopeIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+          <EnvelopeIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
           <p className="text-muted-foreground">No emails found</p>
         </div>
       </div>
@@ -161,6 +163,9 @@ const VirtualEmailList: React.FC<VirtualEmailListProps> = ({
       ref={parentRef}
       className="flex-1 overflow-y-auto scrollbar-custom"
       style={{ height: '100%' }}
+      role="listbox"
+      aria-label="Email list"
+      aria-multiselectable="false"
     >
       <div
         style={{
@@ -188,7 +193,19 @@ const VirtualEmailList: React.FC<VirtualEmailListProps> = ({
                 onClick={() => onEmailSelect(email)}
                 className={`email-item p-4 border-b border-border cursor-pointer h-full ${
                   selectedEmail?.id === email.id ? 'selected' : ''
-                } ${!email.isRead ? 'unread' : ''}`}
+                } ${!email.isRead ? 'unread' : ''} ${
+                  virtualItem.index === focusedIndex ? 'focused' : ''
+                }`}
+                role="option"
+                aria-selected={selectedEmail?.id === email.id}
+                aria-label={`Email from ${email.sender}: ${email.subject}. ${email.isRead ? 'Read' : 'Unread'}. ${email.urgency} urgency.`}
+                tabIndex={virtualItem.index === focusedIndex ? 0 : -1}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onEmailSelect(email);
+                  }
+                }}
               >
                 {/* Email Header */}
                 <div className="flex items-start justify-between mb-2">
@@ -197,7 +214,7 @@ const VirtualEmailList: React.FC<VirtualEmailListProps> = ({
                     <span className={`font-medium truncate ${!email.isRead ? 'font-semibold' : ''}`}>
                       {email.sender}
                     </span>
-                    {email.isStarred && <StarSolidIcon className="w-4 h-4 text-amber-500 flex-shrink-0" />}
+                    {email.isStarred && <StarSolidIcon className="w-4 h-4 text-amber-500 flex-shrink-0" aria-label="Starred email" />}
                   </div>
                   <span className="text-xs text-muted-foreground whitespace-nowrap">
                     {formatTime(email.date)}
@@ -285,6 +302,9 @@ const ModernEmailInterface: React.FC = () => {
     totalItems: 0
   });
 
+  // Keyboard navigation state
+  const [focusedEmailIndex, setFocusedEmailIndex] = useState(0);
+
   // Sidebar navigation items
   const sidebarItems = [
     { id: 'inbox', label: 'Inbox', icon: InboxIcon, count: 24 },
@@ -343,6 +363,65 @@ const ModernEmailInterface: React.FC = () => {
     fetchEmails();
   }, [fetchEmails]);
 
+  // Keyboard navigation handler
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.target && (event.target as HTMLElement).tagName === 'INPUT') {
+      return; // Don't handle keyboard events when typing in inputs
+    }
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        setFocusedEmailIndex(prev => Math.min(prev + 1, filteredEmails.length - 1));
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        setFocusedEmailIndex(prev => Math.max(prev - 1, 0));
+        break;
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        if (filteredEmails[focusedEmailIndex]) {
+          setSelectedEmail(filteredEmails[focusedEmailIndex]);
+          handleAutoViewSwitch(filteredEmails[focusedEmailIndex]);
+        }
+        break;
+      case 'Delete':
+      case 'Backspace':
+        if (selectedEmail) {
+          event.preventDefault();
+          handleDelete();
+        }
+        break;
+      case 'a':
+        if (selectedEmail && !event.ctrlKey && !event.metaKey) {
+          event.preventDefault();
+          handleArchive();
+        }
+        break;
+      case 'r':
+        if (selectedEmail && !event.ctrlKey && !event.metaKey) {
+          event.preventDefault();
+          handleMarkRead();
+        }
+        break;
+      case 'Escape':
+        event.preventDefault();
+        setSelectedEmail(null);
+        setShowTaskPanel(false);
+        setShowDraftPanel(false);
+        break;
+    }
+  }, [focusedEmailIndex, selectedEmail]);
+
+  // Add keyboard event listener
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
 
   const getClassificationColor = (classification: string) => {
     switch (classification) {
@@ -358,13 +437,13 @@ const ModernEmailInterface: React.FC = () => {
   const getUrgencyIcon = (urgency: string) => {
     switch (urgency) {
       case 'CRITICAL':
-        return <ExclamationTriangleIcon className="w-4 h-4 text-red-500" />;
+        return <ExclamationTriangleIcon className="w-4 h-4 text-red-500" aria-label="Critical urgency" />;
       case 'HIGH':
-        return <StarIcon className="w-4 h-4 text-amber-500" />;
+        return <StarIcon className="w-4 h-4 text-amber-500" aria-label="High urgency" />;
       case 'MEDIUM':
-        return <ClockIcon className="w-4 h-4 text-blue-500" />;
+        return <ClockIcon className="w-4 h-4 text-blue-500" aria-label="Medium urgency" />;
       default:
-        return <CheckCircleIcon className="w-4 h-4 text-green-500" />;
+        return <CheckCircleIcon className="w-4 h-4 text-green-500" aria-label="Low urgency" />;
     }
   };
 
@@ -397,6 +476,15 @@ const ModernEmailInterface: React.FC = () => {
     } else {
       return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
+  };
+
+  // Live region announcements for screen readers
+  const [announcement, setAnnouncement] = useState('');
+
+  const announceToScreenReader = (message: string) => {
+    setAnnouncement(message);
+    // Clear announcement after screen reader has had time to read it
+    setTimeout(() => setAnnouncement(''), 1000);
   };
 
   // Toast notification system
@@ -454,6 +542,9 @@ const ModernEmailInterface: React.FC = () => {
   }, [autoSwitchEnabled, analyzeOptimalViewMode, tasks, drafts, currentViewMode]);
   
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    // Announce to screen readers
+    announceToScreenReader(message);
+    
     // Simple toast - in production would use a proper toast library
     const toastElement = document.createElement('div');
     toastElement.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
@@ -462,10 +553,14 @@ const ModernEmailInterface: React.FC = () => {
       'bg-blue-500 text-white'
     }`;
     toastElement.textContent = message;
+    toastElement.setAttribute('role', 'alert');
+    toastElement.setAttribute('aria-live', 'assertive');
     document.body.appendChild(toastElement);
     
     setTimeout(() => {
-      document.body.removeChild(toastElement);
+      if (document.body.contains(toastElement)) {
+        document.body.removeChild(toastElement);
+      }
     }, 3000);
   };
 
@@ -638,20 +733,23 @@ const ModernEmailInterface: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="h-screen flex items-center justify-center" role="status" aria-label="Loading emails">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" aria-hidden="true"></div>
+        <span className="sr-only">Loading email interface...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-screen flex items-center justify-center" role="alert" aria-labelledby="error-title">
         <div className="text-center">
+          <h2 id="error-title" className="sr-only">Error loading emails</h2>
           <p className="text-red-600 dark:text-red-400">{error}</p>
           <button 
             onClick={fetchEmails}
             className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            aria-label="Retry loading emails"
           >
             Try Again
           </button>
@@ -661,9 +759,17 @@ const ModernEmailInterface: React.FC = () => {
   }
 
   return (
-    <div className="email-interface">
+    <div className="email-interface" role="application" aria-label="Email Intelligence Dashboard">
+      {/* Skip Link for Keyboard Navigation */}
+      <a href="#main-content" className="skip-link">Skip to main content</a>
+      
+      {/* Live region for screen reader announcements */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {announcement}
+      </div>
+      
       {/* Left Sidebar - Navigation */}
-      <div className={`${sidebarCollapsed ? 'w-16' : 'w-60'} email-sidebar border-r border-border flex flex-col transition-all duration-300 flex-shrink-0`}>
+      <nav className={`${sidebarCollapsed ? 'w-16' : 'w-60'} email-sidebar border-r border-border flex flex-col transition-all duration-300 flex-shrink-0`} role="navigation" aria-label="Main navigation">
         {/* Header */}
         <div className="p-4 border-b border-border flex items-center justify-between">
           {!sidebarCollapsed && (
@@ -746,10 +852,10 @@ const ModernEmailInterface: React.FC = () => {
             </button>
           </div>
         </div>
-      </div>
+      </nav>
 
       {/* Center Panel - Email List */}
-      <div className="w-96 email-list-panel border-r border-border flex flex-col">
+      <main id="main-content" className="w-96 email-list-panel border-r border-border flex flex-col" role="main" aria-label="Email list">
         {/* Search & Filters */}
         <div className="p-4 border-b border-border">
           <div className="relative mb-3">
@@ -809,18 +915,24 @@ const ModernEmailInterface: React.FC = () => {
           selectedEmail={selectedEmail}
           onEmailSelect={(email) => {
             setSelectedEmail(email);
+            // Update focused index to match selected email
+            const emailIndex = filteredEmails.findIndex(e => e.id === email.id);
+            if (emailIndex !== -1) {
+              setFocusedEmailIndex(emailIndex);
+            }
             // Trigger view mode analysis when email selected
             handleAutoViewSwitch(email);
           }}
           getUrgencyIcon={getUrgencyIcon}
           getClassificationColor={getClassificationColor}
           formatTime={formatTime}
+          focusedIndex={focusedEmailIndex}
           onPerformanceUpdate={setPerformanceMetrics}
         />
-      </div>
+      </main>
 
       {/* Right Panel - Email Detail */}
-      <div className="flex-1 flex flex-col email-content-panel">
+      <aside className="flex-1 flex flex-col email-content-panel" role="complementary" aria-label="Email content and actions">
         {selectedEmail ? (
           <>
             {/* Email Header */}
@@ -1310,7 +1422,7 @@ const ModernEmailInterface: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
+      </aside>
     </div>
   );
 };

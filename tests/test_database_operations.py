@@ -23,8 +23,26 @@ from sqlalchemy import create_engine, text, inspect
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError, DataError, SQLAlchemyError
-import aioredis
-import asyncpg
+
+# Handle aioredis TimeoutError conflict - mock it to avoid duplicate base class error
+try:
+    import aioredis
+except TypeError as e:
+    if "duplicate base class TimeoutError" in str(e):
+        # Mock aioredis for tests to avoid the TimeoutError inheritance issue
+        from unittest.mock import MagicMock
+        aioredis = MagicMock()
+        aioredis.TimeoutError = TimeoutError
+    else:
+        raise
+
+try:
+    import asyncpg
+except ImportError:
+    # Mock asyncpg if not available
+    from unittest.mock import MagicMock
+    asyncpg = MagicMock()
+
 import pytest_asyncio
 
 # Import system under test
@@ -76,9 +94,12 @@ async def async_sqlite_db():
 def sync_db_session(temp_sqlite_db):
     """Create synchronous database session"""
     db_url, db_path = temp_sqlite_db
-    engine = create_engine(db_url)
+    engine = create_engine(db_url, echo=False)  # Set echo=False to reduce noise
     
-    # Create tables
+    # Drop all tables first to ensure clean state
+    Base.metadata.drop_all(engine)
+    
+    # Create tables with proper schema
     Base.metadata.create_all(engine)
     
     # Create session
@@ -87,6 +108,7 @@ def sync_db_session(temp_sqlite_db):
     
     yield session
     
+    session.rollback()  # Rollback any uncommitted changes
     session.close()
     engine.dispose()
 
@@ -170,7 +192,7 @@ def test_email_model_creation(sync_db_session, sample_email_data):
     """Test Email model creation and validation"""
     email = Email(**sample_email_data)
     
-    # Test required fields
+    # Test required fields (before database save)
     assert email.message_id == 12345
     assert email.subject_text == 'Test Email Subject'
     assert email.sender_email == 'sender@example.com'
@@ -185,9 +207,17 @@ def test_email_model_creation(sync_db_session, sample_email_data):
     assert isinstance(email.to_addresses, list)
     assert isinstance(email.attachments, list)
     
-    # Save to database
+    # Save to database - auto-generate ID
     sync_db_session.add(email)
     sync_db_session.commit()
+    
+    # Verify ID was auto-generated
+    assert email.id is not None
+    assert email.id > 0
+    
+    # Verify timestamps were set
+    assert email.created_at is not None
+    assert email.updated_at is not None
     
     # Verify saved
     saved_email = sync_db_session.query(Email).filter_by(message_id=12345).first()

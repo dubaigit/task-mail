@@ -1,0 +1,54 @@
+{
+  "overall_success": true,
+  "tests_passed": 5,
+  "total_tests": 5,
+  "success_rate": "5/5",
+  "timestamp": "2025-08-15T19:54:30.545658",
+  "test_results": {
+    "health_check": true,
+    "real_email_data": {
+      "success": true,
+      "total_emails": 10,
+      "indicators": {
+        "has_emails": true,
+        "has_real_subjects": true,
+        "has_real_senders": true,
+        "has_realistic_dates": true,
+        "has_real_recipients": true,
+        "has_realistic_sizes": true
+      },
+      "score": "6/6",
+      "sample_subjects": [
+        "SPM || New Feature for Information Security Alignm",
+        "Developing A Digital Mindset | \u062a\u0637\u0648\u064a\u0631 \u0627\u0644\u0641\u0643\u0631 \u0627\u0644\u0631\u0642\u0645\u064a",
+        "Testing the internal AI engine with real data",
+        "IID- IDS Linux  Servers  Rhel OS  Migration",
+        "Bi-Weekly meeting - 13 August"
+      ]
+    },
+    "analytics_real_data": {
+      "success": true,
+      "total_emails": 8018,
+      "unread_emails": 700,
+      "has_date_range": true,
+      "has_mailboxes": true,
+      "mailbox_count": 9
+    },
+    "mailbox_stats": {
+      "success": true,
+      "mailbox_count": 9,
+      "total_messages": 8018,
+      "has_realistic_paths": true,
+      "mailbox_names": [
+        "ews://5FDEF4B3-F119-4712-891D-441170D507F3/Inbox",
+        "ews://5FDEF4B3-F119-4712-891D-441170D507F3/Sent%20Items",
+        "ews://5FDEF4B3-F119-4712-891D-441170D507F3/Deleted%20Items/CC"
+      ]
+    },
+    "no_mock_patterns": {
+      "success": true,
+      "mock_patterns_found": 0,
+      "patterns": []
+    }
+  }
+}

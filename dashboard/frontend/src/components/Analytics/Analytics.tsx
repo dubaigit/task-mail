@@ -18,12 +18,7 @@ import {
   ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import { Card, Button, Select, Badge, Skeleton, Alert } from '../ui';
-import { DateRangePicker } from '../DateRangePicker';
-
-interface DateRange {
-  start: Date | null;
-  end: Date | null;
-}
+import { DateRangePicker, DateRange } from '../DateRangePicker';
 
 interface AnalyticsData {
   totalEmails: number;

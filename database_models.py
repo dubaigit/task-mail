@@ -30,7 +30,7 @@ class Email(Base):
     __tablename__ = 'emails'
     
     # Primary identifiers
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)  # Use Integer for SQLite compatibility
     message_id = Column(BigInteger, unique=True, nullable=False, index=True)
     apple_document_id = Column(String(255), index=True)
     

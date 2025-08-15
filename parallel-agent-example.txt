@@ -1,0 +1,19 @@
+Example of parallel agent commands:
+
+&lt;antml:function_calls&gt;
+&lt;antml:invoke name="Task"&gt;
+&lt;antml:parameter name="subagent_type"&gt;code-reviewer&lt;/antml:parameter&gt;
+&lt;antml:parameter name="description"&gt;Review auth middleware&lt;/antml:parameter&gt;
+&lt;antml:parameter name="prompt"&gt;Review the auth_middleware.py file for security best practices, proper error handling, and code quality. Focus on JWT validation, input sanitization, and potential vulnerabilities. Return a detailed analysis with specific recommendations.&lt;/antml:parameter&gt;
+&lt;/antml:invoke&gt;
+&lt;antml:invoke name="Task"&gt;
+&lt;antml:parameter name="subagent_type"&gt;test-runner&lt;/antml:parameter&gt;
+&lt;antml:parameter name="description"&gt;Run backend tests&lt;/antml:parameter&gt;
+&lt;antml:parameter name="prompt"&gt;Execute all backend tests in the tests/ directory. Run pytest with coverage reporting and return detailed results including any failing tests, coverage percentages, and performance metrics.&lt;/antml:parameter&gt;
+&lt;/antml:invoke&gt;
+&lt;antml:invoke name="Task"&gt;
+&lt;antml:parameter name="subagent_type"&gt;performance-guardian&lt;/antml:parameter&gt;
+&lt;antml:parameter name="description"&gt;Analyze email processing&lt;/antml:parameter&gt;
+&lt;antml:parameter name="prompt"&gt;Analyze the email_intelligence_engine.py for performance bottlenecks, memory usage issues, and optimization opportunities. Focus on database queries, data processing loops, and resource management.&lt;/antml:parameter&gt;
+&lt;/antml:invoke&gt;	
+&lt;/antml:function_calls&gt;

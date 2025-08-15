@@ -1,0 +1,138 @@
+{
+  "timestamp": "2025-08-15T18:47:07.410184",
+  "tests": {
+    "Database Connectivity": {
+      "name": "Database Connectivity",
+      "status": "PASS",
+      "details": {
+        "total_messages_connector": 8018,
+        "total_messages_reader": 8018,
+        "unread_count": 4875,
+        "date_range": "2024-12-13 22:39:28 to 2025-08-14 08:45:18",
+        "mailboxes": 9,
+        "database_path": "/Users/iamomen/Library/Mail/V10/MailData/Envelope Index"
+      },
+      "execution_time": 0.010537862777709961
+    },
+    "No Mock Data Usage": {
+      "name": "No Mock Data Usage",
+      "status": "PASS",
+      "details": {
+        "mock_indicators_found": 0,
+        "mock_indicators": [],
+        "date_span_realistic": true,
+        "sample_real_senders": [
+          "hudasalim.alhashmi@digitaldubai.ae",
+          "hamid.alhaddad@digitaldubai.ae",
+          "nayyer.khan@digitaldubai.ae",
+          "PMO@digitaldubai.ae",
+          "DDAnnouncement@digitaldubai.ae"
+        ],
+        "total_emails_checked": 10
+      },
+      "execution_time": 0.0034377574920654297
+    },
+    "Query Performance Benchmark": {
+      "name": "Query Performance Benchmark",
+      "status": "PASS",
+      "details": {
+        "performance_by_size": {
+          "size_10": {
+            "basic_query_time": 0.001,
+            "date_range_query_time": 0.002,
+            "basic_results": 10,
+            "range_results": 10
+          },
+          "size_50": {
+            "basic_query_time": 0.002,
+            "date_range_query_time": 0.002,
+            "basic_results": 50,
+            "range_results": 50
+          },
+          "size_100": {
+            "basic_query_time": 0.002,
+            "date_range_query_time": 0.003,
+            "basic_results": 100,
+            "range_results": 100
+          },
+          "size_200": {
+            "basic_query_time": 0.003,
+            "date_range_query_time": 0.004,
+            "basic_results": 200,
+            "range_results": 200
+          }
+        },
+        "concurrent_query_time": 0.006,
+        "concurrent_results": [
+          50,
+          50,
+          50
+        ],
+        "average_query_time": 0.002,
+        "performance_threshold_met": true,
+        "recommendations": [
+          "Query performance is acceptable for current dataset size"
+        ]
+      },
+      "execution_time": 0.024364948272705078
+    },
+    "Error Handling & Resilience": {
+      "name": "Error Handling & Resilience",
+      "status": "PASS",
+      "details": {
+        "error_tests": {
+          "invalid_date_range": {
+            "handled": true,
+            "result_count": 0
+          },
+          "large_limit": {
+            "handled": true,
+            "result_count": 8018
+          },
+          "invalid_email_id": {
+            "handled": true,
+            "result": null
+          },
+          "database_readonly": {
+            "handled": true,
+            "note": "Using read-only mode by design"
+          }
+        },
+        "resilience_score": "4/4",
+        "recommendations": [
+          "Add circuit breaker pattern for database unavailability",
+          "Implement request timeout and retry logic",
+          "Add detailed logging for production monitoring"
+        ]
+      },
+      "execution_time": 0.06284523010253906
+    },
+    "Data Freshness & Accuracy": {
+      "name": "Data Freshness & Accuracy",
+      "status": "WARN",
+      "details": {
+        "fresh_emails_count": 20,
+        "old_emails_count": 0,
+        "date_parsing_errors": 0,
+        "freshness_ratio": 1.0,
+        "unread_count_stat": 4875,
+        "unread_sample_count": 100,
+        "data_consistency": false,
+        "total_emails_checked": 20
+      },
+      "execution_time": 0.002429962158203125
+    }
+  },
+  "performance_metrics": {},
+  "errors": [],
+  "summary": {
+    "total_tests": 5,
+    "passed": 4,
+    "warnings": 1,
+    "failed": 0,
+    "overall_status": "PRODUCTION_READY",
+    "total_execution_time": 0.1,
+    "data_source_verified": "LIVE_APPLE_MAIL_DATA",
+    "email_count_validated": true
+  }
+}

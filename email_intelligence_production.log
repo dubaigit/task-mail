@@ -10,3 +10,141 @@
 2025-08-14 17:10:31,553 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
 2025-08-14 17:14:52,333 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
 2025-08-14 17:16:04,777 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-15 23:10:27,323 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-15 23:10:41,994 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:20,989 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:20,992 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:20,995 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:21,008 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:21,014 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:21,019 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:21,042 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:21,048 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:21,055 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:21,060 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:21,064 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,075 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,097 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,103 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,108 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,114 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,770 - email_intelligence_production - ERROR - OpenAI API call failed: 401 Client Error: Unauthorized for url: https://api.openai.com/v1/chat/completions
+2025-08-16 00:10:23,790 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,793 - email_intelligence_production - ERROR - OpenAI API call failed: API Error
+2025-08-16 00:10:23,795 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,801 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,804 - email_intelligence_production - ERROR - OpenAI API call failed: Request timed out
+2025-08-16 00:10:23,806 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,811 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,816 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,821 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,844 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,866 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,925 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,948 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:23,958 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,052 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,075 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,081 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,084 - email_intelligence_production - ERROR - Analysis failed for email 1d1b817e5d269fdd0edc8fe115437b81: Classification error
+2025-08-16 00:10:24,087 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,107 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,128 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,150 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,173 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,228 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,250 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,253 - email_intelligence_production - ERROR - Batch processing failed for email: EmailIntelligence.__init__() missing 7 required positional arguments: 'urgency', 'sentiment', 'intent', 'action_items', 'deadlines', 'confidence_scores', and 'processing_time_ms'
+2025-08-16 00:10:24,253 - email_intelligence_production - ERROR - Batch processing failed for email: Processing error
+2025-08-16 00:10:24,253 - email_intelligence_production - INFO - Batch processed 2 emails successfully
+2025-08-16 00:10:24,256 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,277 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,282 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,286 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,291 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,295 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,330 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,366 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,404 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,426 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,447 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,452 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,457 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,459 - email_intelligence_production - INFO - Production Email Intelligence Engine cleaned up
+2025-08-16 00:10:24,462 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,462 - email_intelligence_production - INFO - Production Email Intelligence Engine cleaned up
+2025-08-16 00:10:24,464 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,471 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,687 - email_intelligence_production - INFO - Batch processed 50 emails successfully
+2025-08-16 00:10:24,691 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,694 - email_intelligence_production - WARNING - Failed to get cached analysis: Database error
+2025-08-16 00:10:24,749 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:10:24,753 - email_intelligence_production - ERROR - OpenAI API call failed: Network error
+2025-08-16 00:43:48,783 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:48,787 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:48,790 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:48,804 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:48,809 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:48,814 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:48,837 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:48,843 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:48,850 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:48,855 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:48,861 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:50,874 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:50,904 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:50,912 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:50,920 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:50,928 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,052 - email_intelligence_production - ERROR - OpenAI API call failed: 401 Client Error: Unauthorized for url: https://api.openai.com/v1/chat/completions
+2025-08-16 00:43:52,081 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,085 - email_intelligence_production - ERROR - OpenAI API call failed: API Error
+2025-08-16 00:43:52,088 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,094 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,097 - email_intelligence_production - ERROR - OpenAI API call failed: Request timed out
+2025-08-16 00:43:52,099 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,105 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,110 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,116 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,137 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,158 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,179 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,212 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,233 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,384 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,407 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,413 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,417 - email_intelligence_production - ERROR - Analysis failed for email 1d1b817e5d269fdd0edc8fe115437b81: Classification error
+2025-08-16 00:43:52,419 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,441 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,463 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,485 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,508 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,530 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,552 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,556 - email_intelligence_production - ERROR - Batch processing failed for email: EmailIntelligence.__init__() missing 7 required positional arguments: 'urgency', 'sentiment', 'intent', 'action_items', 'deadlines', 'confidence_scores', and 'processing_time_ms'
+2025-08-16 00:43:52,556 - email_intelligence_production - ERROR - Batch processing failed for email: Processing error
+2025-08-16 00:43:52,556 - email_intelligence_production - INFO - Batch processed 2 emails successfully
+2025-08-16 00:43:52,559 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,580 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,587 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,592 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,597 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,601 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,674 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,710 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,745 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,766 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,787 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,792 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,797 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,799 - email_intelligence_production - INFO - Production Email Intelligence Engine cleaned up
+2025-08-16 00:43:52,802 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,802 - email_intelligence_production - INFO - Production Email Intelligence Engine cleaned up
+2025-08-16 00:43:52,804 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:52,810 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:53,074 - email_intelligence_production - INFO - Batch processed 50 emails successfully
+2025-08-16 00:43:53,079 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:53,083 - email_intelligence_production - WARNING - Failed to get cached analysis: Database error
+2025-08-16 00:43:53,107 - email_intelligence_production - INFO - Production Email Intelligence Engine initialized
+2025-08-16 00:43:53,110 - email_intelligence_production - ERROR - OpenAI API call failed: Network error

@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Intelligence Dashboard - Test Runner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .test-controls {
+            padding: 30px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-pending { background: #6b7280; }
+        .status-running { background: #f59e0b; animation: pulse 2s infinite; }
+        .status-pass { background: #10b981; }
+        .status-fail { background: #ef4444; }
+        .status-partial { background: #f59e0b; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .test-results {
+            padding: 30px;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .test-section-header {
+            background: #f3f4f6;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .test-section-header h3 {
+            font-size: 1.2rem;
+            color: #374151;
+            display: flex;
+            align-items: center;
+        }
+
+        .test-section-content {
+            padding: 20px;
+        }
+
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .test-item:last-child {
+            border-bottom: none;
+        }
+
+        .test-item-name {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .test-item-status {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .console-output {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #10b981);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .summary-card h4 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .summary-card p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .card-pass h4 { color: #10b981; }
+        .card-fail h4 { color: #ef4444; }
+        .card-partial h4 { color: #f59e0b; }
+        .card-total h4 { color: #4f46e5; }
+
+        .screenshot-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .screenshot-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .screenshot-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .screenshot-item .info {
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .error-list {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .error-item {
+            background: white;
+            border: 1px solid #fecaca;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .error-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .error-type {
+            font-weight: 600;
+            color: #dc2626;
+            margin-bottom: 5px;
+        }
+
+        .error-message {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .recommendations {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .recommendations h4 {
+            color: #0369a1;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .recommendation-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .summary-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Email Intelligence Dashboard</h1>
+            <p>Comprehensive Test Suite for Enhanced UI and Functionality</p>
+        </div>
+
+        <div class="test-controls">
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="runBrowserTests()" id="browserTestBtn">
+                    <span class="status-indicator status-pending"></span>
+                    Run Browser Tests
+                </button>
+                
+                <button class="btn btn-secondary" onclick="runChromeMCPTests()" id="chromeMCPBtn">
+                    <span class="status-indicator status-pending"></span>
+                    Run Chrome MCP Tests
+                </button>
+                
+                <button class="btn btn-success" onclick="runAllTests()" id="allTestsBtn">
+                    <span class="status-indicator status-pending"></span>
+                    Run All Tests
+                </button>
+                
+                <button class="btn btn-warning" onclick="clearResults()" id="clearBtn">
+                    🗑️ Clear Results
+                </button>
+                
+                <a href="http://localhost:3000" class="btn btn-secondary" target="_blank">
+                    🌐 Open Dashboard
+                </a>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="test-results" id="testResults">
+            <div id="summarySection" class="hidden">
+                <div class="summary-cards">
+                    <div class="summary-card card-total">
+                        <h4 id="totalTests">0</h4>
+                        <p>Total Tests</p>
+                    </div>
+                    <div class="summary-card card-pass">
+                        <h4 id="passedTests">0</h4>
+                        <p>Passed</p>
+                    </div>
+                    <div class="summary-card card-fail">
+                        <h4 id="failedTests">0</h4>
+                        <p>Failed</p>
+                    </div>
+                    <div class="summary-card card-partial">
+                        <h4 id="partialTests">0</h4>
+                        <p>Partial</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="testSections"></div>
+
+            <div id="consoleSection" class="test-section hidden">
+                <div class="test-section-header">
+                    <h3>📋 Console Output</h3>
+                </div>
+                <div class="test-section-content">
+                    <div class="console-output" id="consoleOutput"></div>
+                </div>
+            </div>
+
+            <div id="screenshotSection" class="test-section hidden">
+                <div class="test-section-header">
+                    <h3>📸 Screenshots</h3>
+                </div>
+                <div class="test-section-content">
+                    <div class="screenshot-gallery" id="screenshotGallery"></div>
+                </div>
+            </div>
+
+            <div id="errorSection" class="test-section hidden">
+                <div class="test-section-header">
+                    <h3>🚨 Errors</h3>
+                </div>
+                <div class="test-section-content">
+                    <div class="error-list" id="errorList"></div>
+                </div>
+            </div>
+
+            <div id="recommendationSection" class="test-section hidden">
+                <div class="test-section-header">
+                    <h3>💡 Recommendations</h3>
+                </div>
+                <div class="test-section-content">
+                    <div class="recommendations" id="recommendationList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load test scripts -->
+    <script src="dashboard.test.js"></script>
+    <script src="chrome-mcp-integration.js"></script>
+
+    <script>
+        let currentTestRun = null;
+        let consoleOutput = '';
+
+        // Override console to capture output
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+
+        console.log = function(...args) {
+            consoleOutput += args.join(' ') + '\n';
+            originalConsoleLog.apply(console, args);
+            updateConsoleOutput();
+        };
+
+        console.error = function(...args) {
+            consoleOutput += 'ERROR: ' + args.join(' ') + '\n';
+            originalConsoleError.apply(console, args);
+            updateConsoleOutput();
+        };
+
+        console.warn = function(...args) {
+            consoleOutput += 'WARN: ' + args.join(' ') + '\n';
+            originalConsoleWarn.apply(console, args);
+            updateConsoleOutput();
+        };
+
+        function updateConsoleOutput() {
+            const output = document.getElementById('consoleOutput');
+            if (output) {
+                output.textContent = consoleOutput;
+                output.scrollTop = output.scrollHeight;
+            }
+        }
+
+        function setButtonState(buttonId, status) {
+            const button = document.getElementById(buttonId);
+            const indicator = button.querySelector('.status-indicator');
+            
+            indicator.className = `status-indicator status-${status}`;
+            
+            if (status === 'running') {
+                button.disabled = true;
+            } else {
+                button.disabled = false;
+            }
+        }
+
+        function updateProgress(percentage) {
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = percentage + '%';
+        }
+
+        async function runBrowserTests() {
+            console.log('🚀 Starting Browser-based Test Suite...');
+            setButtonState('browserTestBtn', 'running');
+            updateProgress(0);
+            
+            try {
+                if (typeof DashboardTestSuite === 'undefined') {
+                    throw new Error('DashboardTestSuite not loaded. Make sure dashboard.test.js is included.');
+                }
+                
+                const testSuite = new DashboardTestSuite();
+                currentTestRun = await testSuite.runAllTests();
+                
+                displayTestResults(currentTestRun, 'Browser Tests');
+                setButtonState('browserTestBtn', currentTestRun.summary.overallStatus.toLowerCase());
+                updateProgress(100);
+                
+            } catch (error) {
+                console.error('Browser test execution failed:', error);
+                setButtonState('browserTestBtn', 'fail');
+                updateProgress(0);
+            }
+        }
+
+        async function runChromeMCPTests() {
+            console.log('🚀 Starting Chrome MCP Test Suite...');
+            setButtonState('chromeMCPBtn', 'running');
+            updateProgress(0);
+            
+            try {
+                if (typeof ChromeMCPTestSuite === 'undefined') {
+                    throw new Error('ChromeMCPTestSuite not loaded. Make sure chrome-mcp-integration.js is included.');
+                }
+                
+                const chromeSuite = new ChromeMCPTestSuite();
+                currentTestRun = await chromeSuite.executeTests();
+                
+                displayTestResults(currentTestRun, 'Chrome MCP Tests');
+                setButtonState('chromeMCPBtn', currentTestRun.summary?.overallStatus?.toLowerCase() || 'partial');
+                updateProgress(100);
+                
+            } catch (error) {
+                console.error('Chrome MCP test execution failed:', error);
+                setButtonState('chromeMCPBtn', 'fail');
+                updateProgress(0);
+            }
+        }
+
+        async function runAllTests() {
+            console.log('🚀 Starting Complete Test Suite...');
+            setButtonState('allTestsBtn', 'running');
+            updateProgress(0);
+            
+            try {
+                // Run browser tests first
+                updateProgress(25);
+                await runBrowserTests();
+                
+                updateProgress(50);
+                
+                // Then run Chrome MCP tests if available
+                if (typeof chrome !== 'undefined') {
+                    await runChromeMCPTests();
+                } else {
+                    console.warn('Chrome MCP not available, skipping Chrome MCP tests');
+                }
+                
+                updateProgress(100);
+                setButtonState('allTestsBtn', 'pass');
+                
+            } catch (error) {
+                console.error('Complete test suite failed:', error);
+                setButtonState('allTestsBtn', 'fail');
+                updateProgress(0);
+            }
+        }
+
+        function displayTestResults(results, testType) {
+            document.getElementById('summarySection').classList.remove('hidden');
+            document.getElementById('consoleSection').classList.remove('hidden');
+            
+            // Update summary
+            const summary = results.summary || {};
+            document.getElementById('totalTests').textContent = summary.totalTests || 'N/A';
+            document.getElementById('passedTests').textContent = summary.passedTests || 0;
+            document.getElementById('failedTests').textContent = summary.failedTests || 0;
+            document.getElementById('partialTests').textContent = summary.partialTests || 0;
+            
+            // Display test sections
+            displayTestSections(results, testType);
+            
+            // Display errors if any
+            if (results.errors && results.errors.length > 0) {
+                displayErrors(results.errors);
+            }
+            
+            // Display screenshots if any
+            if (results.screenshots && results.screenshots.length > 0) {
+                displayScreenshots(results.screenshots);
+            }
+            
+            // Display recommendations
+            if (results.summary && results.summary.recommendations) {
+                displayRecommendations(results.summary.recommendations);
+            }
+        }
+
+        function displayTestSections(results, testType) {
+            const sectionsContainer = document.getElementById('testSections');
+            sectionsContainer.innerHTML = '';
+            
+            const testSections = [
+                { key: 'console', name: '📊 Console Health', icon: '📊' },
+                { key: 'theme', name: '🎨 Theme & Design', icon: '🎨' },
+                { key: 'accessibility', name: '♿ Accessibility', icon: '♿' },
+                { key: 'functionality', name: '⚡ Enhanced Functionality', icon: '⚡' },
+                { key: 'emailList', name: '📧 EmailList Features', icon: '📧' },
+                { key: 'dateRangePicker', name: '📅 Date Range Picker', icon: '📅' },
+                { key: 'responsive', name: '📱 Responsive Design', icon: '📱' },
+                { key: 'performance', name: '⚡ Performance', icon: '⚡' }
+            ];
+            
+            testSections.forEach(section => {
+                const result = results[section.key];
+                if (result) {
+                    const sectionElement = createTestSection(section.name, result, section.icon);
+                    sectionsContainer.appendChild(sectionElement);
+                }
+            });
+        }
+
+        function createTestSection(name, result, icon) {
+            const section = document.createElement('div');
+            section.className = 'test-section';
+            
+            const status = result.status || 'unknown';
+            const statusClass = status.toLowerCase();
+            
+            section.innerHTML = `
+                <div class="test-section-header">
+                    <h3>
+                        <span class="status-indicator status-${statusClass}"></span>
+                        ${name}
+                    </h3>
+                </div>
+                <div class="test-section-content">
+                    ${createTestDetails(result)}
+                </div>
+            `;
+            
+            return section;
+        }
+
+        function createTestDetails(result) {
+            let html = '';
+            
+            // Status
+            html += `<div class="test-item">
+                <div class="test-item-name">Status</div>
+                <div class="test-item-status">
+                    <span class="status-indicator status-${result.status.toLowerCase()}"></span>
+                    ${result.status}
+                </div>
+            </div>`;
+            
+            // Key details based on result type
+            Object.entries(result).forEach(([key, value]) => {
+                if (key === 'status') return;
+                
+                let displayValue = value;
+                if (typeof value === 'boolean') {
+                    displayValue = value ? '✅' : '❌';
+                } else if (typeof value === 'object' && value !== null) {
+                    displayValue = JSON.stringify(value, null, 2);
+                } else if (typeof value === 'number') {
+                    displayValue = value.toLocaleString();
+                }
+                
+                html += `<div class="test-item">
+                    <div class="test-item-name">${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</div>
+                    <div class="test-item-status">${displayValue}</div>
+                </div>`;
+            });
+            
+            return html;
+        }
+
+        function displayErrors(errors) {
+            const errorSection = document.getElementById('errorSection');
+            const errorList = document.getElementById('errorList');
+            
+            errorList.innerHTML = '';
+            
+            errors.forEach(error => {
+                const errorItem = document.createElement('div');
+                errorItem.className = 'error-item';
+                errorItem.innerHTML = `
+                    <div class="error-type">${error.type || 'Error'}</div>
+                    <div class="error-message">${error.message || 'No message'}</div>
+                `;
+                errorList.appendChild(errorItem);
+            });
+            
+            errorSection.classList.remove('hidden');
+        }
+
+        function displayScreenshots(screenshots) {
+            const screenshotSection = document.getElementById('screenshotSection');
+            const gallery = document.getElementById('screenshotGallery');
+            
+            gallery.innerHTML = '';
+            
+            screenshots.forEach(screenshot => {
+                if (screenshot.success && screenshot.filename) {
+                    const item = document.createElement('div');
+                    item.className = 'screenshot-item';
+                    item.innerHTML = `
+                        <img src="${screenshot.filename}" alt="${screenshot.name}" 
+                             onerror="this.style.display='none'">
+                        <div class="info">
+                            ${screenshot.name}<br>
+                            <small>${new Date(screenshot.timestamp).toLocaleTimeString()}</small>
+                        </div>
+                    `;
+                    gallery.appendChild(item);
+                }
+            });
+            
+            if (gallery.children.length > 0) {
+                screenshotSection.classList.remove('hidden');
+            }
+        }
+
+        function displayRecommendations(recommendations) {
+            const recSection = document.getElementById('recommendationSection');
+            const recList = document.getElementById('recommendationList');
+            
+            if (recommendations && recommendations.length > 0) {
+                recList.innerHTML = '<h4>💡 Recommended Actions</h4>';
+                
+                recommendations.forEach(rec => {
+                    const recItem = document.createElement('div');
+                    recItem.className = 'recommendation-item';
+                    recItem.innerHTML = `💡 ${rec}`;
+                    recList.appendChild(recItem);
+                });
+                
+                recSection.classList.remove('hidden');
+            }
+        }
+
+        function clearResults() {
+            consoleOutput = '';
+            currentTestRun = null;
+            
+            // Reset buttons
+            ['browserTestBtn', 'chromeMCPBtn', 'allTestsBtn'].forEach(id => {
+                setButtonState(id, 'pending');
+            });
+            
+            // Hide sections
+            ['summarySection', 'consoleSection', 'screenshotSection', 'errorSection', 'recommendationSection'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            
+            // Clear content
+            document.getElementById('testSections').innerHTML = '';
+            document.getElementById('consoleOutput').textContent = '';
+            updateProgress(0);
+            
+            console.log('🗑️ Test results cleared');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🧪 Email Intelligence Dashboard Test Runner Loaded');
+            console.log('📋 Choose a test suite to run from the controls above');
+            
+            // Check for required dependencies
+            if (typeof DashboardTestSuite === 'undefined') {
+                console.warn('⚠️ DashboardTestSuite not loaded - Browser tests may not work');
+            }
+            
+            if (typeof ChromeMCPTestSuite === 'undefined') {
+                console.warn('⚠️ ChromeMCPTestSuite not loaded - Chrome MCP tests may not work');
+            }
+            
+            if (typeof chrome === 'undefined') {
+                console.warn('⚠️ Chrome MCP not detected - Chrome MCP tests will be limited');
+            }
+        });
+    </script>
+</body>
+</html>

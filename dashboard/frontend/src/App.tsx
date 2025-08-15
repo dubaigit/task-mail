@@ -1,10 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
-import EmailList from './components/Email/EmailList';
-import TaskList from './components/Tasks/TaskList';
-import DraftList from './components/Drafts/DraftList';
-import Analytics from './components/Analytics/Analytics';
+import ModernEmailInterface from './components/Email/ModernEmailInterface';
 
 interface ThemeContextType {
   isDark: boolean;
@@ -51,16 +47,13 @@ function App() {
 
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>
-      <Router>
-        <Layout>
+      <div className="app-container h-screen overflow-hidden">
+        <Router>
           <Routes>
-            <Route path="/" element={<EmailList />} />
-            <Route path="/tasks" element={<TaskList />} />
-            <Route path="/drafts" element={<DraftList />} />
-            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/" element={<ModernEmailInterface />} />
           </Routes>
-        </Layout>
-      </Router>
+        </Router>
+      </div>
     </ThemeContext.Provider>
   );
 }

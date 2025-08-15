@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ModernEmailInterface Test</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .email-interface { display: flex; height: 100vh; }
+        .email-sidebar { background: #f8f9fa; }
+        .email-list-panel { background: #ffffff; }
+        .email-content-panel { background: #ffffff; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        // Mock email data for testing
+        const mockEmails = [
+            {
+                id: 1,
+                subject: "Urgent: Project Deadline Approaching",
+                sender: "Project Manager",
+                senderEmail: "pm@company.com",
+                date: new Date().toISOString(),
+                classification: "NEEDS_REPLY",
+                urgency: "CRITICAL",
+                confidence: 0.95,
+                has_draft: true,
+                preview: "The project deadline is approaching and we need to discuss next steps...",
+                content: "<p>Dear Team,</p><p>The project deadline is approaching and we need immediate action on the following items...</p>",
+                isRead: false,
+                isStarred: true,
+                tags: ["urgent", "project", "deadline"]
+            },
+            {
+                id: 2,
+                subject: "Review Required: Budget Proposal",
+                sender: "Finance Team",
+                senderEmail: "finance@company.com",
+                date: new Date(Date.now() - 3600000).toISOString(),
+                classification: "APPROVAL_REQUIRED", 
+                urgency: "HIGH",
+                confidence: 0.88,
+                has_draft: false,
+                preview: "Please review the attached budget proposal for Q4...",
+                content: "<p>Hello,</p><p>Please review the attached budget proposal for Q4. Your approval is needed by end of week.</p>",
+                isRead: false,
+                isStarred: false,
+                tags: ["finance", "approval"]
+            }
+        ];
+        
+        // Simplified test interface focusing on toggle system
+        const TestEmailInterface = () => {
+            const [currentViewMode, setCurrentViewMode] = useState('email');
+            const [autoSwitchEnabled, setAutoSwitchEnabled] = useState(true);
+            const [selectedEmail, setSelectedEmail] = useState(mockEmails[0]);
+            const [tasks, setTasks] = useState([]);
+            const [drafts, setDrafts] = useState([]);
+            const [isGeneratingTasks, setIsGeneratingTasks] = useState(false);
+            const [isGeneratingDraft, setIsGeneratingDraft] = useState(false);
+            
+            // Mock task generation
+            const handleGenerateTasks = () => {
+                setIsGeneratingTasks(true);
+                setTimeout(() => {
+                    const newTasks = [
+                        { id: 1, title: "Review project timeline", description: "Check current progress", priority: "high", status: "pending", email_id: selectedEmail.id },
+                        { id: 2, title: "Schedule team meeting", description: "Coordinate with stakeholders", priority: "medium", status: "pending", email_id: selectedEmail.id }
+                    ];
+                    setTasks(newTasks);
+                    setIsGeneratingTasks(false);
+                    if (autoSwitchEnabled) {
+                        setCurrentViewMode('task');
+                        console.log('Auto-switched to task view after generating tasks');
+                    }
+                }, 2000);
+            };
+            
+            // Mock draft generation
+            const handleGenerateDraft = () => {
+                setIsGeneratingDraft(true);
+                setTimeout(() => {
+                    const newDrafts = [
+                        { id: 1, email_id: selectedEmail.id, content: "Thank you for your email. I have reviewed the project timeline and will provide an update by end of day.", confidence: 0.92, created_at: new Date().toISOString() }
+                    ];
+                    setDrafts(newDrafts);
+                    setIsGeneratingDraft(false);
+                    if (autoSwitchEnabled && selectedEmail.classification === 'NEEDS_REPLY') {
+                        setCurrentViewMode('draft');
+                        console.log('Auto-switched to draft view after generating draft');
+                    }
+                }, 2000);
+            };
+            
+            return (
+                <div className="email-interface h-screen flex">
+                    {/* Simplified Sidebar */}
+                    <div className="w-60 bg-gray-50 border-r p-4">
+                        <h1 className="font-bold text-lg mb-4">Email Intelligence</h1>
+                        <p className="text-sm text-gray-600">Testing Interface</p>
+                    </div>
+                    
+                    {/* Email List */}
+                    <div className="w-96 border-r bg-white">
+                        <div className="p-4 border-b">
+                            <h2 className="font-semibold">Inbox (2)</h2>
+                        </div>
+                        <div className="divide-y">
+                            {mockEmails.map(email => (
+                                <div 
+                                    key={email.id}
+                                    onClick={() => setSelectedEmail(email)}
+                                    className={`p-4 cursor-pointer hover:bg-gray-50 ${selectedEmail?.id === email.id ? 'bg-blue-50' : ''}`}
+                                >
+                                    <div className="font-medium">{email.sender}</div>
+                                    <div className="text-sm text-gray-600">{email.subject}</div>
+                                    <div className="text-xs text-gray-400 mt-1">{email.classification}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    {/* Main Content */}
+                    <div className="flex-1 bg-white">
+                        {selectedEmail && (
+                            <>
+                                {/* Header with View Mode Toggle */}
+                                <div className="p-6 border-b">
+                                    <h1 className="text-xl font-semibold mb-2">{selectedEmail.subject}</h1>
+                                    <p className="text-gray-600 mb-4">From: {selectedEmail.sender}</p>
+                                    
+                                    {/* View Mode Toggle System - THIS IS THE KEY TESTING TARGET */}
+                                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sm font-medium text-gray-600">View Mode:</span>
+                                                <div className="flex items-center bg-white border rounded-lg p-1">
+                                                    {['email', 'task', 'draft'].map((mode) => (
+                                                        <button
+                                                            key={mode}
+                                                            onClick={() => {
+                                                                setCurrentViewMode(mode);
+                                                                console.log(`Manually switched to ${mode} view`);
+                                                            }}
+                                                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                                                                currentViewMode === mode
+                                                                    ? 'bg-blue-500 text-white'
+                                                                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                                            }`}
+                                                            data-testid={`view-toggle-${mode}`}
+                                                        >
+                                                            {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="checkbox"
+                                                    id="auto-switch-test"
+                                                    checked={autoSwitchEnabled}
+                                                    onChange={(e) => {
+                                                        setAutoSwitchEnabled(e.target.checked);
+                                                        console.log(`Auto-switch ${e.target.checked ? 'enabled' : 'disabled'}`);
+                                                    }}
+                                                    className="w-4 h-4"
+                                                    data-testid="auto-switch-checkbox"
+                                                />
+                                                <label htmlFor="auto-switch-test" className="text-xs text-gray-600 cursor-pointer">
+                                                    Auto-switch views
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* AI Action Buttons */}
+                                    <div className="flex gap-3 mt-4">
+                                        <button
+                                            onClick={handleGenerateTasks}
+                                            disabled={isGeneratingTasks}
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50"
+                                            data-testid="generate-tasks-btn"
+                                        >
+                                            {isGeneratingTasks ? 'Generating...' : 'Generate Tasks'}
+                                        </button>
+                                        
+                                        <button
+                                            onClick={handleGenerateDraft}
+                                            disabled={isGeneratingDraft}
+                                            className="px-4 py-2 bg-green-600 text-white rounded-lg disabled:opacity-50"
+                                            data-testid="generate-draft-btn"
+                                        >
+                                            {isGeneratingDraft ? 'Generating...' : 'Generate Draft'}
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                {/* Dynamic Content Based on View Mode */}
+                                <div className="p-6">
+                                    {currentViewMode === 'email' && (
+                                        <div data-testid="email-view">
+                                            <h3 className="text-lg font-semibold mb-4">Email Content</h3>
+                                            <div dangerouslySetInnerHTML={{ __html: selectedEmail.content }} />
+                                        </div>
+                                    )}
+                                    
+                                    {currentViewMode === 'task' && (
+                                        <div data-testid="task-view">
+                                            <h3 className="text-lg font-semibold mb-4">Task-Centric View</h3>
+                                            {tasks.length > 0 ? (
+                                                <div className="space-y-4">
+                                                    {tasks.map(task => (
+                                                        <div key={task.id} className="border rounded-lg p-4">
+                                                            <h4 className="font-medium">{task.title}</h4>
+                                                            <p className="text-sm text-gray-600">{task.description}</p>
+                                                            <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
+                                                                {task.priority} priority
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-gray-600">No tasks generated yet. Click "Generate Tasks" to create tasks from this email.</p>
+                                            )}
+                                        </div>
+                                    )}
+                                    
+                                    {currentViewMode === 'draft' && (
+                                        <div data-testid="draft-view">
+                                            <h3 className="text-lg font-semibold mb-4">Draft-Centric View</h3>
+                                            {drafts.length > 0 ? (
+                                                <div className="space-y-4">
+                                                    {drafts.map(draft => (
+                                                        <div key={draft.id} className="border rounded-lg p-4">
+                                                            <div className="text-sm text-gray-600 mb-2">
+                                                                Confidence: {Math.round(draft.confidence * 100)}%
+                                                            </div>
+                                                            <div className="bg-gray-50 p-3 rounded">
+                                                                <pre className="whitespace-pre-wrap text-sm">{draft.content}</pre>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-gray-600">No drafts generated yet. Click "Generate Draft" to create AI draft replies.</p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+        
+        ReactDOM.render(<TestEmailInterface />, document.getElementById('root'));
+    </script>
+</body>
+</html>

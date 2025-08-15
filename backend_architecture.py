@@ -29,7 +29,7 @@ import os
 from pathlib import Path
 
 # Core frameworks
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, BackgroundTasks, Depends, status
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, BackgroundTasks, Depends, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -81,6 +81,19 @@ from auth_middleware import (
     LoginRequest,
     TokenResponse,
     auth_config
+)
+
+# Import comprehensive security middleware
+from security_middleware import (
+    security_headers_middleware,
+    input_validation_middleware,
+    request_body_validation_middleware,
+    InputValidator,
+    AppleScriptSanitizer,
+    SecureErrorHandler,
+    validate_file_upload,
+    log_security_event,
+    SecurityConfig
 )
 
 # Configure structured logging - simplified for testing
@@ -549,6 +562,55 @@ def configure_cors_security():
 # Apply CORS configuration
 cors_origins, cors_methods, cors_headers = configure_cors_security()
 
+# Add security middleware stack (order matters - most specific first)
+app.middleware("http")(security_headers_middleware)
+app.middleware("http")(request_body_validation_middleware)
+app.middleware("http")(input_validation_middleware)
+
+# Global exception handler for security
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Global exception handler with secure error messages"""
+    # Log the actual error for debugging
+    logger.error(f"Unhandled exception in {request.url}: {exc}", exc_info=True)
+    
+    # Use secure error handler
+    error_info = SecureErrorHandler.sanitize_error_message(exc, request)
+    
+    return JSONResponse(
+        status_code=500,
+        content=error_info
+    )
+
+# HTTP exception handler for sanitized error responses
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """HTTP exception handler with security logging"""
+    # Log security-relevant HTTP exceptions
+    if exc.status_code in [401, 403, 429]:
+        log_security_event(
+            "HTTP_EXCEPTION",
+            {
+                "status_code": exc.status_code,
+                "detail": exc.detail,
+                "headers": dict(exc.headers) if exc.headers else {}
+            },
+            request
+        )
+    
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": {
+                "message": exc.detail,
+                "type": "http_error",
+                "status_code": exc.status_code,
+                "request_id": getattr(request.state, 'request_id', None)
+            }
+        },
+        headers=exc.headers
+    )
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
@@ -878,9 +940,11 @@ async def get_email_content(
         raise
     except Exception as e:
         logger.error(f"Error retrieving full content for email {email_id}: {e}")
+        # Use secure error handler to prevent information disclosure
+        error_info = SecureErrorHandler.sanitize_error_message(e, request)
         raise HTTPException(
             status_code=500, 
-            detail=f"Failed to retrieve email content: {str(e)}"
+            detail=error_info["error"]["message"]
         )
 
 @app.post("/emails/batch/process")
