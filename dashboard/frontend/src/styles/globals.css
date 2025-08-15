@@ -1,110 +1,655 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
- 
-@layer base {
-  :root {
-    /* Light theme - Email Intelligence specific colors */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+/* Global Styles for Email Intelligence Dashboard */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
- 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
- 
-    --primary: 214 100% 59%; /* Blue accent */
-    --primary-foreground: 0 0% 98%;
- 
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
- 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
- 
-    --accent: 214 100% 59%; /* Blue accent */
-    --accent-foreground: 0 0% 98%;
- 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+/* Enhanced CSS Custom Properties Design System */
+:root {
+  /* Enhanced Color Palette */
+  /* Primary Colors */
+  --primary: 220 88% 60%;
+  --primary-foreground: 220 20% 98%;
+  --primary-50: 220 100% 97%;
+  --primary-100: 220 88% 93%;
+  --primary-200: 220 84% 85%;
+  --primary-300: 220 79% 75%;
+  --primary-400: 220 81% 67%;
+  --primary-500: 220 88% 60%;
+  --primary-600: 220 92% 52%;
+  --primary-700: 220 87% 45%;
+  --primary-800: 220 82% 39%;
+  --primary-900: 220 75% 33%;
 
-    --success: 142 76% 36%; /* Green */
-    --success-foreground: 0 0% 98%;
+  /* Semantic Colors */
+  --success: 142 71% 45%;
+  --success-foreground: 142 20% 98%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 38 15% 15%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 20% 98%;
+  --info: 200 98% 39%;
+  --info-foreground: 200 20% 98%;
 
-    --warning: 38 92% 50%; /* Amber */
-    --warning-foreground: 0 0% 98%;
+  /* Neutral Colors */
+  --background: 0 0% 100%;
+  --foreground: 220 9% 9%;
+  --card: 0 0% 100%;
+  --card-foreground: 220 9% 9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 9% 9%;
+  --secondary: 220 14.3% 95.9%;
+  --secondary-foreground: 220 9% 15%;
+  --muted: 220 14.3% 95.9%;
+  --muted-foreground: 220 9% 45%;
+  --accent: 220 14.3% 95.9%;
+  --accent-foreground: 220 9% 15%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 220 88% 60%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 214 100% 59%;
- 
-    --radius: 0.5rem;
-  }
- 
-  .dark {
-    /* Dark theme - Email Intelligence specific colors */
-    --background: 0 0% 6.7%; /* #111111 */
-    --foreground: 0 0% 89.8%; /* #e5e5e5 */
- 
-    --card: 0 0% 10.2%; /* #1a1a1a */
-    --card-foreground: 0 0% 89.8%; /* #e5e5e5 */
- 
-    --popover: 0 0% 10.2%;
-    --popover-foreground: 0 0% 89.8%;
- 
-    --primary: 214 100% 59%; /* Blue accent */
-    --primary-foreground: 0 0% 98%;
- 
-    --secondary: 0 0% 16.5%; /* #2a2a2a */
-    --secondary-foreground: 0 0% 89.8%;
- 
-    --muted: 0 0% 16.5%; /* #2a2a2a */
-    --muted-foreground: 0 0% 62.7%; /* #a0a0a0 */
- 
-    --accent: 214 100% 59%; /* Blue accent */
-    --accent-foreground: 0 0% 98%;
- 
-    --destructive: 0 84.2% 60.2%; /* Red */
-    --destructive-foreground: 0 0% 98%;
+  /* Advanced Spacing System */
+  --spacing-px: 1px;
+  --spacing-0: 0px;
+  --spacing-0-5: 0.125rem;
+  --spacing-1: 0.25rem;
+  --spacing-1-5: 0.375rem;
+  --spacing-2: 0.5rem;
+  --spacing-2-5: 0.625rem;
+  --spacing-3: 0.75rem;
+  --spacing-3-5: 0.875rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-7: 1.75rem;
+  --spacing-8: 2rem;
+  --spacing-9: 2.25rem;
+  --spacing-10: 2.5rem;
+  --spacing-12: 3rem;
+  --spacing-14: 3.5rem;
+  --spacing-16: 4rem;
+  --spacing-18: 4.5rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+  --spacing-28: 7rem;
+  --spacing-32: 8rem;
+  --spacing-36: 9rem;
+  --spacing-40: 10rem;
+  --spacing-44: 11rem;
+  --spacing-48: 12rem;
+  --spacing-52: 13rem;
+  --spacing-56: 14rem;
+  --spacing-60: 15rem;
+  --spacing-64: 16rem;
+  --spacing-72: 18rem;
+  --spacing-80: 20rem;
+  --spacing-96: 24rem;
 
-    --success: 142 76% 36%; /* Green */
-    --success-foreground: 0 0% 98%;
+  /* Enhanced Typography System */
+  --font-family-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-family-serif: 'New York', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-family-mono: 'SF Mono', ui-monospace, SFMono-Regular, 'Cascadia Code', 'Roboto Mono', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
-    --warning: 38 92% 50%; /* Amber */
-    --warning-foreground: 0 0% 98%;
- 
-    --border: 0 0% 16.5%; /* #2a2a2a */
-    --input: 0 0% 16.5%;
-    --ring: 214 100% 59%;
-  }
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;      /* 12px */
+  --font-size-sm: 0.875rem;     /* 14px */
+  --font-size-base: 1rem;       /* 16px */
+  --font-size-lg: 1.125rem;     /* 18px */
+  --font-size-xl: 1.25rem;      /* 20px */
+  --font-size-2xl: 1.5rem;      /* 24px */
+  --font-size-3xl: 1.875rem;    /* 30px */
+  --font-size-4xl: 2.25rem;     /* 36px */
+  --font-size-5xl: 3rem;        /* 48px */
+  --font-size-6xl: 3.75rem;     /* 60px */
+
+  /* Line Heights */
+  --line-height-none: 1;
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+
+  /* Font Weights */
+  --font-weight-thin: 100;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  /* Enhanced Border Radius System */
+  --radius-none: 0px;
+  --radius-sm: 0.125rem;
+  --radius-base: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+  /* Z-Index Scale */
+  --z-hide: -1;
+  --z-auto: auto;
+  --z-base: 0;
+  --z-docked: 10;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-banner: 1200;
+  --z-overlay: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-skipLink: 1600;
+  --z-toast: 1700;
+  --z-tooltip: 1800;
+
+  /* Animation & Transitions */
+  --duration-75: 75ms;
+  --duration-100: 100ms;
+  --duration-150: 150ms;
+  --duration-200: 200ms;
+  --duration-300: 300ms;
+  --duration-500: 500ms;
+  --duration-700: 700ms;
+  --duration-1000: 1000ms;
+
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 }
- 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground transition-colors duration-300;
-  }
+
+/* Dark Mode Theme */
+.dark {
+  --background: 220 9% 9%;
+  --foreground: 220 20% 98%;
+  --card: 220 13% 11%;
+  --card-foreground: 220 20% 98%;
+  --popover: 220 13% 11%;
+  --popover-foreground: 220 20% 98%;
+  --primary: 220 88% 60%;
+  --primary-foreground: 220 20% 98%;
+  --secondary: 220 7% 15%;
+  --secondary-foreground: 220 20% 85%;
+  --muted: 220 7% 15%;
+  --muted-foreground: 220 9% 65%;
+  --accent: 220 7% 15%;
+  --accent-foreground: 220 20% 85%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 85.7% 97.3%;
+  --border: 220 13% 18%;
+  --input: 220 13% 18%;
+  --ring: 220 88% 60%;
+
+  /* Dark mode shadow adjustments */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+  --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
 }
 
-/* Dark mode transition for smooth theme switching */
+/* Base Styles */
 * {
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  @apply border-border;
 }
 
-/* Email Intelligence specific utility classes */
-@layer components {
-  .email-card {
-    @apply bg-card text-card-foreground border border-border rounded-lg shadow-sm;
+body {
+  @apply bg-background text-foreground;
+  font-family: var(--font-family-sans);
+  font-feature-settings: 'rlig' 1, 'calt' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Enhanced Focus Styles */
+*:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-secondary;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/50 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/70;
+}
+
+/* Selection Styles */
+::selection {
+  @apply bg-primary/20 text-primary-foreground;
+}
+
+/* Improved animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+/* Utility animation classes */
+.animate-slide-in-up {
+  animation: slideInUp 0.3s ease-out;
+}
+
+.animate-slide-in-down {
+  animation: slideInDown 0.3s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+/* Improved transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: var(--duration-150);
+}
+
+.transition-colors {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: var(--duration-150);
+}
+
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: var(--duration-150);
+}
+
+/* Enhanced backdrop blur */
+.backdrop-blur-glass {
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  background-color: hsl(var(--background) / 0.8);
+}
+
+/* Component-specific improvements */
+.email-card {
+  @apply bg-card text-card-foreground border border-border rounded-lg shadow-sm;
+  transition: all var(--duration-200) var(--ease-out);
+}
+
+.email-card:hover {
+  @apply shadow-md border-primary/20;
+  transform: translateY(-1px);
+}
+
+.email-button {
+  @apply inline-flex items-center justify-center rounded-md font-medium transition-all;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+  @apply disabled:pointer-events-none disabled:opacity-50;
+}
+
+.email-badge {
+  @apply inline-flex items-center rounded-md px-2 py-1 text-xs font-medium;
+  @apply border border-transparent;
+}
+
+.glass-effect {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--card) / 0.9) 0%,
+    hsl(var(--card) / 0.7) 100%
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid hsl(var(--border) / 0.3);
+}
+
+/* Loading skeleton */
+.skeleton {
+  @apply bg-gradient-to-r from-muted via-muted-foreground/20 to-muted bg-[length:200%_100%];
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Responsive Design Helpers */
+.container-adaptive {
+  @apply mx-auto px-4 sm:px-6 lg:px-8;
+  max-width: 1400px;
+}
+
+/* Print Styles */
+@media print {
+  * {
+    color: black !important;
+    background: white !important;
   }
   
-  .email-badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: 220 13% 50%;
   }
   
-  .email-button {
-    @apply inline-flex items-center font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200;
+  .dark {
+    --border: 220 13% 70%;
   }
+}
+
+/* Enhanced interactive states */
+.interactive-element {
+  @apply cursor-pointer select-none;
+  touch-action: manipulation;
+}
+
+.interactive-element:active {
+  transform: scale(0.98);
+}
+
+/* Custom gradient backgrounds */
+.gradient-primary {
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-600)) 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--muted)) 100%);
+}
+
+.gradient-card {
+  background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted) / 0.3) 100%);
+}
+
+/* DateRangePicker Enhanced Styles */
+.dateRangePicker {
+  --date-picker-bg: hsl(var(--popover));
+  --date-picker-border: hsl(var(--border));
+  --date-picker-shadow: var(--shadow-lg);
+  --date-picker-hover: hsl(var(--accent));
+  --date-picker-active: hsl(var(--primary));
+  --date-picker-text: hsl(var(--popover-foreground));
+  --date-picker-muted: hsl(var(--muted-foreground));
+  --date-picker-radius: var(--radius-lg);
+}
+
+.dateRangePicker .calendar {
+  background: var(--date-picker-bg);
+  border: 1px solid var(--date-picker-border);
+  border-radius: var(--date-picker-radius);
+  box-shadow: var(--date-picker-shadow);
+  backdrop-filter: blur(16px);
+  animation: slideInUp var(--duration-200) var(--ease-out);
+}
+
+.dateRangePicker .calendar-day {
+  color: var(--date-picker-text);
+  border-radius: var(--radius-md);
+  transition: all var(--duration-150) var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+
+.dateRangePicker .calendar-day:hover {
+  background: var(--date-picker-hover);
+  transform: scale(1.05);
+}
+
+.dateRangePicker .calendar-day.selected {
+  background: var(--date-picker-active);
+  color: hsl(var(--primary-foreground));
+  box-shadow: var(--shadow-sm);
+  transform: scale(1.1);
+}
+
+.dateRangePicker .calendar-day.in-range {
+  background: hsl(var(--primary) / 0.1);
+  color: var(--date-picker-text);
+}
+
+.dateRangePicker .preset-button {
+  background: transparent;
+  border: 1px solid var(--date-picker-border);
+  color: var(--date-picker-muted);
+  border-radius: var(--radius-base);
+  padding: var(--spacing-2) var(--spacing-3);
+  transition: all var(--duration-150) var(--ease-out);
+  font-weight: var(--font-weight-medium);
+  position: relative;
+  overflow: hidden;
+}
+
+.dateRangePicker .preset-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.1), transparent);
+  opacity: 0;
+  transition: opacity var(--duration-150) var(--ease-out);
+}
+
+.dateRangePicker .preset-button:hover {
+  background: var(--date-picker-hover);
+  border-color: hsl(var(--primary) / 0.5);
+  transform: translateY(-1px);
+}
+
+.dateRangePicker .preset-button:hover::before {
+  opacity: 1;
+}
+
+.dateRangePicker .preset-button.active {
+  background: var(--date-picker-active);
+  color: hsl(var(--primary-foreground));
+  border-color: var(--date-picker-active);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+/* Enhanced Button Effects */
+.btn-enhanced {
+  position: relative;
+  overflow: hidden;
+  transition: all var(--duration-200) var(--ease-out);
+}
+
+.btn-enhanced::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, hsl(var(--primary) / 0.2), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--duration-200) var(--ease-out);
+  pointer-events: none;
+}
+
+.btn-enhanced:hover::before {
+  opacity: 1;
+}
+
+.btn-enhanced:active {
+  transform: scale(0.98);
+}
+
+/* Card Elevation System */
+.card-elevated {
+  box-shadow: 
+    0 1px 3px hsl(var(--foreground) / 0.1),
+    0 1px 2px hsl(var(--foreground) / 0.06);
+  transition: all var(--duration-200) var(--ease-out);
+}
+
+.card-elevated:hover {
+  box-shadow: 
+    0 4px 6px hsl(var(--foreground) / 0.1),
+    0 2px 4px hsl(var(--foreground) / 0.06);
+  transform: translateY(-2px);
+}
+
+/* Enhanced Focus Rings */
+.focus-ring-enhanced {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: all var(--duration-150) var(--ease-out);
+}
+
+.focus-ring-enhanced:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px hsl(var(--ring) / 0.3);
+}
+
+/* Scrollbar Enhancements */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+}
+
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: var(--radius-full);
+  transition: background-color var(--duration-200) var(--ease-out);
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Advanced Grid Layouts */
+.grid-auto-fit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-6);
+}
+
+.grid-auto-fill {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--spacing-4);
 }
