@@ -720,8 +720,8 @@ class ProductionEmailIntelligenceEngine:
                     results.append(result)
                 except Exception as e:
                     self.logger.error(f"Batch processing failed for email: {e}")
-                    # Add fallback result
-                    results.append(EmailIntelligence(
+                    # Add fallback result with all required positional arguments
+                    fallback_result = EmailIntelligence(
                         classification=EmailClass.FYI_ONLY,
                         confidence=0.0,
                         urgency=Urgency.MEDIUM,
@@ -731,7 +731,9 @@ class ProductionEmailIntelligenceEngine:
                         deadlines=[],
                         confidence_scores={},
                         processing_time_ms=0.0
-                    ))
+                    )
+                    results.append(fallback_result)
+                    self.logger.error(f"Batch processing failed for email: Processing error")
         
         self.logger.info(f"Batch processed {len(emails)} emails successfully")
         return results
@@ -875,8 +877,20 @@ class ProductionEmailIntelligenceEngine:
                 
                 if result:
                     analysis_data = json.loads(result[0])
-                    # Convert back to EmailIntelligence (simplified)
-                    return EmailIntelligence(**analysis_data)
+                    # Convert back to EmailIntelligence with proper constructor
+                    # Handle both old and new data formats safely
+                    return EmailIntelligence(
+                        classification=EmailClass(analysis_data.get('classification', 'FYI_ONLY')),
+                        confidence=analysis_data.get('confidence', 0.0),
+                        urgency=Urgency(analysis_data.get('urgency', 'MEDIUM')),
+                        sentiment=Sentiment(analysis_data.get('sentiment', 'NEUTRAL')),
+                        intent=analysis_data.get('intent', 'cached_result'),
+                        action_items=[ActionItem(**item) if isinstance(item, dict) else item 
+                                    for item in analysis_data.get('action_items', [])],
+                        deadlines=analysis_data.get('deadlines', []),
+                        confidence_scores=analysis_data.get('confidence_scores', {}),
+                        processing_time_ms=analysis_data.get('processing_time_ms', 0.0)
+                    )
         except Exception as e:
             self.logger.warning(f"Failed to get cached analysis: {e}")
         

@@ -138,7 +138,8 @@ try:
     # Create tables if they don't exist (but not during testing)
     if not os.getenv('TESTING'):
         try:
-            Base.metadata.create_all(bind=engine)
+            # Use sync create_all for table creation
+            Base.metadata.create_all(bind=engine.sync_engine if hasattr(engine, 'sync_engine') else engine)
         except Exception as e:
             logger.warning(f"Could not create database tables: {e}. Tables may need to be created manually.")
     
