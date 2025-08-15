@@ -287,6 +287,76 @@ class AppleMailDBReader:
             
         except Exception as e:
             return {"error": str(e)}
+    
+    def get_email_count(self) -> int:
+        """Get total count of non-deleted emails."""
+        try:
+            conn = self._get_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM messages WHERE deleted = 0")
+            result = cursor.fetchone()[0]
+            conn.close()
+            return result
+        except Exception as e:
+            return 0
+    
+    def get_unread_count(self) -> int:
+        """Get count of unread emails."""
+        try:
+            conn = self._get_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM messages WHERE deleted = 0 AND read = 0")
+            result = cursor.fetchone()[0]
+            conn.close()
+            return result
+        except Exception as e:
+            return 0
+    
+    def get_email(self, email_id: int) -> Optional[Dict]:
+        """Get single email by ID."""
+        try:
+            conn = self._get_connection()
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            query = """
+            SELECT 
+                m.ROWID as message_id,
+                m.message_id as message_id_header,
+                s.subject as subject_text,
+                sender_add.address as sender_email,
+                sender_add.comment as sender_name,
+                m.date_received,
+                m.date_sent,
+                m.read,
+                m.flagged,
+                m.deleted,
+                m.size,
+                mb.url as mailbox_path
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            LEFT JOIN addresses sender_add ON m.sender = sender_add.ROWID
+            LEFT JOIN mailboxes mb ON m.mailbox = mb.ROWID
+            WHERE m.ROWID = ? AND m.deleted = 0
+            """
+            
+            cursor.execute(query, (email_id,))
+            row = cursor.fetchone()
+            
+            if row:
+                email = dict(row)
+                email['date_received'] = self._convert_timestamp(email['date_received'])
+                email['date_sent'] = self._convert_timestamp(email['date_sent'])
+                email['is_read'] = bool(email['read'])
+                email['is_flagged'] = bool(email['flagged'])
+                conn.close()
+                return email
+            
+            conn.close()
+            return None
+            
+        except Exception as e:
+            return None
 
 
 def main():

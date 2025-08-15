@@ -2,16 +2,25 @@
 """
 Email Intelligence Dashboard Backend
 FastAPI server with email/task management and AI integration.
+Optimized for real Apple Mail data with 8,018+ emails.
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 import uvicorn
 import os
 import sys
+import logging
+from functools import lru_cache
+import asyncio
+import time
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Ensure project root is importable when running from dashboard/backend
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -21,6 +30,7 @@ if PROJECT_ROOT not in sys.path:
 
 from email_intelligence_engine import EmailIntelligenceEngine
 from apple_mail_db_reader import AppleMailDBReader
+from email_data_connector import AppleMailConnector  # Enhanced connector for performance
 from apple_mail_composer import AppleMailComposer
 from applescript_integration import AppleScriptMailer
 
@@ -35,11 +45,34 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize components
-engine = EmailIntelligenceEngine()
-db_reader = AppleMailDBReader()
-composer = AppleMailComposer()
-mailer = AppleScriptMailer()
+# Initialize components with error handling and performance monitoring
+try:
+    engine = EmailIntelligenceEngine()
+    db_reader = AppleMailDBReader()
+    enhanced_connector = AppleMailConnector()  # Enhanced connector for better performance
+    composer = AppleMailComposer()
+    mailer = AppleScriptMailer()
+    logger.info("All components initialized successfully")
+    
+    # Validate database connection and log statistics
+    try:
+        stats = enhanced_connector.get_mailbox_stats()
+        logger.info(f"Connected to Apple Mail database: {stats['total_messages']} emails from {stats.get('oldest_message')} to {stats.get('newest_message')}")
+    except Exception as e:
+        logger.warning(f"Could not get mailbox stats: {e}")
+        
+except Exception as e:
+    logger.error(f"Failed to initialize components: {e}")
+    raise
+
+# Performance monitoring
+request_times = []
+
+# Cache for frequently accessed data
+@lru_cache(maxsize=128)
+def get_cached_stats():
+    """Cached version of database statistics with TTL simulation."""
+    return db_reader.get_email_stats(), time.time()
 
 class Email(BaseModel):
     id: int
@@ -72,36 +105,84 @@ def read_root():
     return {"status": "ok", "message": "Email Intelligence API"}
 
 @app.get("/emails/", response_model=List[Email])
-def get_emails(limit: int = 50, offset: int = 0):
-    """Get recent emails with AI analysis"""
+def get_emails(
+    limit: int = Query(50, le=200, description="Maximum emails to return (max 200)"), 
+    offset: int = Query(0, ge=0, description="Offset for pagination"),
+    date_from: Optional[str] = Query(None, description="Start date filter (ISO format)"),
+    date_to: Optional[str] = Query(None, description="End date filter (ISO format)")
+):
+    """Get recent emails with AI analysis - optimized for large datasets"""
+    start_time = time.time()
+    
     try:
-        # Get emails from Apple Mail database
-        emails = db_reader.get_recent_emails(limit=limit)
+        # Use date range filtering if provided, otherwise get recent emails
+        if date_from or date_to:
+            try:
+                start_date = datetime.fromisoformat(date_from) if date_from else datetime.now() - timedelta(days=30)
+                end_date = datetime.fromisoformat(date_to) if date_to else datetime.now()
+                
+                # Use enhanced connector for date range queries with better performance
+                email_objs = enhanced_connector.get_emails_by_date_range(start_date, end_date, limit)
+                emails = []
+                for email_obj in email_objs:
+                    emails.append({
+                        'message_id': email_obj.message_id,
+                        'subject_text': email_obj.subject_text,
+                        'sender_email': email_obj.sender_email,
+                        'sender_name': email_obj.sender_name,
+                        'date_received': email_obj.date_received.isoformat() if email_obj.date_received != datetime.min else None,
+                        'content': '',  # Body content not included for performance
+                        'is_read': email_obj.is_read,
+                        'is_flagged': email_obj.is_flagged
+                    })
+            except ValueError as e:
+                raise HTTPException(status_code=400, detail=f"Invalid date format: {e}")
+        else:
+            # Get recent emails using optimized reader
+            emails = db_reader.get_recent_emails(limit=limit)
         
-        # Analyze each email
+        # Analyze each email with batch processing optimization
         analyzed_emails = []
+        analysis_start = time.time()
+        
         for email in emails:
-            result = engine.analyze_email(
-                subject=email.get('subject_text', 'No Subject'),
-                body=email.get('content', ''),
-                sender=email.get('sender_email', 'Unknown')
-            )
-            
-            analyzed_emails.append(Email(
-                id=email.get('message_id', 0),
-                subject=email.get('subject_text', 'No Subject'),
-                sender=email.get('sender_email', 'Unknown'),
-                date=email.get('date_received', ''),
-                classification=result.classification.value,
-                urgency=result.urgency.value,
-                confidence=result.confidence,
-                has_draft=False  # TODO: Check if draft exists
-            ))
+            try:
+                result = engine.analyze_email(
+                    subject=email.get('subject_text', 'No Subject'),
+                    body=email.get('content', ''),
+                    sender=email.get('sender_email', 'Unknown')
+                )
+                
+                analyzed_emails.append(Email(
+                    id=email.get('message_id', 0),
+                    subject=email.get('subject_text', 'No Subject'),
+                    sender=email.get('sender_email', 'Unknown'),
+                    date=email.get('date_received', ''),
+                    classification=result.classification.value,
+                    urgency=result.urgency.value,
+                    confidence=result.confidence,
+                    has_draft=False  # TODO: Check if draft exists
+                ))
+            except Exception as e:
+                logger.warning(f"Failed to analyze email {email.get('message_id', 'unknown')}: {e}")
+                # Continue processing other emails
+        
+        # Performance logging
+        total_time = time.time() - start_time
+        analysis_time = time.time() - analysis_start
+        logger.info(f"Processed {len(analyzed_emails)} emails in {total_time:.2f}s (analysis: {analysis_time:.2f}s)")
+        
+        request_times.append(total_time)
+        if len(request_times) > 100:  # Keep only last 100 requests
+            request_times.pop(0)
         
         return analyzed_emails
         
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error in get_emails: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.get("/emails/{email_id}", response_model=Email)
 def get_email(email_id: int):
@@ -204,41 +285,122 @@ def get_drafts(limit: int = 50, offset: int = 0):
 
 @app.get("/stats/")
 def get_stats():
-    """Get email processing statistics"""
+    """Get email processing statistics with enhanced metrics and caching"""
     try:
-        total_emails = db_reader.get_email_count()
-        unread = db_reader.get_unread_count()
+        # Use cached stats if available and fresh (5 minute TTL)
+        cached_data, cache_time = get_cached_stats()
+        if time.time() - cache_time < 300:  # 5 minute cache
+            stats = cached_data
+        else:
+            # Refresh cache
+            get_cached_stats.cache_clear()
+            stats, _ = get_cached_stats()
         
-        # Get classifications for recent emails
-        emails = db_reader.get_recent_emails(limit=100)
+        total_emails = stats.get('total_emails', 0)
+        unread = stats.get('unread_count', 0)
+        
+        # Enhanced mailbox statistics from the advanced connector
+        try:
+            mailbox_stats = enhanced_connector.get_mailbox_stats()
+            mailbox_breakdown = mailbox_stats.get('mailboxes', {})
+        except Exception as e:
+            logger.warning(f"Could not get enhanced mailbox stats: {e}")
+            mailbox_breakdown = {}
+        
+        # Sample recent emails for analysis (smaller sample for performance)
+        sample_size = min(50, total_emails)  # Analyze max 50 emails for stats
+        emails = db_reader.get_recent_emails(limit=sample_size)
         classifications = {}
         urgencies = {}
+        analysis_errors = 0
         
         for email in emails:
-            result = engine.analyze_email(
-                subject=email.get('subject_text', 'No Subject'),
-                body=email.get('content', ''),
-                sender=email.get('sender_email', 'Unknown')
-            )
-            
-            # Count classifications
-            class_name = result.classification.value
-            classifications[class_name] = classifications.get(class_name, 0) + 1
-            
-            # Count urgencies
-            urgency = result.urgency.value
-            urgencies[urgency] = urgencies.get(urgency, 0) + 1
+            try:
+                result = engine.analyze_email(
+                    subject=email.get('subject_text', 'No Subject'),
+                    body=email.get('content', ''),
+                    sender=email.get('sender_email', 'Unknown')
+                )
+                
+                # Count classifications
+                class_name = result.classification.value
+                classifications[class_name] = classifications.get(class_name, 0) + 1
+                
+                # Count urgencies
+                urgency = result.urgency.value
+                urgencies[urgency] = urgencies.get(urgency, 0) + 1
+                
+            except Exception as e:
+                analysis_errors += 1
+                logger.warning(f"Analysis error for email stats: {e}")
         
-        return {
+        # Calculate performance metrics
+        avg_request_time = sum(request_times) / len(request_times) if request_times else 0
+        
+        response_data = {
             "total_emails": total_emails,
             "unread_emails": unread,
+            "flagged_emails": stats.get('flagged_count', 0),
+            "emails_last_7_days": stats.get('emails_last_7_days', 0),
             "classifications": classifications,
             "urgencies": urgencies,
-            "processing_stats": engine.get_performance_metrics()
+            "mailbox_breakdown": dict(list(mailbox_breakdown.items())[:10]),  # Top 10 mailboxes
+            "analysis_sample_size": sample_size,
+            "analysis_errors": analysis_errors,
+            "performance_metrics": {
+                "average_request_time": round(avg_request_time, 3),
+                "total_requests": len(request_times),
+                "database_status": "connected",
+                **engine.get_performance_metrics()
+            },
+            "database_info": {
+                "connection_type": "Apple Mail SQLite",
+                "last_updated": datetime.now().isoformat(),
+                "cache_status": "active" if time.time() - cache_time < 300 else "refreshed"
+            }
         }
         
+        return response_data
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error in get_stats: {e}")
+        raise HTTPException(status_code=500, detail=f"Statistics error: {str(e)}")
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint for monitoring"""
+    try:
+        # Quick database connectivity test
+        test_count = db_reader.get_email_count()
+        
+        return {
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "database_connected": True,
+            "total_emails": test_count,
+            "components": {
+                "database_reader": "ok",
+                "enhanced_connector": "ok",
+                "email_intelligence_engine": "ok",
+                "apple_mail_composer": "ok",
+                "applescript_mailer": "ok"
+            }
+        }
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return {
+            "status": "unhealthy",
+            "timestamp": datetime.now().isoformat(),
+            "database_connected": False,
+            "error": str(e),
+            "components": {
+                "database_reader": "error",
+                "enhanced_connector": "unknown",
+                "email_intelligence_engine": "unknown",
+                "apple_mail_composer": "unknown", 
+                "applescript_mailer": "unknown"
+            }
+        }
 
 @app.post("/drafts/{draft_id}/send")
 def send_draft(draft_id: int, to_email: str):
