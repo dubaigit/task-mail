@@ -1008,6 +1008,81 @@ const ModernEmailInterface: React.FC = () => {
       <main id="main-content" className="w-96 email-list-panel border-r border-border flex flex-col" role="main" aria-label="Email list">
         {/* Search & Filters */}
         <div className="p-4 border-b border-border">
+          {/* Task-Centric Interface Header */}
+          <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">Task-Centric Email Interface</span>
+              </div>
+              <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded-full">
+                AI-Powered
+              </span>
+            </div>
+            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+              Switch between Email, Task, and Draft views below
+            </p>
+          </div>
+
+          {/* View Mode Toggle System - Prominent Location */}
+          <div className="mb-4 p-3 bg-secondary/30 rounded-lg border border-border">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-foreground">View Mode:</span>
+                <div className="flex items-center bg-background border border-border rounded-lg p-1 shadow-sm">
+                  {(['email', 'task', 'draft'] as ViewMode[]).map((mode) => (
+                    <button
+                      key={mode}
+                      onClick={() => {
+                        setCurrentViewMode(mode);
+                        showToast(`Switched to ${mode} view`, 'info');
+                      }}
+                      className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                        currentViewMode === mode
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                      }`}
+                      data-testid="view-toggle"
+                      title={`Switch to ${mode} view`}
+                    >
+                      {mode === 'email' && <EnvelopeIcon className="w-4 h-4 mr-2 inline" />}
+                      {mode === 'task' && <CalendarDaysIcon className="w-4 h-4 mr-2 inline" />}
+                      {mode === 'draft' && <PaperAirplaneIcon className="w-4 h-4 mr-2 inline" />}
+                      {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="auto-switch"
+                  checked={autoSwitchEnabled}
+                  onChange={(e) => setAutoSwitchEnabled(e.target.checked)}
+                  className="w-4 h-4 text-primary rounded focus:ring-primary"
+                />
+                <label htmlFor="auto-switch" className="text-xs text-muted-foreground cursor-pointer">
+                  Auto-switch
+                </label>
+              </div>
+            </div>
+            
+            {/* View Mode Analysis Indicator */}
+            {viewModeAnalysis && viewModeAnalysis.confidence >= 0.8 && (
+              <div className="flex items-center gap-2 text-xs mt-2 p-2 bg-background rounded-md">
+                <div className={`w-2 h-2 rounded-full ${
+                  viewModeAnalysis.suggestedView === currentViewMode 
+                    ? 'bg-green-500' 
+                    : 'bg-amber-500'
+                }`} />
+                <span className="text-muted-foreground" title={viewModeAnalysis.reasoning}>
+                  AI suggests: {viewModeAnalysis.suggestedView} view ({Math.round(viewModeAnalysis.confidence * 100)}% confidence)
+                </span>
+              </div>
+            )}
+          </div>
+
           <div className="relative mb-3">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
@@ -1167,59 +1242,22 @@ const ModernEmailInterface: React.FC = () => {
                 )}
               </div>
 
-              {/* View Mode Toggle System */}
-              <div className="flex items-center justify-between mt-4 p-4 bg-secondary/30 rounded-lg border border-border">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-muted-foreground">View Mode:</span>
-                    <div className="flex items-center bg-background border border-border rounded-lg p-1">
-                      {(['email', 'task', 'draft'] as ViewMode[]).map((mode) => (
-                        <button
-                          key={mode}
-                          onClick={() => {
-                            setCurrentViewMode(mode);
-                            showToast(`Switched to ${mode} view`, 'info');
-                          }}
-                          className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                            currentViewMode === mode
-                              ? 'bg-primary text-primary-foreground'
-                              : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                          }`}
-                          data-testid="view-toggle"
-                        >
-                          {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="auto-switch"
-                      checked={autoSwitchEnabled}
-                      onChange={(e) => setAutoSwitchEnabled(e.target.checked)}
-                      className="w-4 h-4 text-primary"
-                    />
-                    <label htmlFor="auto-switch" className="text-xs text-muted-foreground cursor-pointer">
-                      Auto-switch views
-                    </label>
-                  </div>
-                </div>
-                
-                {/* View Mode Analysis Indicator */}
-                {viewModeAnalysis && viewModeAnalysis.confidence >= 0.8 && (
-                  <div className="flex items-center gap-2 text-xs">
-                    <div className={`w-2 h-2 rounded-full ${
-                      viewModeAnalysis.suggestedView === currentViewMode 
-                        ? 'bg-green-500' 
-                        : 'bg-amber-500'
-                    }`} />
-                    <span className="text-muted-foreground" title={viewModeAnalysis.reasoning}>
-                      AI suggests: {viewModeAnalysis.suggestedView} ({Math.round(viewModeAnalysis.confidence * 100)}%)
+              {/* Current View Mode Indicator */}
+              <div className="mt-4 p-3 bg-primary/10 rounded-lg border border-primary/20">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full" />
+                  <span className="text-sm font-medium text-primary">
+                    Current View: {currentViewMode.charAt(0).toUpperCase() + currentViewMode.slice(1)}
+                  </span>
+                  {viewModeAnalysis && viewModeAnalysis.confidence >= 0.8 && (
+                    <span className="text-xs text-muted-foreground ml-auto" title={viewModeAnalysis.reasoning}>
+                      AI confidence: {Math.round(viewModeAnalysis.confidence * 100)}%
                     </span>
-                  </div>
-                )}
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Use the view toggle buttons at the top to switch modes
+                </p>
               </div>
 
               {/* AI Actions */}

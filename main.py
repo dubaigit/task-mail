@@ -259,7 +259,7 @@ async def get_drafts():
                 )
                 
                 # Generate draft for emails needing reply
-                if str(result.classification).endswith('NEEDS_REPLY'):
+                if str(result.classification).endswith(('NEEDS_REPLY', 'APPROVAL_REQUIRED')):
                     draft_content = engine.generate_draft_reply(email, result)
                     
                     drafts.append(DraftResponse(

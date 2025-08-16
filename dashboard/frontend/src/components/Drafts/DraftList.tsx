@@ -26,7 +26,7 @@ const DraftList: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('http://localhost:8000/drafts/');
+      const response = await fetch('http://localhost:8001/drafts/');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -69,7 +69,7 @@ const DraftList: React.FC = () => {
     try {
       setError(null);
       
-      const response = await fetch(`http://localhost:8000/drafts/${draftId}/send`, {
+      const response = await fetch(`http://localhost:8001/drafts/${draftId}/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

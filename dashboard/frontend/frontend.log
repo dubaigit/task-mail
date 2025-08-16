@@ -127,3 +127,207 @@ src/components/Email/ModernEmailInterface.tsx
 webpack compiled with 1 warning
 No issues found.
 (node:90565) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/AIAssistant/ConversationalAIPanel.tsx
+  Line 68:10:  'currentInstruction' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src/components/AIAssistant/DraftEditor.tsx
+  Line 3:3:    'DocumentTextIcon' is defined but never used                                                                                                                         @typescript-eslint/no-unused-vars
+  Line 5:3:    'ArrowUturnRightIcon' is defined but never used                                                                                                                      @typescript-eslint/no-unused-vars
+  Line 9:3:    'ExclamationTriangleIcon' is defined but never used                                                                                                                  @typescript-eslint/no-unused-vars
+  Line 11:3:   'BookmarkIcon' is defined but never used                                                                                                                             @typescript-eslint/no-unused-vars
+  Line 13:3:   'PaperAirplaneIcon' is defined but never used                                                                                                                        @typescript-eslint/no-unused-vars
+  Line 120:6:  React Hook useEffect has missing dependencies: 'calculateReadingTime', 'countWords', and 'generateAIHighlights'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 131:6:  React Hook useEffect has missing dependencies: 'draft' and 'handleSave'. Either include them or remove the dependency array                                          react-hooks/exhaustive-deps
+
+src/components/AIAssistant/DraftGenerationInterface.tsx
+  Line 7:3:    'ExclamationTriangleIcon' is defined but never used                                                                                         @typescript-eslint/no-unused-vars
+  Line 11:3:   'LightBulbIcon' is defined but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 110:6:  React Hook useEffect has missing dependencies: 'currentDraft' and 'handleAutoGenerate'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/AIAssistant/TemplateManager.tsx
+  Line 10:3:   'TrashIcon' is defined but never used                                                                               @typescript-eslint/no-unused-vars
+  Line 11:3:   'ArrowDownTrayIcon' is defined but never used                                                                       @typescript-eslint/no-unused-vars
+  Line 235:6:  React Hook useEffect has a missing dependency: 'sampleTemplates'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Email/ModernEmailInterface.tsx
+  Line 332:26:  'setAIDraftOptions' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/AIAssistant/ConversationalAIPanel.tsx
+  Line 68:10:  'currentInstruction' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src/components/AIAssistant/DraftEditor.tsx
+  Line 3:3:    'DocumentTextIcon' is defined but never used                                                                                                                         @typescript-eslint/no-unused-vars
+  Line 5:3:    'ArrowUturnRightIcon' is defined but never used                                                                                                                      @typescript-eslint/no-unused-vars
+  Line 9:3:    'ExclamationTriangleIcon' is defined but never used                                                                                                                  @typescript-eslint/no-unused-vars
+  Line 11:3:   'BookmarkIcon' is defined but never used                                                                                                                             @typescript-eslint/no-unused-vars
+  Line 13:3:   'PaperAirplaneIcon' is defined but never used                                                                                                                        @typescript-eslint/no-unused-vars
+  Line 120:6:  React Hook useEffect has missing dependencies: 'calculateReadingTime', 'countWords', and 'generateAIHighlights'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 131:6:  React Hook useEffect has missing dependencies: 'draft' and 'handleSave'. Either include them or remove the dependency array                                          react-hooks/exhaustive-deps
+
+src/components/AIAssistant/DraftGenerationInterface.tsx
+  Line 7:3:    'ExclamationTriangleIcon' is defined but never used                                                                                         @typescript-eslint/no-unused-vars
+  Line 11:3:   'LightBulbIcon' is defined but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 110:6:  React Hook useEffect has missing dependencies: 'currentDraft' and 'handleAutoGenerate'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/AIAssistant/TemplateManager.tsx
+  Line 10:3:   'TrashIcon' is defined but never used                                                                               @typescript-eslint/no-unused-vars
+  Line 11:3:   'ArrowDownTrayIcon' is defined but never used                                                                       @typescript-eslint/no-unused-vars
+  Line 235:6:  React Hook useEffect has a missing dependency: 'sampleTemplates'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Email/ModernEmailInterface.tsx
+  Line 332:26:  'setAIDraftOptions' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Proxy error: Could not proxy request /emails/ from localhost:3000 to http://localhost:8000.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/AIAssistant/ConversationalAIPanel.tsx
+  Line 68:10:  'currentInstruction' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src/components/AIAssistant/DraftEditor.tsx
+  Line 3:3:    'DocumentTextIcon' is defined but never used                                                                                                                         @typescript-eslint/no-unused-vars
+  Line 5:3:    'ArrowUturnRightIcon' is defined but never used                                                                                                                      @typescript-eslint/no-unused-vars
+  Line 9:3:    'ExclamationTriangleIcon' is defined but never used                                                                                                                  @typescript-eslint/no-unused-vars
+  Line 11:3:   'BookmarkIcon' is defined but never used                                                                                                                             @typescript-eslint/no-unused-vars
+  Line 13:3:   'PaperAirplaneIcon' is defined but never used                                                                                                                        @typescript-eslint/no-unused-vars
+  Line 120:6:  React Hook useEffect has missing dependencies: 'calculateReadingTime', 'countWords', and 'generateAIHighlights'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 131:6:  React Hook useEffect has missing dependencies: 'draft' and 'handleSave'. Either include them or remove the dependency array                                          react-hooks/exhaustive-deps
+
+src/components/AIAssistant/DraftGenerationInterface.tsx
+  Line 7:3:    'ExclamationTriangleIcon' is defined but never used                                                                                         @typescript-eslint/no-unused-vars
+  Line 11:3:   'LightBulbIcon' is defined but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 110:6:  React Hook useEffect has missing dependencies: 'currentDraft' and 'handleAutoGenerate'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/AIAssistant/TemplateManager.tsx
+  Line 10:3:   'TrashIcon' is defined but never used                                                                               @typescript-eslint/no-unused-vars
+  Line 11:3:   'ArrowDownTrayIcon' is defined but never used                                                                       @typescript-eslint/no-unused-vars
+  Line 235:6:  React Hook useEffect has a missing dependency: 'sampleTemplates'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Email/ModernEmailInterface.tsx
+  Line 332:26:  'setAIDraftOptions' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/AIAssistant/ConversationalAIPanel.tsx
+  Line 68:10:  'currentInstruction' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src/components/AIAssistant/DraftEditor.tsx
+  Line 3:3:    'DocumentTextIcon' is defined but never used                                                                                                                         @typescript-eslint/no-unused-vars
+  Line 5:3:    'ArrowUturnRightIcon' is defined but never used                                                                                                                      @typescript-eslint/no-unused-vars
+  Line 9:3:    'ExclamationTriangleIcon' is defined but never used                                                                                                                  @typescript-eslint/no-unused-vars
+  Line 11:3:   'BookmarkIcon' is defined but never used                                                                                                                             @typescript-eslint/no-unused-vars
+  Line 13:3:   'PaperAirplaneIcon' is defined but never used                                                                                                                        @typescript-eslint/no-unused-vars
+  Line 120:6:  React Hook useEffect has missing dependencies: 'calculateReadingTime', 'countWords', and 'generateAIHighlights'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 131:6:  React Hook useEffect has missing dependencies: 'draft' and 'handleSave'. Either include them or remove the dependency array                                          react-hooks/exhaustive-deps
+
+src/components/AIAssistant/DraftGenerationInterface.tsx
+  Line 7:3:    'ExclamationTriangleIcon' is defined but never used                                                                                         @typescript-eslint/no-unused-vars
+  Line 11:3:   'LightBulbIcon' is defined but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 110:6:  React Hook useEffect has missing dependencies: 'currentDraft' and 'handleAutoGenerate'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/AIAssistant/TemplateManager.tsx
+  Line 10:3:   'TrashIcon' is defined but never used                                                                               @typescript-eslint/no-unused-vars
+  Line 11:3:   'ArrowDownTrayIcon' is defined but never used                                                                       @typescript-eslint/no-unused-vars
+  Line 235:6:  React Hook useEffect has a missing dependency: 'sampleTemplates'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Email/ModernEmailInterface.tsx
+  Line 332:26:  'setAIDraftOptions' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Proxy error: Could not proxy request /emails/ from localhost:3000 to http://localhost:8000.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /favicon.ico from localhost:3000 to http://localhost:8000.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /emails/ from localhost:3000 to http://localhost:8000.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /emails/ from localhost:3000 to http://localhost:8000.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /emails/ from localhost:3000 to http://localhost:8000.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /emails/ from localhost:3000 to http://localhost:8000.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/AIAssistant/ConversationalAIPanel.tsx
+  Line 68:10:  'currentInstruction' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src/components/AIAssistant/DraftEditor.tsx
+  Line 3:3:    'DocumentTextIcon' is defined but never used                                                                                                                         @typescript-eslint/no-unused-vars
+  Line 5:3:    'ArrowUturnRightIcon' is defined but never used                                                                                                                      @typescript-eslint/no-unused-vars
+  Line 9:3:    'ExclamationTriangleIcon' is defined but never used                                                                                                                  @typescript-eslint/no-unused-vars
+  Line 11:3:   'BookmarkIcon' is defined but never used                                                                                                                             @typescript-eslint/no-unused-vars
+  Line 13:3:   'PaperAirplaneIcon' is defined but never used                                                                                                                        @typescript-eslint/no-unused-vars
+  Line 120:6:  React Hook useEffect has missing dependencies: 'calculateReadingTime', 'countWords', and 'generateAIHighlights'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 131:6:  React Hook useEffect has missing dependencies: 'draft' and 'handleSave'. Either include them or remove the dependency array                                          react-hooks/exhaustive-deps
+
+src/components/AIAssistant/DraftGenerationInterface.tsx
+  Line 7:3:    'ExclamationTriangleIcon' is defined but never used                                                                                         @typescript-eslint/no-unused-vars
+  Line 11:3:   'LightBulbIcon' is defined but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 110:6:  React Hook useEffect has missing dependencies: 'currentDraft' and 'handleAutoGenerate'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/AIAssistant/TemplateManager.tsx
+  Line 10:3:   'TrashIcon' is defined but never used                                                                               @typescript-eslint/no-unused-vars
+  Line 11:3:   'ArrowDownTrayIcon' is defined but never used                                                                       @typescript-eslint/no-unused-vars
+  Line 235:6:  React Hook useEffect has a missing dependency: 'sampleTemplates'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Email/ModernEmailInterface.tsx
+  Line 332:26:  'setAIDraftOptions' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/AIAssistant/ConversationalAIPanel.tsx
+  Line 68:10:  'currentInstruction' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src/components/AIAssistant/DraftEditor.tsx
+  Line 3:3:    'DocumentTextIcon' is defined but never used                                                                                                                         @typescript-eslint/no-unused-vars
+  Line 5:3:    'ArrowUturnRightIcon' is defined but never used                                                                                                                      @typescript-eslint/no-unused-vars
+  Line 9:3:    'ExclamationTriangleIcon' is defined but never used                                                                                                                  @typescript-eslint/no-unused-vars
+  Line 11:3:   'BookmarkIcon' is defined but never used                                                                                                                             @typescript-eslint/no-unused-vars
+  Line 13:3:   'PaperAirplaneIcon' is defined but never used                                                                                                                        @typescript-eslint/no-unused-vars
+  Line 120:6:  React Hook useEffect has missing dependencies: 'calculateReadingTime', 'countWords', and 'generateAIHighlights'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 131:6:  React Hook useEffect has missing dependencies: 'draft' and 'handleSave'. Either include them or remove the dependency array                                          react-hooks/exhaustive-deps
+
+src/components/AIAssistant/DraftGenerationInterface.tsx
+  Line 7:3:    'ExclamationTriangleIcon' is defined but never used                                                                                         @typescript-eslint/no-unused-vars
+  Line 11:3:   'LightBulbIcon' is defined but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 110:6:  React Hook useEffect has missing dependencies: 'currentDraft' and 'handleAutoGenerate'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/AIAssistant/TemplateManager.tsx
+  Line 10:3:   'TrashIcon' is defined but never used                                                                               @typescript-eslint/no-unused-vars
+  Line 11:3:   'ArrowDownTrayIcon' is defined but never used                                                                       @typescript-eslint/no-unused-vars
+  Line 235:6:  React Hook useEffect has a missing dependency: 'sampleTemplates'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Email/ModernEmailInterface.tsx
+  Line 332:26:  'setAIDraftOptions' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Proxy error: Could not proxy request /emails/ from localhost:3000 to http://localhost:8000.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
