@@ -33,6 +33,9 @@ from apple_mail_db_reader import AppleMailDBReader
 from email_data_connector import AppleMailConnector  # Enhanced connector for performance
 from apple_mail_composer import AppleMailComposer
 from applescript_integration import AppleScriptMailer
+from ai_draft_generator import AIDraftGenerator, DraftOptions, EmailContext, DraftResult
+from style_learner import StyleLearner
+from refinement_processor import RefinementProcessor
 
 app = FastAPI(title="Email Intelligence API")
 
@@ -52,6 +55,12 @@ try:
     enhanced_connector = AppleMailConnector()  # Enhanced connector for better performance
     composer = AppleMailComposer()
     mailer = AppleScriptMailer()
+    
+    # AI Draft Generation components
+    draft_generator = AIDraftGenerator()
+    style_learner = StyleLearner()
+    refinement_processor = RefinementProcessor()
+    
     logger.info("All components initialized successfully")
     
     # Validate database connection and log statistics
@@ -99,6 +108,21 @@ class Draft(BaseModel):
     content: str
     confidence: float
     created_at: datetime
+    version: Optional[int] = 1
+    template_used: Optional[str] = None
+    refinement_history: Optional[List[dict]] = None
+
+class DraftGenerationRequest(BaseModel):
+    email_id: int
+    tone: Optional[str] = "professional"
+    length: Optional[str] = "standard"
+    include_signature: Optional[bool] = True
+    urgency_level: Optional[str] = "medium"
+    custom_instructions: Optional[str] = None
+
+class DraftRefinementRequest(BaseModel):
+    draft_id: str
+    instruction: str
 
 @app.get("/")
 def read_root():
@@ -474,6 +498,178 @@ def mark_email_read(email_id: int):
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/drafts/generate", response_model=Draft)
+async def generate_ai_draft(request: DraftGenerationRequest):
+    """Generate AI-powered draft response"""
+    try:
+        # Get email details
+        email = db_reader.get_email(request.email_id)
+        if not email:
+            raise HTTPException(status_code=404, detail="Email not found")
+        
+        # Create email context
+        email_context = EmailContext(
+            email_id=request.email_id,
+            subject=email.get('subject_text', ''),
+            sender=email.get('sender_email', ''),
+            sender_email=email.get('sender_email', ''),
+            content=email.get('content', ''),
+            classification='NEEDS_REPLY',  # Default classification
+            urgency=request.urgency_level.upper()
+        )
+        
+        # Create draft options
+        draft_options = DraftOptions(
+            tone=request.tone,
+            length=request.length,
+            include_signature=request.include_signature,
+            urgency_level=request.urgency_level,
+            custom_instructions=request.custom_instructions
+        )
+        
+        # Generate draft
+        draft_result = await draft_generator.generate_draft(email_context, draft_options)
+        
+        # Convert to API response
+        return Draft(
+            id=hash(draft_result.id),  # Convert string ID to int for API compatibility
+            email_id=request.email_id,
+            content=draft_result.content,
+            confidence=draft_result.confidence,
+            created_at=datetime.fromisoformat(draft_result.created_at),
+            version=draft_result.version,
+            template_used=draft_result.template_used,
+            refinement_history=draft_result.refinement_history or []
+        )
+        
+    except Exception as e:
+        logger.error(f"Draft generation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate draft: {str(e)}")
+
+@app.post("/drafts/refine", response_model=Draft)
+async def refine_draft(request: DraftRefinementRequest):
+    """Refine existing draft using natural language instruction"""
+    try:
+        # In a real implementation, you would retrieve the draft from storage
+        # For now, we'll create a mock draft result to demonstrate refinement
+        
+        # Create a mock draft result for refinement
+        mock_draft = DraftResult(
+            id=request.draft_id,
+            email_id=1,
+            content="Dear John,\n\nThank you for your email.\n\nBest regards,\nAbdullah",
+            confidence=0.8,
+            tone_analysis={"formality": 0.8, "professionalism": 0.9},
+            generation_metadata={"strategy": "ai_powered"},
+            version=1
+        )
+        
+        # Refine the draft
+        refined_draft = await draft_generator.refine_draft(
+            mock_draft, 
+            request.instruction
+        )
+        
+        # Convert to API response
+        return Draft(
+            id=hash(refined_draft.id),
+            email_id=refined_draft.email_id,
+            content=refined_draft.content,
+            confidence=refined_draft.confidence,
+            created_at=datetime.fromisoformat(refined_draft.created_at),
+            version=refined_draft.version,
+            template_used=refined_draft.template_used,
+            refinement_history=refined_draft.refinement_history or []
+        )
+        
+    except Exception as e:
+        logger.error(f"Draft refinement failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to refine draft: {str(e)}")
+
+@app.get("/user/style-profile")
+async def get_user_style_profile():
+    """Get user's writing style profile"""
+    try:
+        style_profile = await style_learner.get_user_style_profile()
+        return {
+            "profile": style_profile,
+            "confidence_level": style_profile.get("confidence_level", 0.0)
+        }
+    except Exception as e:
+        logger.error(f"Failed to get style profile: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get style profile: {str(e)}")
+
+@app.post("/user/record-draft-feedback")
+async def record_draft_feedback(
+    draft_id: str, 
+    feedback_score: float, 
+    corrected_content: Optional[str] = None
+):
+    """Record user feedback on generated draft for learning"""
+    try:
+        if corrected_content:
+            # Learn from user corrections
+            original_draft = "Mock original draft content"  # In real implementation, retrieve from storage
+            await style_learner.record_user_correction(original_draft, corrected_content)
+        
+        return {"status": "feedback_recorded", "message": "Thank you for your feedback"}
+        
+    except Exception as e:
+        logger.error(f"Failed to record feedback: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to record feedback: {str(e)}")
+
+@app.get("/drafts/templates")
+async def get_email_templates():
+    """Get available email templates"""
+    try:
+        # Mock templates - in real implementation, these would come from database
+        templates = [
+            {
+                "id": "professional_reply",
+                "name": "Professional Reply",
+                "description": "Standard professional response template",
+                "category": "response",
+                "suitable_for": ["NEEDS_REPLY", "APPROVAL_REQUIRED"]
+            },
+            {
+                "id": "meeting_response",
+                "name": "Meeting Response",
+                "description": "Template for responding to meeting requests",
+                "category": "meeting",
+                "suitable_for": ["NEEDS_REPLY"]
+            },
+            {
+                "id": "delegation_request",
+                "name": "Task Delegation",
+                "description": "Template for delegating tasks",
+                "category": "delegation",
+                "suitable_for": ["DELEGATE", "CREATE_TASK"]
+            }
+        ]
+        
+        return {"templates": templates}
+        
+    except Exception as e:
+        logger.error(f"Failed to get templates: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get templates: {str(e)}")
+
+@app.get("/ai/metrics")
+async def get_ai_metrics():
+    """Get AI system performance metrics"""
+    try:
+        draft_metrics = draft_generator.get_metrics()
+        refinement_metrics = refinement_processor.get_metrics()
+        
+        return {
+            "draft_generation": draft_metrics,
+            "refinement_processing": refinement_metrics,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to get AI metrics: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get AI metrics: {str(e)}")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

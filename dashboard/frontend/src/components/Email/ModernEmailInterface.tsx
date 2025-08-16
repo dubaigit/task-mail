@@ -23,6 +23,12 @@ import {
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 
+// AI Assistant Components
+import { DraftGenerationInterface } from '../AIAssistant/DraftGenerationInterface';
+import { ConversationalAIPanel } from '../AIAssistant/ConversationalAIPanel';
+import { DraftEditor } from '../AIAssistant/DraftEditor';
+import { TemplateManager } from '../AIAssistant/TemplateManager';
+
 interface Email {
   id: number;
   subject: string;
@@ -52,12 +58,23 @@ interface Task {
   email_id?: number;
 }
 
+interface RefinementAction {
+  id: string;
+  instruction: string;
+  timestamp: string;
+  applied: boolean;
+  preview?: string;
+}
+
 interface Draft {
   id: number;
   email_id: number;
   content: string;
   confidence: number;
   created_at: string;
+  version: number;
+  template_used?: string;
+  refinement_history?: RefinementAction[];
 }
 
 interface ViewModeAnalysis {
@@ -300,6 +317,24 @@ const ModernEmailInterface: React.FC = () => {
     renderTime: 0,
     visibleItems: 0,
     totalItems: 0
+  });
+
+  // AI Assistant State
+  const [currentDraft, setCurrentDraft] = useState<Draft | null>(null);
+  const [isRefiningDraft, setIsRefiningDraft] = useState(false);
+  const [showConversationalAI, setShowConversationalAI] = useState(false);
+  const [draftVersionHistory, setDraftVersionHistory] = useState<Array<{
+    version: number;
+    content: string;
+    timestamp: string;
+    changes: string;
+  }>>([]);
+  const [aiDraftOptions, setAIDraftOptions] = useState({
+    tone: 'professional' as const,
+    length: 'standard' as const,
+    includeSignature: true,
+    urgencyLevel: 'medium' as const,
+    customInstructions: ''
   });
 
   // Keyboard navigation state
@@ -607,49 +642,144 @@ const ModernEmailInterface: React.FC = () => {
     }
   };
 
-  // AI Draft Generation
-  const handleGenerateDraft = async () => {
-    if (!selectedEmail) return;
+  // Enhanced AI Draft Generation with AI Assistant Integration
+  const handleGenerateDraft = async (emailId: number, options?: any): Promise<Draft> => {
+    const targetEmail = selectedEmail || { id: emailId };
+    if (!targetEmail) throw new Error('No email specified for draft generation');
     
     setIsGeneratingDraft(true);
     try {
-      const response = await fetch(`/drafts/?email_id=${selectedEmail.id}`, {
-        method: 'GET',
+      const response = await fetch('/drafts/generate', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          email_id: targetEmail.id,
+          tone: options?.tone || aiDraftOptions.tone,
+          length: options?.length || aiDraftOptions.length,
+          include_signature: options?.includeSignature ?? aiDraftOptions.includeSignature,
+          urgency_level: options?.urgencyLevel || aiDraftOptions.urgencyLevel,
+          custom_instructions: options?.customInstructions || aiDraftOptions.customInstructions
+        }),
       });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const newDrafts = await response.json();
-      if (newDrafts.length > 0) {
-        setDrafts(newDrafts);
-        setSelectedDraft(newDrafts[0]);
-        setShowDraftPanel(true);
-        
-        // Auto-switch to draft view if drafts generated
-        if (autoSwitchEnabled && selectedEmail.classification === 'NEEDS_REPLY') {
-          setCurrentViewMode('draft');
-          showToast('Generated AI draft reply, switched to draft view', 'success');
-        } else {
-          showToast('Generated AI draft reply', 'success');
-        }
-        
-        // Re-analyze view mode with new drafts
-        if (selectedEmail) {
-          handleAutoViewSwitch(selectedEmail);
-        }
+      const newDraft = await response.json();
+      
+      // Update current draft state
+      setCurrentDraft(newDraft.content);
+      
+      // Add to version history
+      const newVersion = {
+        version: draftVersionHistory.length + 1,
+        content: newDraft.content,
+        timestamp: new Date().toISOString(),
+        changes: 'Initial AI generation'
+      };
+      setDraftVersionHistory(prev => [...prev, newVersion]);
+      
+      // Update drafts array
+      setDrafts(prev => [...prev, newDraft]);
+      setSelectedDraft(newDraft);
+      setShowDraftPanel(true);
+      
+      // Auto-switch to draft view if drafts generated
+      if (autoSwitchEnabled && selectedEmail && selectedEmail.classification === 'NEEDS_REPLY') {
+        setCurrentViewMode('draft');
+        showToast(`Generated AI draft reply (${Math.round(newDraft.confidence * 100)}% confidence), switched to draft view`, 'success');
       } else {
-        showToast('No draft needed for this email', 'info');
+        showToast(`Generated AI draft reply with ${Math.round(newDraft.confidence * 100)}% confidence`, 'success');
       }
+      
+      // Re-analyze view mode with new drafts
+      if (selectedEmail) {
+        handleAutoViewSwitch(selectedEmail);
+      }
+      
+      return newDraft;
     } catch (error) {
       console.error('Failed to generate draft:', error);
       showToast('Failed to generate draft', 'error');
+      throw error;
     } finally {
       setIsGeneratingDraft(false);
+    }
+  };
+
+  // Wrapper for onClick usage
+  const handleGenerateDraftClick = async () => {
+    if (selectedEmail) {
+      await handleGenerateDraft(selectedEmail.id);
+    }
+  };
+
+  // AI Draft Refinement
+  const handleDraftRefine = async (draftId: number, instruction: string): Promise<Draft> => {
+    const targetDraft = selectedDraft || currentDraft || { id: draftId };
+    if (!targetDraft) throw new Error('No draft specified for refinement');
+    
+    setIsRefiningDraft(true);
+    try {
+      const response = await fetch('/drafts/refine', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          draft_id: targetDraft.id.toString(),
+          instruction: instruction
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const refinedDraft = await response.json();
+      
+      // Update current draft
+      setCurrentDraft(refinedDraft.content);
+      
+      // Add to version history
+      const newVersion = {
+        version: draftVersionHistory.length + 1,
+        content: refinedDraft.content,
+        timestamp: new Date().toISOString(),
+        changes: `Refined: ${instruction}`
+      };
+      setDraftVersionHistory(prev => [...prev, newVersion]);
+      
+      // Update selected draft
+      setSelectedDraft(refinedDraft);
+      
+      showToast('Draft refined successfully', 'success');
+      return refinedDraft;
+    } catch (error) {
+      console.error('Failed to refine draft:', error);
+      showToast('Failed to refine draft', 'error');
+      throw error;
+    } finally {
+      setIsRefiningDraft(false);
+    }
+  };
+
+  // Draft Update Handler
+  const handleDraftUpdate = (draft: Draft) => {
+    setCurrentDraft(draft);
+    
+    // Add to version history if content has changed significantly
+    if (draft.content.length > 0 && draft.content !== draftVersionHistory[draftVersionHistory.length - 1]?.content) {
+      const newVersion = {
+        version: draftVersionHistory.length + 1,
+        content: draft.content,
+        timestamp: new Date().toISOString(),
+        changes: 'Manual edit'
+      };
+      setDraftVersionHistory(prev => [...prev, newVersion]);
     }
   };
 
@@ -1090,7 +1220,7 @@ const ModernEmailInterface: React.FC = () => {
                 </button>
                 
                 <button
-                  onClick={handleGenerateDraft}
+                  onClick={handleGenerateDraftClick}
                   disabled={isGeneratingDraft}
                   className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50 transition-colors"
                 >
@@ -1223,79 +1353,133 @@ const ModernEmailInterface: React.FC = () => {
               )}
               
               {currentViewMode === 'draft' && (
-                <div className="p-6">
+                <div className="p-6 space-y-6">
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
                       <PaperAirplaneIcon className="w-5 h-5" />
-                      Draft-Centric View
+                      AI-Powered Draft Center
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Focus on AI-generated draft responses and reply management.
+                      Generate, refine, and manage AI-powered draft responses with conversational refinement.
                     </p>
                   </div>
-                  
-                  {/* Email Context for Reply */}
-                  <div className="bg-secondary/30 border border-border rounded-lg p-4 mb-6">
-                    <h4 className="font-medium mb-2">Replying to</h4>
-                    <p className="text-sm font-medium mb-1">{selectedEmail.subject}</p>
-                    <p className="text-xs text-muted-foreground">From: {selectedEmail.sender} • {new Date(selectedEmail.date).toLocaleDateString()}</p>
+
+                  {/* Draft Generation Interface */}
+                  <div className="space-y-4">
+                    <DraftGenerationInterface
+                      selectedEmail={selectedEmail}
+                      currentDraft={currentDraft}
+                      onDraftUpdate={handleDraftUpdate}
+                      onDraftGenerate={handleGenerateDraft}
+                      onDraftRefine={handleDraftRefine}
+                      className="border border-border rounded-lg"
+                    />
+
+                    {/* Conversational AI Panel */}
+                    {showConversationalAI && (
+                      <ConversationalAIPanel
+                        draft={currentDraft}
+                        email={selectedEmail}
+                        onRefinementInstruction={async (instruction: string) => {
+                          if (currentDraft) {
+                            await handleDraftRefine(currentDraft.id, instruction);
+                          }
+                        }}
+                        isProcessing={isRefiningDraft}
+                        className="border border-border rounded-lg"
+                      />
+                    )}
+
+                    {/* Draft Editor */}
+                    {currentDraft && (
+                      <DraftEditor
+                        draft={currentDraft}
+                        email={selectedEmail}
+                        onDraftUpdate={handleDraftUpdate}
+                        versionHistory={[]}
+                        onVersionRevert={(version) => {
+                          setCurrentDraft(version);
+                          showToast(`Restored to version ${version.version}`, 'info');
+                        }}
+                        className="border border-border rounded-lg"
+                      />
+                    )}
+
+                    {/* Template Manager */}
+                    <TemplateManager
+                      selectedEmail={selectedEmail}
+                      currentDraft={currentDraft}
+                      onTemplateApply={(template) => {
+                        const newDraft: Draft = {
+                          id: Date.now(),
+                          email_id: selectedEmail?.id || 0,
+                          content: template.content,
+                          confidence: 0.95,
+                          created_at: new Date().toISOString(),
+                          version: 1,
+                          template_used: template.name
+                        };
+                        setCurrentDraft(newDraft);
+                        showToast(`Applied template: ${template.name}`, 'success');
+                      }}
+                      onTemplateCreate={(content, metadata) => {
+                        // Handle template creation if needed
+                        showToast('Template created successfully', 'success');
+                      }}
+                      className="border border-border rounded-lg"
+                    />
+
+                    {/* AI Panel Toggle */}
+                    <div className="flex items-center justify-center">
+                      <button
+                        onClick={() => setShowConversationalAI(!showConversationalAI)}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                      >
+                        {showConversationalAI ? 'Hide AI Assistant' : 'Show AI Assistant'}
+                      </button>
+                    </div>
                   </div>
-                  
-                  {/* Drafts Section */}
-                  {drafts.length > 0 ? (
-                    <div className="space-y-4">
-                      {drafts.filter(draft => draft.email_id === selectedEmail.id).map((draft) => (
-                        <div key={draft.id} className="bg-background border border-border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                              <span className="text-sm font-medium">AI Draft #{draft.id}</span>
-                              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                                {Math.round(draft.confidence * 100)}% confidence
+
+                  {/* Legacy Draft Display (if no current draft is being edited) */}
+                  {!currentDraft && drafts.length > 0 && (
+                    <div className="border-t border-border pt-6 mt-6">
+                      <h4 className="font-medium mb-4">Previously Generated Drafts</h4>
+                      <div className="space-y-4">
+                        {drafts.filter(draft => draft.email_id === selectedEmail.id).map((draft) => (
+                          <div key={draft.id} className="bg-background border border-border rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm font-medium">AI Draft #{draft.id}</span>
+                                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                                  {Math.round(draft.confidence * 100)}% confidence
+                                </span>
+                              </div>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(draft.created_at).toLocaleDateString()}
                               </span>
                             </div>
-                            <span className="text-xs text-muted-foreground">
-                              {new Date(draft.created_at).toLocaleDateString()}
-                            </span>
+                            
+                            <div className="bg-secondary/20 border border-border/50 rounded p-4 mb-4">
+                              <pre className="whitespace-pre-wrap text-sm font-sans text-foreground">{draft.content}</pre>
+                            </div>
+                            
+                            <div className="flex gap-3">
+                              <button 
+                                onClick={() => {
+                                  setCurrentDraft(draft);
+                                  showToast('Draft loaded for editing', 'info');
+                                }}
+                                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm"
+                              >
+                                Edit with AI
+                              </button>
+                              <button className="px-4 py-2 border border-border rounded-lg hover:bg-secondary transition-colors text-sm">
+                                Send Draft
+                              </button>
+                            </div>
                           </div>
-                          
-                          <div className="bg-secondary/20 border border-border/50 rounded p-4 mb-4">
-                            <pre className="whitespace-pre-wrap text-sm font-sans text-foreground">{draft.content}</pre>
-                          </div>
-                          
-                          <div className="flex gap-3">
-                            <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm">
-                              Send Draft
-                            </button>
-                            <button className="px-4 py-2 border border-border rounded-lg hover:bg-secondary transition-colors text-sm">
-                              Edit Draft
-                            </button>
-                            <button 
-                              onClick={() => setSelectedDraft(draft)}
-                              className="px-4 py-2 border border-border rounded-lg hover:bg-secondary transition-colors text-sm"
-                            >
-                              Select
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <PaperAirplaneIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h4 className="font-medium mb-2">No drafts generated yet</h4>
-                      <p className="text-sm text-muted-foreground mb-4">Generate AI draft replies to see them in draft view.</p>
-                      <button
-                        onClick={handleGenerateDraft}
-                        disabled={isGeneratingDraft}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
-                      >
-                        {isGeneratingDraft ? (
-                          <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <PaperAirplaneIcon className="w-4 h-4" />
-                        )}
-                        {isGeneratingDraft ? 'Generating...' : 'Generate Draft'}
-                      </button>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1388,7 +1572,7 @@ const ModernEmailInterface: React.FC = () => {
                         Edit Draft
                       </button>
                       <button 
-                        onClick={handleGenerateDraft}
+                        onClick={handleGenerateDraftClick}
                         disabled={isGeneratingDraft}
                         className="px-4 py-2 border border-border rounded-lg hover:bg-secondary transition-colors disabled:opacity-50"
                       >

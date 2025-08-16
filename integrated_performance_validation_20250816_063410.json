@@ -1,0 +1,137 @@
+{
+  "overall_passed": false,
+  "total_tests": 2,
+  "passed_tests": 0,
+  "failed_tests": 2,
+  "summary": "\u26a0\ufe0f  Performance validation issues detected: 2 component tests failed, 0 workflows failed. Optimization required before production deployment.",
+  "system_metrics": {
+    "cpu_percent": 79.1,
+    "memory_used_gb": 3.2440414428710938,
+    "memory_available_gb": 1.9571456909179688,
+    "memory_percent": 94.6,
+    "disk_used_gb": 13.737564086914062,
+    "disk_free_gb": 35.28973388671875,
+    "disk_percent": 2.9836267720705485
+  },
+  "recommendations": [
+    "Optimize Frontend performance - 1 tests failed",
+    "Run performance profiling to identify bottlenecks",
+    "Optimize Backend performance - 1 tests failed",
+    "Implement performance monitoring and alerting",
+    "Consider infrastructure scaling for better performance"
+  ],
+  "timestamp": "2025-08-16T06:34:10.273693",
+  "component_results": {
+    "Backend": [
+      {
+        "test_name": "Backend Validation Suite",
+        "target_value": 100,
+        "actual_value": 0,
+        "unit": "%",
+        "passed": false,
+        "details": "Backend validation failed: object NoneType can't be used in 'await' expression",
+        "timestamp": "2025-08-16T06:34:08.252121"
+      }
+    ],
+    "Frontend": [
+      {
+        "test_name": "Frontend Validation Suite",
+        "target_value": 100,
+        "actual_value": 0,
+        "unit": "%",
+        "passed": false,
+        "details": "Frontend validation failed: Frontend validation failed with code 1: file:///Users/iamomen/apple-mcp/temp_frontend_validation.js:2\nconst { runPerformanceValidation } = require('./dashboard/frontend/src/components/Performance/PerformanceValidationSuite.ts');\n                                     ^\n\nReferenceError: require is not defined in ES module scope, you can use import instead\nThis file is being treated as an ES module because it has a '.js' file extension and '/Users/iamomen/apple-mcp/package.json' contains \"type\": \"module\". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.\n    at file:///Users/iamomen/apple-mcp/temp_frontend_validation.js:2:38\n    at ModuleJob.run (node:internal/modules/esm/module_job:371:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:669:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.5.0\n",
+        "timestamp": "2025-08-16T06:34:08.310551"
+      }
+    ]
+  },
+  "workflow_results": [
+    {
+      "workflow_name": "Email to Task Conversion",
+      "total_duration_ms": 175.3399999870453,
+      "steps": [
+        {
+          "name": "Email Ingestion",
+          "duration_ms": 21.73029101686552,
+          "target_ms": 50,
+          "passed": true
+        },
+        {
+          "name": "Email Classification",
+          "duration_ms": 51.21525001595728,
+          "target_ms": 100,
+          "passed": true
+        },
+        {
+          "name": "Task Generation",
+          "duration_ms": 1.2215000169817358,
+          "target_ms": 2,
+          "passed": true
+        },
+        {
+          "name": "UI Update",
+          "duration_ms": 101.15258398582228,
+          "target_ms": 500,
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "bottlenecks": [],
+      "recommendations": []
+    },
+    {
+      "workflow_name": "Task Management Operations",
+      "total_duration_ms": 133.07325000641868,
+      "steps": [
+        {
+          "name": "Task Filtering",
+          "duration_ms": 31.290292012272403,
+          "target_ms": 100,
+          "passed": true
+        },
+        {
+          "name": "Task Updates",
+          "duration_ms": 20.408457989105955,
+          "target_ms": 50,
+          "passed": true
+        },
+        {
+          "name": "Bulk Operations",
+          "duration_ms": 81.34270799928345,
+          "target_ms": 200,
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "bottlenecks": [],
+      "recommendations": []
+    },
+    {
+      "workflow_name": "AI Draft Generation",
+      "total_duration_ms": 1653.7013750057667,
+      "steps": [
+        {
+          "name": "Context Analysis",
+          "duration_ms": 101.19166600634344,
+          "target_ms": 200,
+          "passed": true
+        },
+        {
+          "name": "Draft Generation",
+          "duration_ms": 1501.3187500007916,
+          "target_ms": 3000,
+          "passed": true
+        },
+        {
+          "name": "Draft Rendering",
+          "duration_ms": 51.16974998963997,
+          "target_ms": 100,
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "bottlenecks": [],
+      "recommendations": []
+    }
+  ]
+}
