@@ -150,7 +150,7 @@ async def get_emails(
                 classification=str(result.classification).split('.')[-1],
                 urgency=str(result.urgency).split('.')[-1],
                 confidence=result.confidence,
-                action_items=getattr(result, 'action_items', []),
+                action_items=[item.text for item in getattr(result, 'action_items', [])] if hasattr(result, 'action_items') and getattr(result, 'action_items', []) else [],
                 is_read=bool(email.get('is_read', 0)),
                 is_flagged=bool(email.get('is_flagged', 0))
             ))
@@ -189,7 +189,7 @@ async def get_single_email(email_id: int):
             classification=str(result.classification).split('.')[-1],
             urgency=str(result.urgency).split('.')[-1],
             confidence=result.confidence,
-            action_items=getattr(result, 'action_items', []),
+            action_items=[item.text for item in getattr(result, 'action_items', [])] if hasattr(result, 'action_items') and getattr(result, 'action_items', []) else [],
             is_read=bool(email.get('is_read', 0)),
             is_flagged=bool(email.get('is_flagged', 0))
         )
@@ -345,6 +345,83 @@ async def mark_email_read(email_id: int):
     except Exception as e:
         logger.error(f"Error marking email {email_id} as read: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/drafts/{draft_id}/send")
+async def send_draft(draft_id: int):
+    """Send a draft email using AppleScript"""
+    try:
+        if not mailer:
+            raise HTTPException(status_code=503, detail="Mail service not available")
+        
+        # Find the draft by searching through available drafts
+        emails = db_reader.get_recent_emails(limit=100) if db_reader else []
+        
+        draft_found = None
+        original_email = None
+        
+        # Search for the draft by ID (this is a simplified approach)
+        # In a real implementation, you'd have a proper draft storage system
+        for email in emails:
+            # Analyze email to see if it needs a reply (draft would be generated for these)
+            result = engine.analyze_email(
+                subject=email.get('subject_text', 'No Subject'),
+                body=email.get('content', ''),
+                sender=email.get('sender_email', 'Unknown')
+            )
+            
+            if result.classification.value in ["NEEDS_REPLY", "APPROVAL_REQUIRED"]:
+                # Generate draft content to find our specific draft
+                draft_content = engine.generate_draft_reply({
+                    'subject': email.get('subject_text', 'No Subject'),
+                    'sender_name': email.get('sender_email', 'Unknown'),
+                    'content': email.get('content', '')
+                }, result)
+                
+                # Check if this could be our draft (simplified check by ID)
+                if hash(str(email.get('message_id', 0))) == draft_id or email.get('message_id', 0) == draft_id:
+                    draft_found = {
+                        'content': draft_content,
+                        'confidence': result.confidence
+                    }
+                    original_email = email
+                    break
+        
+        if not draft_found or not original_email:
+            raise HTTPException(status_code=404, detail="Draft not found")
+        
+        # Extract recipient email and construct subject
+        to_email = original_email.get('sender_email', '')
+        if not to_email:
+            raise HTTPException(status_code=400, detail="No recipient email found")
+        
+        original_subject = original_email.get('subject_text', 'No Subject')
+        # Construct reply subject
+        if original_subject.startswith('Re: '):
+            subject = original_subject
+        else:
+            subject = f"Re: {original_subject}"
+        
+        body = draft_found['content']
+        
+        # Send email using AppleScript
+        success = mailer.send_email(to=to_email, subject=subject, body=body)
+        
+        if success:
+            logger.info(f"Draft {draft_id} sent successfully to {to_email}")
+            return {
+                "status": "sent", 
+                "message": "Email sent successfully",
+                "recipient": to_email,
+                "subject": subject
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to send email via Apple Mail")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sending draft {draft_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to send draft: {str(e)}")
 
 @app.get("/stats/", response_model=StatsResponse)
 async def get_stats():
