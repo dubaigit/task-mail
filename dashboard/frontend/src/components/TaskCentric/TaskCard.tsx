@@ -108,7 +108,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
 
   // Status styling and icons
   const statusConfig = useMemo(() => {
-    const configs = {
+    const configs: Record<TaskStatus, {color: string; bgColor: string; icon: any; label: string}> = {
       PENDING: {
         color: '#D97706', // amber-600
         bgColor: '#FEF3C7', // amber-100
@@ -121,11 +121,11 @@ const TaskCard: React.FC<TaskCardProps> = ({
         icon: PlayIcon,
         label: 'In Progress'
       },
-      WAITING: {
-        color: '#7C3AED', // violet-600
-        bgColor: '#EDE9FE', // violet-100
-        icon: PauseIcon,
-        label: 'Waiting'
+      WAITING_FOR_REPLY: {
+        color: '#DC2626', // red-600
+        bgColor: '#FEE2E2', // red-100
+        icon: ChatBubbleLeftRightIcon,
+        label: 'Waiting for Reply'
       },
       COMPLETED: {
         color: '#059669', // emerald-600

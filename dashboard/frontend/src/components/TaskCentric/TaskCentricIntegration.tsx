@@ -74,7 +74,7 @@ const generateMockEmails = (emails: any[]): TaskCentricEmail[] => {
     id: email.id || Math.random(),
     subject: email.subject || 'No Subject',
     sender: email.sender || 'Unknown Sender',
-    senderEmail: email.senderEmail || email.sender_email || '',
+    senderEmail: email.senderEmail || email.sender || '',
     date: email.date || new Date().toISOString(),
     classification: email.classification || 'UNCLASSIFIED',
     urgency: mapEmailUrgencyToTaskUrgency(email.urgency),

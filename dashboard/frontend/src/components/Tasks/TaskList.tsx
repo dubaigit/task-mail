@@ -23,7 +23,7 @@ interface Task {
   id: number;
   title: string;
   description?: string;
-  status: 'todo' | 'in_progress' | 'review' | 'done';
+  status: 'todo' | 'in_progress' | 'waiting_for_reply' | 'done';
   priority: 'low' | 'medium' | 'high' | 'critical';
   assignee?: string;
   dueDate?: string;
@@ -57,7 +57,7 @@ const TaskList: React.FC = () => {
   const columns: Column[] = [
     { id: 'todo', title: 'To Do', status: 'todo', color: 'bg-gray-100 border-gray-300', limit: 10 },
     { id: 'in_progress', title: 'In Progress', status: 'in_progress', color: 'bg-blue-100 border-blue-300', limit: 5 },
-    { id: 'review', title: 'Review', status: 'review', color: 'bg-amber-100 border-amber-300', limit: 3 },
+    { id: 'waiting_for_reply', title: 'Waiting for Reply', status: 'waiting_for_reply', color: 'bg-orange-100 border-orange-300', limit: 8 },
     { id: 'done', title: 'Done', status: 'done', color: 'bg-green-100 border-green-300' }
   ];
 
@@ -105,7 +105,7 @@ const TaskList: React.FC = () => {
           id: 3,
           title: 'Approve marketing campaign',
           description: 'Review and approve the new product launch marketing materials.',
-          status: 'review',
+          status: 'waiting_for_reply',
           priority: 'critical',
           assignee: 'Mike Johnson',
           dueDate: '2024-08-15',
@@ -139,6 +139,34 @@ const TaskList: React.FC = () => {
           tags: ['security', 'policy'],
           createdAt: '2024-08-14T16:30:00Z',
           estimatedTime: '1.5 hours'
+        },
+        {
+          id: 6,
+          title: 'Awaiting feedback on proposal',
+          description: 'Waiting for client response on the revised project proposal sent yesterday.',
+          status: 'waiting_for_reply',
+          priority: 'high',
+          assignee: 'Client Team',
+          dueDate: '2024-08-18',
+          tags: ['client', 'proposal', 'feedback'],
+          emailId: 789,
+          emailSubject: 'Project Proposal - Awaiting Your Response',
+          createdAt: '2024-08-15T10:30:00Z',
+          estimatedTime: 'TBD'
+        },
+        {
+          id: 7,
+          title: 'Delegate research task',
+          description: 'Assigned market research to junior analyst - tracking completion.',
+          status: 'waiting_for_reply',
+          priority: 'medium',
+          assignee: 'Lisa Chen',
+          dueDate: '2024-08-20',
+          tags: ['delegation', 'research', 'tracking'],
+          emailId: 890,
+          emailSubject: 'Research Assignment - Market Analysis',
+          createdAt: '2024-08-14T14:00:00Z',
+          estimatedTime: '3 days'
         }
       ];
 
@@ -175,7 +203,7 @@ const TaskList: React.FC = () => {
     switch (status) {
       case 'todo': return 'default';
       case 'in_progress': return 'info';
-      case 'review': return 'warning';
+      case 'waiting_for_reply': return 'warning';
       case 'done': return 'success';
     }
   };
@@ -429,7 +457,7 @@ const TaskList: React.FC = () => {
               { value: 'all', label: 'All statuses' },
               { value: 'todo', label: 'To Do' },
               { value: 'in_progress', label: 'In Progress' },
-              { value: 'review', label: 'Review' },
+              { value: 'waiting_for_reply', label: 'Waiting for Reply' },
               { value: 'done', label: 'Done' }
             ]}
           />

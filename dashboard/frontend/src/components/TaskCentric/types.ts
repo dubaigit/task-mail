@@ -18,6 +18,10 @@ export interface TaskCentricEmail {
   isStarred?: boolean;
   tags?: string[];
   estimatedResponseTime?: string;
+  // Colleague tracking fields for "Waiting for Reply" workflow
+  to_addresses?: string[];
+  cc_addresses?: string[];
+  bcc_addresses?: string[];
   // Task-specific properties
   actionItems?: ActionItem[];
   deadlines?: Deadline[];
@@ -39,7 +43,42 @@ export type TaskCategory =
   | 'RESEARCH'
   | 'ADMINISTRATIVE';
 
-export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'WAITING' | 'COMPLETED' | 'CANCELLED';
+export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'WAITING_FOR_REPLY' | 'COMPLETED' | 'CANCELLED';
+
+// Kanban-specific types for the task board interface
+export type KanbanTaskStatus = 'TODO' | 'IN_PROGRESS' | 'WAITING_FOR_REPLY' | 'DONE';
+
+export const TaskStatus = {
+  TODO: 'TODO' as const,
+  IN_PROGRESS: 'IN_PROGRESS' as const,
+  WAITING_FOR_REPLY: 'WAITING_FOR_REPLY' as const,
+  DONE: 'DONE' as const,
+} as const;
+
+export type TaskStatusType = typeof TaskStatus[keyof typeof TaskStatus];
+
+export interface KanbanTask {
+  id: string;
+  title: string;
+  description: string;
+  status: KanbanTaskStatus;
+  urgency: TaskUrgencyLevel;
+  priority: TaskUrgencyLevel; // Alias for urgency
+  assignedTo?: string;
+  assignedBy?: string;
+  assignee?: string; // Alias for assignedTo
+  dueDate?: string;
+  createdAt: string;
+  progress: number;
+  tags: string[];
+  email: TaskCentricEmail;
+  confidence: number;
+  confidenceScore: number; // Alias for confidence
+}
+
+export interface KanbanTaskItem extends KanbanTask {
+  // Alias for compatibility
+}
 
 export interface TaskItem {
   id: number;
