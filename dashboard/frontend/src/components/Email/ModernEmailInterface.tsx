@@ -789,11 +789,20 @@ const ModernEmailInterface: React.FC = () => {
     
     setActionLoading('archive');
     try {
-      // Note: Archive endpoint not implemented in backend yet
-      // Using placeholder response
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      const response = await fetch(`/emails/${selectedEmail.id}/archive`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      await response.json();
       
-      // Remove from current list
+      // Remove from current list (email is archived)
       setEmails(prev => prev.filter(email => email.id !== selectedEmail.id));
       setSelectedEmail(null);
       showToast('Email archived successfully', 'success');
@@ -810,11 +819,20 @@ const ModernEmailInterface: React.FC = () => {
     
     setActionLoading('delete');
     try {
-      // Note: Delete endpoint not implemented in backend yet
-      // Using placeholder response
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      const response = await fetch(`/emails/${selectedEmail.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      await response.json();
       
-      // Remove from current list
+      // Remove from current list (email is deleted)
       setEmails(prev => prev.filter(email => email.id !== selectedEmail.id));
       setSelectedEmail(null);
       showToast('Email deleted successfully', 'success');
