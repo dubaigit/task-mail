@@ -1143,6 +1143,380 @@ class OutputFormatter:
         return "\n".join(lines)
 
 
+class TaskWorkflowManager:
+    """
+    Task-centric workflow management with AppleScript integration.
+    Provides draft sending patterns, calendar integration, and colleague tracking.
+    """
+    
+    def __init__(self, executor: AppleScriptExecutor):
+        self.executor = executor
+        self.mail_manager = MailManager(executor)
+        self.calendar_manager = CalendarManager(executor)
+        self.contacts_manager = ContactsManager(executor)
+        
+        # Initialize database connection for task integration
+        try:
+            from sqlalchemy import create_engine, text
+            from sqlalchemy.orm import sessionmaker
+            self.engine = create_engine("sqlite:///email_intelligence.db", echo=False)
+            self.Session = sessionmaker(bind=self.engine)
+            self.db_available = True
+        except ImportError:
+            self.db_available = False
+            print("⚠️  Database features unavailable - install SQLAlchemy for full task integration")
+    
+    def generate_task_reply_draft(self, task_id: str, reply_type: str = "status_update") -> Dict[str, Any]:
+        """Generate pre-populated reply draft for task-related communications."""
+        if not self.db_available:
+            return {"error": "Database unavailable"}
+        
+        try:
+            with self.Session() as session:
+                # Get task details with email context
+                result = session.execute(text("""
+                    SELECT 
+                        et.task_id, et.subject, et.status, et.priority, et.assignee,
+                        et.due_date, et.description,
+                        e.subject_text as email_subject, e.sender_email, e.sender_name,
+                        e.to_addresses, e.cc_addresses, e.date_received
+                    FROM email_tasks et
+                    JOIN emails e ON et.email_id = e.id
+                    WHERE et.task_id = :task_id
+                """), {"task_id": task_id})
+                
+                task_row = result.fetchone()
+                if not task_row:
+                    return {"error": f"Task {task_id} not found"}
+                
+                # Prepare reply content based on type
+                reply_templates = {
+                    "status_update": self._generate_status_update_reply,
+                    "completion": self._generate_completion_reply,
+                    "delegation": self._generate_delegation_reply,
+                    "follow_up": self._generate_follow_up_reply
+                }
+                
+                if reply_type not in reply_templates:
+                    return {"error": f"Unknown reply type: {reply_type}"}
+                
+                reply_content = reply_templates[reply_type](task_row)
+                
+                # Create draft using AppleScript
+                draft_script = f'''
+                tell application "Mail"
+                    activate
+                    set newMessage to make new outgoing message with properties {{
+                        subject: "{reply_content['subject']}",
+                        content: "{reply_content['body']}",
+                        visible: true
+                    }}
+                    
+                    tell newMessage
+                        make new to recipient with properties {{address: "{task_row.sender_email}"}}
+                    end tell
+                    
+                    return id of newMessage
+                end tell
+                '''
+                
+                draft_id = self.executor.run_applescript(draft_script)
+                
+                return {
+                    "success": True,
+                    "draft_id": draft_id,
+                    "task_id": task_id,
+                    "reply_type": reply_type,
+                    "subject": reply_content['subject'],
+                    "recipient": task_row.sender_email
+                }
+                
+        except Exception as e:
+            return {"error": str(e)}
+    
+    def _generate_status_update_reply(self, task_row) -> Dict[str, str]:
+        """Generate status update reply content."""
+        status_messages = {
+            "pending": "I've received your request and will get started on this shortly.",
+            "in-progress": "I'm currently working on this and making good progress.",
+            "completed": "I've completed this task as requested.",
+            "cancelled": "This task has been cancelled due to changing priorities."
+        }
+        
+        subject = f"Re: {task_row.email_subject} - Task Update"
+        
+        body = f"""Hi {task_row.sender_name or 'there'},
+
+{status_messages.get(task_row.status, 'I wanted to update you on the status of this task.')"}
+
+Task: {task_row.subject}
+Status: {task_row.status.title()}
+Priority: {task_row.priority}"""
+
+        if task_row.due_date:
+            body += f"\nDue Date: {task_row.due_date}"
+        
+        if task_row.status == "completed":
+            body += "\n\nPlease let me know if you need any additional information or have follow-up questions."
+        elif task_row.status == "in-progress":
+            body += "\n\nI'll keep you updated as I make progress. Please let me know if you have any questions or changes."
+        
+        body += "\n\nBest regards"
+        
+        return {"subject": subject, "body": body}
+    
+    def _generate_completion_reply(self, task_row) -> Dict[str, str]:
+        """Generate task completion notification."""
+        subject = f"✅ Completed: {task_row.subject}"
+        
+        body = f"""Hi {task_row.sender_name or 'there'},
+
+I'm pleased to inform you that the following task has been completed:
+
+Task: {task_row.subject}
+Completed: {datetime.now().strftime('%Y-%m-%d %H:%M')}
+Priority: {task_row.priority}
+
+{task_row.description if task_row.description else ''}
+
+The work has been completed as requested. Please review and let me know if you need any adjustments or have follow-up requirements.
+
+Best regards"""
+        
+        return {"subject": subject, "body": body}
+    
+    def _generate_delegation_reply(self, task_row) -> Dict[str, str]:
+        """Generate task delegation forward."""
+        subject = f"Task Delegation: {task_row.subject}"
+        
+        body = f"""Hi,
+
+I'm forwarding this task for your attention and action:
+
+Original Task: {task_row.subject}
+Priority: {task_row.priority}
+Original Requester: {task_row.sender_name} ({task_row.sender_email})"""
+
+        if task_row.due_date:
+            body += f"\nDue Date: {task_row.due_date}"
+        
+        body += f"""
+
+Task Details:
+{task_row.description if task_row.description else 'See original email below for context.'}
+
+Please confirm receipt and expected completion timeline.
+
+Best regards"""
+        
+        return {"subject": subject, "body": body}
+    
+    def _generate_follow_up_reply(self, task_row) -> Dict[str, str]:
+        """Generate follow-up inquiry."""
+        subject = f"Follow-up: {task_row.subject}"
+        
+        days_since = (datetime.now() - datetime.fromisoformat(task_row.date_received.replace('Z', '+00:00'))).days
+        
+        body = f"""Hi {task_row.sender_name or 'there'},
+
+I wanted to follow up on the task we discussed {days_since} days ago:
+
+Task: {task_row.subject}
+Current Status: {task_row.status.title()}
+Priority: {task_row.priority}"""
+
+        if task_row.due_date:
+            due_date = datetime.fromisoformat(task_row.due_date.replace('Z', '+00:00'))
+            if due_date < datetime.now():
+                body += f"\nDue Date: {task_row.due_date} (OVERDUE)"
+            else:
+                body += f"\nDue Date: {task_row.due_date}"
+        
+        body += "\n\nCould you please provide an update on the current status or let me know if you need any assistance?\n\nThanks!"
+        
+        return {"subject": subject, "body": body}
+    
+    def schedule_task_follow_up(self, task_id: str, follow_up_date: str) -> Dict[str, Any]:
+        """Schedule calendar reminder for task follow-up."""
+        try:
+            if not self.db_available:
+                return {"error": "Database unavailable"}
+            
+            with self.Session() as session:
+                # Get task details
+                result = session.execute(text("""
+                    SELECT et.subject, et.assignee, et.due_date, e.sender_email, e.sender_name
+                    FROM email_tasks et
+                    JOIN emails e ON et.email_id = e.id
+                    WHERE et.task_id = :task_id
+                """), {"task_id": task_id})
+                
+                task_row = result.fetchone()
+                if not task_row:
+                    return {"error": f"Task {task_id} not found"}
+            
+            # Create calendar event for follow-up
+            calendar_script = f'''
+            tell application "Calendar"
+                activate
+                set followUpDate to date "{follow_up_date}"
+                set newEvent to make new event at calendar "Tasks" with properties {{
+                    summary: "Follow up: {task_row.subject}",
+                    start date: followUpDate,
+                    end date: followUpDate + 1 * hours,
+                    description: "Follow up on task {task_id} with {task_row.sender_name} ({task_row.sender_email})"
+                }}
+                return id of newEvent
+            end tell
+            '''
+            
+            event_id = self.executor.run_applescript(calendar_script)
+            
+            return {
+                "success": True,
+                "event_id": event_id,
+                "task_id": task_id,
+                "follow_up_date": follow_up_date,
+                "task_subject": task_row.subject
+            }
+            
+        except Exception as e:
+            return {"error": str(e)}
+    
+    def get_colleague_contact_info(self, email: str) -> Dict[str, Any]:
+        """Get colleague contact information for task assignment."""
+        try:
+            contacts = self.contacts_manager.search(email)
+            
+            if not contacts:
+                # Try searching by email in database
+                if self.db_available:
+                    with self.Session() as session:
+                        result = session.execute(text("""
+                            SELECT DISTINCT sender_name, sender_email, COUNT(*) as email_count
+                            FROM emails 
+                            WHERE sender_email = :email
+                            GROUP BY sender_email, sender_name
+                        """), {"email": email})
+                        
+                        db_contact = result.fetchone()
+                        if db_contact:
+                            return {
+                                "name": db_contact.sender_name,
+                                "email": db_contact.sender_email,
+                                "email_count": db_contact.email_count,
+                                "source": "email_database"
+                            }
+                
+                return {"error": f"No contact found for {email}"}
+            
+            contact = contacts[0]  # Get first match
+            return {
+                "name": contact['name'],
+                "emails": contact['emails'],
+                "phones": contact.get('phones', []),
+                "source": "contacts_app"
+            }
+            
+        except Exception as e:
+            return {"error": str(e)}
+    
+    def create_task_delegation_email(self, task_id: str, delegate_email: str, 
+                                   message: str = "") -> Dict[str, Any]:
+        """Create delegation email with task context."""
+        try:
+            if not self.db_available:
+                return {"error": "Database unavailable"}
+            
+            with self.Session() as session:
+                # Get task and original email details
+                result = session.execute(text("""
+                    SELECT 
+                        et.task_id, et.subject, et.description, et.priority, et.due_date,
+                        e.subject_text, e.sender_email, e.sender_name, e.full_content
+                    FROM email_tasks et
+                    JOIN emails e ON et.email_id = e.id
+                    WHERE et.task_id = :task_id
+                """), {"task_id": task_id})
+                
+                task_row = result.fetchone()
+                if not task_row:
+                    return {"error": f"Task {task_id} not found"}
+                
+                # Get colleague info
+                colleague_info = self.get_colleague_contact_info(delegate_email)
+                colleague_name = colleague_info.get('name', delegate_email.split('@')[0])
+                
+                # Create delegation email
+                subject = f"Task Assignment: {task_row.subject}"
+                
+                body = f"""Hi {colleague_name},
+
+I'm assigning the following task to you:
+
+Task: {task_row.subject}
+Priority: {task_row.priority}
+Original Requester: {task_row.sender_name} ({task_row.sender_email})"""
+
+                if task_row.due_date:
+                    body += f"\nDue Date: {task_row.due_date}"
+                
+                if message:
+                    body += f"\n\nAdditional Notes:\n{message}"
+                
+                body += f"""
+
+Task Description:
+{task_row.description}
+
+Original Email Context:
+{task_row.full_content[:500] if task_row.full_content else 'See forwarded email for full context.'}
+
+Please confirm receipt and let me know your expected completion timeline.
+
+Best regards"""
+                
+                # Create email draft
+                draft_script = f'''
+                tell application "Mail"
+                    activate
+                    set newMessage to make new outgoing message with properties {{
+                        subject: "{subject}",
+                        content: "{body}",
+                        visible: true
+                    }}
+                    
+                    tell newMessage
+                        make new to recipient with properties {{address: "{delegate_email}"}}
+                        make new cc recipient with properties {{address: "{task_row.sender_email}"}}
+                    end tell
+                    
+                    return id of newMessage
+                end tell
+                '''
+                
+                draft_id = self.executor.run_applescript(draft_script)
+                
+                # Update task assignee in database
+                session.execute(text("""
+                    UPDATE email_tasks 
+                    SET assignee = :assignee, updated_at = datetime('now')
+                    WHERE task_id = :task_id
+                """), {"assignee": delegate_email, "task_id": task_id})
+                session.commit()
+                
+                return {
+                    "success": True,
+                    "draft_id": draft_id,
+                    "task_id": task_id,
+                    "delegate_email": delegate_email,
+                    "subject": subject
+                }
+                
+        except Exception as e:
+            return {"error": str(e)}
+
+
 class AppleCLI:
     """Main CLI application."""
     
@@ -1157,6 +1531,13 @@ class AppleCLI:
         self.maps = MapsManager(self.executor)
         self.web = WebSearchManager()
         self.formatter = OutputFormatter()
+        
+        # Initialize task workflow manager
+        try:
+            self.task_workflows = TaskWorkflowManager(self.executor)
+        except Exception as e:
+            print(f"⚠️  Task workflow features unavailable: {e}")
+            self.task_workflows = None
     
     def create_parser(self) -> argparse.ArgumentParser:
         """Create argument parser."""
@@ -1220,6 +1601,7 @@ Examples:
         app_group.add_argument('--reminders', action='store_true', help='Manage Reminders')
         app_group.add_argument('--maps', action='store_true', help='Use Maps')
         app_group.add_argument('--web', action='store_true', help='Web Search')
+        app_group.add_argument('--task-workflows', action='store_true', help='Task workflow management')
         
         # Actions
         parser.add_argument('--action', required=True, 
@@ -1227,7 +1609,8 @@ Examples:
                                   'unread', 'compose', 'today', 'directions', 'count',
                                   'recent', 'last-week', 'needs-reply', 'reply-draft',
                                   'summary', 'flag', 'from-sender', 'date-range', 
-                                  'add-to-reminders'],
+                                  'add-to-reminders', 'reply', 'delegate', 'followup',
+                                  'complete', 'colleague-info'],
                           help='Action to perform')
         
         # Common parameters
@@ -1273,6 +1656,14 @@ Examples:
         parser.add_argument('--mailbox', default='INBOX', help='Mailbox to search (default: INBOX)')
         parser.add_argument('--reply-body', help='Body text for reply draft')
         parser.add_argument('--flag-status', action='store_true', help='Flag emails as important')
+        
+        # Task workflow arguments
+        parser.add_argument('--task-id', help='Task ID for workflow operations')
+        parser.add_argument('--reply-type', choices=['status_update', 'completion', 'delegation', 'follow_up'],
+                          default='status_update', help='Type of task reply to generate')
+        parser.add_argument('--delegate-email', help='Email address to delegate task to')
+        parser.add_argument('--follow-up-date', help='Date for follow-up reminder (YYYY-MM-DD)')
+        parser.add_argument('--email', help='Email address for colleague information lookup')
         
         return parser
     
@@ -1420,6 +1811,41 @@ Examples:
                 else:
                     raise ValueError(f"Invalid action for web: {args.action}")
             
+            elif args.task_workflows:
+                # Handle task workflow actions
+                if args.action == 'reply':
+                    if not args.task_id:
+                        raise ValueError("--task-id required for reply action")
+                    self.handle_task_reply(args)
+                    return  # These methods handle their own output
+                
+                elif args.action == 'delegate':
+                    if not args.task_id or not args.delegate_email:
+                        raise ValueError("--task-id and --delegate-email required for delegate action")
+                    self.handle_task_delegate(args)
+                    return
+                
+                elif args.action == 'followup':
+                    if not args.task_id:
+                        raise ValueError("--task-id required for followup action")
+                    self.handle_task_followup(args)
+                    return
+                
+                elif args.action == 'complete':
+                    if not args.task_id:
+                        raise ValueError("--task-id required for complete action")
+                    self.handle_task_complete(args)
+                    return
+                
+                elif args.action == 'colleague-info':
+                    if not args.email:
+                        raise ValueError("--email required for colleague-info action")
+                    self.handle_colleague_info(args)
+                    return
+                
+                else:
+                    raise ValueError(f"Invalid action for task-workflows: {args.action}")
+            
             # Format and print output
             if result is not None:
                 print(self.formatter.format(result, args.format))
@@ -1427,6 +1853,155 @@ Examples:
         except Exception as e:
             print(f"Error: {e}", file=sys.stderr)
             sys.exit(1)
+    
+    def handle_task_reply(self, args):
+        """Handle task-reply command."""
+        if not self.task_workflows:
+            print("❌ Task workflow features not available")
+            return
+        
+        try:
+            result = self.task_workflows.generate_task_reply_draft(
+                task_id=args.task_id,
+                reply_type=args.reply_type
+            )
+            
+            if 'error' in result:
+                print(f"❌ Error: {result['error']}")
+            else:
+                print(f"✅ Task reply draft created successfully!")
+                print(f"📧 Draft ID: {result['draft_id']}")
+                print(f"📋 Task: {result['task_id']}")
+                print(f"📝 Type: {result['reply_type']}")
+                print(f"📬 Recipient: {result['recipient']}")
+                print(f"📄 Subject: {result['subject']}")
+                print("\n📝 Draft has been created in Mail.app - review and send when ready.")
+                
+        except Exception as e:
+            print(f"❌ Error creating task reply: {e}")
+    
+    def handle_task_delegate(self, args):
+        """Handle task-delegate command."""
+        if not self.task_workflows:
+            print("❌ Task workflow features not available")
+            return
+        
+        try:
+            result = self.task_workflows.create_task_delegation_email(
+                task_id=args.task_id,
+                delegate_email=args.delegate_email,
+                message=args.message or ""
+            )
+            
+            if 'error' in result:
+                print(f"❌ Error: {result['error']}")
+            else:
+                print(f"✅ Task delegation email created successfully!")
+                print(f"📧 Draft ID: {result['draft_id']}")
+                print(f"📋 Task: {result['task_id']}")
+                print(f"👤 Delegate: {result['delegate_email']}")
+                print(f"📄 Subject: {result['subject']}")
+                print("\n📝 Delegation email drafted in Mail.app with original requester CC'd.")
+                print("📤 Review and send when ready.")
+                
+        except Exception as e:
+            print(f"❌ Error creating delegation email: {e}")
+    
+    def handle_task_followup(self, args):
+        """Handle task-followup command."""
+        if not self.task_workflows:
+            print("❌ Task workflow features not available")
+            return
+        
+        try:
+            # Create follow-up email draft
+            reply_result = self.task_workflows.generate_task_reply_draft(
+                task_id=args.task_id,
+                reply_type="follow_up"
+            )
+            
+            if 'error' in reply_result:
+                print(f"❌ Error creating follow-up email: {reply_result['error']}")
+                return
+            
+            # Schedule calendar reminder if date provided
+            calendar_result = None
+            if args.follow_up_date:
+                calendar_result = self.task_workflows.schedule_task_follow_up(
+                    task_id=args.task_id,
+                    follow_up_date=args.follow_up_date
+                )
+            
+            print(f"✅ Task follow-up created successfully!")
+            print(f"📧 Draft ID: {reply_result['draft_id']}")
+            print(f"📋 Task: {args.task_id}")
+            print(f"📬 Recipient: {reply_result['recipient']}")
+            
+            if calendar_result and 'error' not in calendar_result:
+                print(f"📅 Calendar reminder scheduled for: {args.follow_up_date}")
+                print(f"🗓️  Event ID: {calendar_result['event_id']}")
+            elif args.follow_up_date:
+                print(f"⚠️  Could not schedule calendar reminder: {calendar_result.get('error', 'Unknown error')}")
+            
+            print("\n📝 Follow-up email drafted in Mail.app - review and send when ready.")
+                
+        except Exception as e:
+            print(f"❌ Error creating follow-up: {e}")
+    
+    def handle_task_complete(self, args):
+        """Handle task-complete command."""
+        if not self.task_workflows:
+            print("❌ Task workflow features not available")
+            return
+        
+        try:
+            result = self.task_workflows.generate_task_reply_draft(
+                task_id=args.task_id,
+                reply_type="completion"
+            )
+            
+            if 'error' in result:
+                print(f"❌ Error: {result['error']}")
+            else:
+                print(f"✅ Task completion notification created!")
+                print(f"📧 Draft ID: {result['draft_id']}")
+                print(f"📋 Task: {result['task_id']}")
+                print(f"📬 Recipient: {result['recipient']}")
+                print(f"📄 Subject: {result['subject']}")
+                print("\n🎉 Completion notification drafted in Mail.app.")
+                print("📤 Review and send to notify task completion.")
+                
+        except Exception as e:
+            print(f"❌ Error creating completion notification: {e}")
+    
+    def handle_colleague_info(self, args):
+        """Handle colleague-info command."""
+        if not self.task_workflows:
+            print("❌ Task workflow features not available")
+            return
+        
+        try:
+            result = self.task_workflows.get_colleague_contact_info(args.email)
+            
+            if 'error' in result:
+                print(f"❌ Error: {result['error']}")
+            else:
+                print(f"\n👤 Colleague Information: {args.email}")
+                print("=" * 60)
+                print(f"📛 Name: {result['name']}")
+                
+                if result['source'] == 'contacts_app':
+                    print(f"📧 Emails: {', '.join(result['emails'])}")
+                    if result['phones']:
+                        print(f"📞 Phones: {', '.join(result['phones'])}")
+                    print(f"📍 Source: Contacts App")
+                elif result['source'] == 'email_database':
+                    print(f"📧 Email: {result['email']}")
+                    print(f"📊 Email History: {result['email_count']} emails")
+                    print(f"📍 Source: Email Database")
+                
+        except Exception as e:
+            print(f"❌ Error getting colleague info: {e}")
 
 
 def main():
