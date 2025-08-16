@@ -27,8 +27,8 @@ pip install -q -r requirements_unified.txt
 
 # Set environment variables for AI integration
 export OPENAI_API_KEY="${OPENAI_API_KEY:-}"
-export EMAIL_AI_CLASSIFY_MODEL="${EMAIL_AI_CLASSIFY_MODEL:-gpt-5-nano-2025-08-07}"
-export EMAIL_AI_DRAFT_MODEL="${EMAIL_AI_DRAFT_MODEL:-gpt-5-mini-2025-08-07}"
+export EMAIL_AI_CLASSIFY_MODEL="${EMAIL_AI_CLASSIFY_MODEL:-gpt-4o-mini}"
+export EMAIL_AI_DRAFT_MODEL="${EMAIL_AI_DRAFT_MODEL:-gpt-4o}"
 
 # Port configuration
 PORT="${PORT:-8003}"

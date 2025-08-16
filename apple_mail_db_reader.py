@@ -32,6 +32,12 @@ class AppleMailDBReader:
         db_uri = f"file:{self.db_path}?mode=ro"
         return sqlite3.connect(db_uri, uri=True)
     
+    def _get_write_connection(self):
+        """Get database connection with write access for updates."""
+        # Use URI mode to open in read-write mode
+        db_uri = f"file:{self.db_path}?mode=rw"
+        return sqlite3.connect(db_uri, uri=True)
+    
     def _convert_timestamp(self, timestamp):
         """Convert Apple Mail timestamp (seconds since 2001-01-01) to readable format."""
         if timestamp:
@@ -357,6 +363,90 @@ class AppleMailDBReader:
             
         except Exception as e:
             return None
+    
+    def delete_email(self, email_id: int) -> bool:
+        """Soft delete an email by setting deleted flag to 1."""
+        try:
+            conn = self._get_write_connection()
+            cursor = conn.cursor()
+            
+            # First check if email exists and is not already deleted
+            check_query = "SELECT ROWID, deleted FROM messages WHERE ROWID = ?"
+            cursor.execute(check_query, (email_id,))
+            result = cursor.fetchone()
+            
+            if not result:
+                conn.close()
+                return False  # Email not found
+                
+            if result[1] == 1:  # Already deleted
+                conn.close()
+                return False  # Already deleted
+            
+            # Soft delete the email
+            update_query = "UPDATE messages SET deleted = 1 WHERE ROWID = ?"
+            cursor.execute(update_query, (email_id,))
+            
+            success = cursor.rowcount > 0
+            conn.commit()
+            conn.close()
+            return success
+            
+        except Exception as e:
+            return False
+    
+    def archive_email(self, email_id: int) -> bool:
+        """Archive an email by moving it to archive status.
+        
+        Since Apple Mail doesn't have a built-in archive flag, we'll implement this
+        by checking if there's an Archive mailbox, or we could add a custom solution.
+        For now, we'll use a simple approach of flagging the email as archived.
+        """
+        try:
+            conn = self._get_write_connection()
+            cursor = conn.cursor()
+            
+            # First check if email exists and is not deleted
+            check_query = "SELECT ROWID, deleted FROM messages WHERE ROWID = ?"
+            cursor.execute(check_query, (email_id,))
+            result = cursor.fetchone()
+            
+            if not result:
+                conn.close()
+                return False  # Email not found
+                
+            if result[1] == 1:  # Email is deleted
+                conn.close()
+                return False  # Cannot archive deleted email
+            
+            # For archiving, we'll look for an Archive mailbox
+            # First, let's try to find an Archive mailbox
+            archive_query = """
+            SELECT ROWID FROM mailboxes 
+            WHERE url LIKE '%Archive%' OR url LIKE '%archive%' 
+            LIMIT 1
+            """
+            cursor.execute(archive_query)
+            archive_mailbox = cursor.fetchone()
+            
+            if archive_mailbox:
+                # Move email to archive mailbox
+                update_query = "UPDATE messages SET mailbox = ? WHERE ROWID = ?"
+                cursor.execute(update_query, (archive_mailbox[0], email_id))
+            else:
+                # If no archive mailbox exists, we'll mark it as flagged for archive
+                # This is a fallback solution - in a real implementation you might
+                # want to create an archive mailbox or use a different approach
+                update_query = "UPDATE messages SET flagged = 1 WHERE ROWID = ?"
+                cursor.execute(update_query, (email_id,))
+            
+            success = cursor.rowcount > 0
+            conn.commit()
+            conn.close()
+            return success
+            
+        except Exception as e:
+            return False
 
 
 def main():

@@ -110,11 +110,11 @@ class EmailIntelligenceEngine:
 
         # External AI settings (optional)
         self.openai_api_key = os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_APIKEY")
-        # Use the correct GPT-5 model names from OpenAI API
-        # gpt-5-nano for classification (optimized for speed and low latency)
-        # gpt-5-mini for draft generation (lightweight version for cost-sensitive applications)
-        self.classifier_model = os.getenv("EMAIL_AI_CLASSIFY_MODEL", "gpt-5-nano")
-        self.draft_model = os.getenv("EMAIL_AI_DRAFT_MODEL", "gpt-5-mini")
+        # Use reliable OpenAI models - GPT-4o for better compatibility and performance
+        # gpt-4o-mini for classification (fast and cost-effective)
+        # gpt-4o for draft generation (high quality responses)
+        self.classifier_model = os.getenv("EMAIL_AI_CLASSIFY_MODEL", "gpt-4o-mini")
+        self.draft_model = os.getenv("EMAIL_AI_DRAFT_MODEL", "gpt-4o")
         
     def _initialize_patterns(self):
         """Initialize regex patterns for feature extraction"""
@@ -426,15 +426,27 @@ class EmailIntelligenceEngine:
                 "Authorization": f"Bearer {self.openai_api_key}",
                 "Content-Type": "application/json",
             }
-            payload = {
-                "model": model,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                "temperature": 0.1,  # Low temperature for consistent classification
-                "max_tokens": 50,
-            }
+            # Use correct parameter name based on model type
+            if model.startswith("gpt-5"):
+                payload = {
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    "temperature": 0.1,  # Low temperature for consistent classification
+                    "max_completion_tokens": 50,  # GPT-5 models use this parameter
+                }
+            else:
+                payload = {
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    "temperature": 0.1,  # Low temperature for consistent classification
+                    "max_tokens": 50,  # GPT-4 and older models use this parameter
+                }
             
             resp = requests.post(
                 "https://api.openai.com/v1/chat/completions",

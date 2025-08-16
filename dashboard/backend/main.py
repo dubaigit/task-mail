@@ -294,8 +294,10 @@ def get_drafts(limit: int = 50, offset: int = 0):
                     'content': email.get('content', '')
                 }, result)
                 
+                # Use a consistent ID generation for drafts based on email ID
+                draft_id = hash(str(email.get('message_id', 0)))
                 drafts.append(Draft(
-                    id=len(drafts) + 1,
+                    id=draft_id,
                     email_id=email.get('message_id', 0),
                     content=draft_content,
                     confidence=result.confidence,
@@ -427,23 +429,78 @@ def health_check():
         }
 
 @app.post("/drafts/{draft_id}/send")
-def send_draft(draft_id: int, to_email: str):
+def send_draft(draft_id: int):
     """Send a draft email using AppleScript"""
     try:
-        # In real implementation, fetch draft from storage
-        # For now, using mock data
-        subject = "Re: Your Email"
-        body = "This is an automated response."
+        # Find the draft by searching through available drafts
+        emails = db_reader.get_recent_emails(limit=100)  # Get more emails to find the draft
         
+        draft_found = None
+        original_email = None
+        
+        # Search for the draft by ID (this is a simplified approach)
+        # In a real implementation, you'd have a proper draft storage system
+        for email in emails:
+            # Analyze email to see if it needs a reply (draft would be generated for these)
+            result = engine.analyze_email(
+                subject=email.get('subject_text', 'No Subject'),
+                body=email.get('content', ''),
+                sender=email.get('sender_email', 'Unknown')
+            )
+            
+            if result.classification.value in ["NEEDS_REPLY", "APPROVAL_REQUIRED"]:
+                # Generate draft content to find our specific draft
+                draft_content = engine.generate_draft_reply({
+                    'subject': email.get('subject_text', 'No Subject'),
+                    'sender_name': email.get('sender_email', 'Unknown'),
+                    'content': email.get('content', '')
+                }, result)
+                
+                # Check if this could be our draft (simplified check by ID)
+                if hash(str(email.get('message_id', 0))) == draft_id or email.get('message_id', 0) == draft_id:
+                    draft_found = {
+                        'content': draft_content,
+                        'confidence': result.confidence
+                    }
+                    original_email = email
+                    break
+        
+        if not draft_found or not original_email:
+            raise HTTPException(status_code=404, detail="Draft not found")
+        
+        # Extract recipient email and construct subject
+        to_email = original_email.get('sender_email', '')
+        if not to_email:
+            raise HTTPException(status_code=400, detail="No recipient email found")
+        
+        original_subject = original_email.get('subject_text', 'No Subject')
+        # Construct reply subject
+        if original_subject.startswith('Re: '):
+            subject = original_subject
+        else:
+            subject = f"Re: {original_subject}"
+        
+        body = draft_found['content']
+        
+        # Send email using AppleScript
         success = mailer.send_email(to=to_email, subject=subject, body=body)
         
         if success:
-            return {"status": "sent", "message": "Email sent successfully"}
+            logger.info(f"Draft {draft_id} sent successfully to {to_email}")
+            return {
+                "status": "sent", 
+                "message": "Email sent successfully",
+                "recipient": to_email,
+                "subject": subject
+            }
         else:
-            raise HTTPException(status_code=500, detail="Failed to send email")
+            raise HTTPException(status_code=500, detail="Failed to send email via Apple Mail")
             
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error sending draft {draft_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to send draft: {str(e)}")
 
 @app.post("/drafts/create")
 def create_draft_in_mail(to_email: str, subject: str, body: str):
@@ -670,6 +727,52 @@ async def get_ai_metrics():
     except Exception as e:
         logger.error(f"Failed to get AI metrics: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to get AI metrics: {str(e)}")
+
+@app.delete("/emails/{email_id}")
+def delete_email(email_id: int):
+    """Delete an email (soft delete)"""
+    try:
+        # Check if email exists first
+        email = db_reader.get_email(email_id)
+        if not email:
+            raise HTTPException(status_code=404, detail="Email not found")
+        
+        # Perform soft delete
+        success = db_reader.delete_email(email_id)
+        
+        if success:
+            return {"status": "deleted", "message": f"Email {email_id} deleted successfully", "email_id": email_id}
+        else:
+            raise HTTPException(status_code=400, detail="Email could not be deleted (may already be deleted)")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting email {email_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.put("/emails/{email_id}/archive")
+def archive_email(email_id: int):
+    """Archive an email"""
+    try:
+        # Check if email exists first
+        email = db_reader.get_email(email_id)
+        if not email:
+            raise HTTPException(status_code=404, detail="Email not found")
+        
+        # Perform archive operation
+        success = db_reader.archive_email(email_id)
+        
+        if success:
+            return {"status": "archived", "message": f"Email {email_id} archived successfully", "email_id": email_id}
+        else:
+            raise HTTPException(status_code=400, detail="Email could not be archived (may be deleted or already archived)")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error archiving email {email_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

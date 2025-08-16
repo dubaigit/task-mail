@@ -26,7 +26,7 @@ const DraftList: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('http://localhost:8002/drafts/');
+      const response = await fetch('http://localhost:8000/drafts/');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -66,8 +66,35 @@ const DraftList: React.FC = () => {
   };
 
   const sendDraft = async (draftId: number) => {
-    // TODO: Implement sending draft through Apple Mail
-    console.log('Sending draft:', draftId);
+    try {
+      setError(null);
+      
+      const response = await fetch(`http://localhost:8000/drafts/${draftId}/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      // Show success message
+      alert(`Email sent successfully to ${result.recipient}!\nSubject: ${result.subject}`);
+      
+      // Optionally refresh drafts list to reflect sent status
+      fetchDrafts();
+      
+    } catch (err) {
+      console.error('Failed to send draft:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to send draft';
+      setError(`Failed to send draft: ${errorMessage}`);
+      alert(`Failed to send draft: ${errorMessage}`);
+    }
   };
 
   if (loading) return <div className="flex justify-center items-center py-8 text-muted-foreground">Loading drafts...</div>;
@@ -135,9 +162,12 @@ const DraftList: React.FC = () => {
                       <span className="w-5 h-5 mr-2 font-bold">✏</span>
                       Edit
                     </Button>
-                    <Button onClick={() => sendDraft(draft.id)}>
+                    <Button 
+                      onClick={() => sendDraft(draft.id)}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
                       <span className="w-5 h-5 mr-2 font-bold">➤</span>
-                      Send
+                      Send via Apple Mail
                     </Button>
                   </div>
                 </div>
