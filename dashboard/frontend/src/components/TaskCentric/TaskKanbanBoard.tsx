@@ -6,7 +6,6 @@ import {
   CheckCircleIcon,
   UserIcon,
   EnvelopeIcon,
-  ArrowPathIcon,
   UsersIcon,
   ChatBubbleLeftRightIcon,
   BellIcon
@@ -20,9 +19,7 @@ import {
   TaskUrgencyLevel, 
   KanbanTask, 
   KanbanTaskItem, 
-  KanbanTaskStatus,
-  TaskStatus,
-  TaskStatusType 
+  KanbanTaskStatus
 } from './types';
 
 
@@ -376,15 +373,15 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   const getColumnColor = (status: KanbanTaskStatus) => {
     switch (status) {
       case 'TODO':
-        return 'border-blue-200 bg-blue-50/30 dark:border-blue-800 dark:bg-blue-950/20';
+        return 'border-sky-400 bg-sky-100 dark:border-sky-600 dark:bg-sky-900/40';
       case 'IN_PROGRESS':
-        return 'border-orange-200 bg-orange-50/30 dark:border-orange-800 dark:bg-orange-950/20';
+        return 'border-amber-400 bg-amber-100 dark:border-amber-600 dark:bg-amber-900/40';
       case 'WAITING_FOR_REPLY':
-        return 'border-purple-200 bg-purple-50/30 dark:border-purple-800 dark:bg-purple-950/20';
+        return 'border-violet-400 bg-violet-100 dark:border-violet-600 dark:bg-violet-900/40';
       case 'DONE':
-        return 'border-green-200 bg-green-50/30 dark:border-green-800 dark:bg-green-950/20';
+        return 'border-emerald-400 bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-900/40';
       default:
-        return 'border-gray-200 bg-gray-50/30 dark:border-gray-800 dark:bg-gray-950/20';
+        return 'border-gray-300 bg-gray-100 dark:border-gray-700 dark:bg-gray-900/40';
     }
   };
 

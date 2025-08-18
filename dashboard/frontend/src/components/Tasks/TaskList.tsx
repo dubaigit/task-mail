@@ -70,107 +70,15 @@ const TaskList: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // Simulate API call - replace with actual endpoint
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Mock data for demonstration
-      const mockTasks: Task[] = [
-        {
-          id: 1,
-          title: 'Review quarterly budget proposal',
-          description: 'Go through the Q4 budget proposal and provide feedback on resource allocation.',
-          status: 'todo',
-          priority: 'high',
-          assignee: 'John Doe',
-          dueDate: '2024-08-20',
-          tags: ['finance', 'review'],
-          emailId: 123,
-          emailSubject: 'Q4 Budget Proposal - Review Required',
-          createdAt: '2024-08-14T10:00:00Z',
-          estimatedTime: '2 hours'
-        },
-        {
-          id: 2,
-          title: 'Update project timeline',
-          description: 'Adjust project milestones based on recent scope changes.',
-          status: 'in_progress',
-          priority: 'medium',
-          assignee: 'Jane Smith',
-          dueDate: '2024-08-16',
-          tags: ['project', 'planning'],
-          createdAt: '2024-08-13T14:30:00Z',
-          estimatedTime: '1 hour'
-        },
-        {
-          id: 3,
-          title: 'Approve marketing campaign',
-          description: 'Review and approve the new product launch marketing materials.',
-          status: 'waiting_for_reply',
-          priority: 'critical',
-          assignee: 'Mike Johnson',
-          dueDate: '2024-08-15',
-          tags: ['marketing', 'approval'],
-          emailId: 456,
-          emailSubject: 'Marketing Campaign Approval Needed',
-          createdAt: '2024-08-12T09:15:00Z',
-          estimatedTime: '30 min'
-        },
-        {
-          id: 4,
-          title: 'Schedule team meeting',
-          description: 'Coordinate with team leads to schedule quarterly planning meeting.',
-          status: 'done',
-          priority: 'low',
-          assignee: 'Sarah Wilson',
-          dueDate: '2024-08-14',
-          tags: ['meeting', 'coordination'],
-          createdAt: '2024-08-10T11:45:00Z',
-          completedAt: '2024-08-14T13:20:00Z',
-          estimatedTime: '15 min'
-        },
-        {
-          id: 5,
-          title: 'Review security policy updates',
-          description: 'Analyze proposed changes to company security policies.',
-          status: 'todo',
-          priority: 'medium',
-          assignee: 'Alex Brown',
-          dueDate: '2024-08-22',
-          tags: ['security', 'policy'],
-          createdAt: '2024-08-14T16:30:00Z',
-          estimatedTime: '1.5 hours'
-        },
-        {
-          id: 6,
-          title: 'Awaiting feedback on proposal',
-          description: 'Waiting for client response on the revised project proposal sent yesterday.',
-          status: 'waiting_for_reply',
-          priority: 'high',
-          assignee: 'Client Team',
-          dueDate: '2024-08-18',
-          tags: ['client', 'proposal', 'feedback'],
-          emailId: 789,
-          emailSubject: 'Project Proposal - Awaiting Your Response',
-          createdAt: '2024-08-15T10:30:00Z',
-          estimatedTime: 'TBD'
-        },
-        {
-          id: 7,
-          title: 'Delegate research task',
-          description: 'Assigned market research to junior analyst - tracking completion.',
-          status: 'waiting_for_reply',
-          priority: 'medium',
-          assignee: 'Lisa Chen',
-          dueDate: '2024-08-20',
-          tags: ['delegation', 'research', 'tracking'],
-          emailId: 890,
-          emailSubject: 'Research Assignment - Market Analysis',
-          createdAt: '2024-08-14T14:00:00Z',
-          estimatedTime: '3 days'
-        }
-      ];
-
-      setTasks(mockTasks);
+      const response = await fetch('/api/tasks');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid API response format');
+      }
+      setTasks(data);
     } catch (err) {
       console.error('Failed to fetch tasks:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch tasks');

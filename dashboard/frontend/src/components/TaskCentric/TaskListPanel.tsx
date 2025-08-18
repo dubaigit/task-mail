@@ -361,14 +361,10 @@ const TaskListPanel: React.FC<TaskListPanelProps> = ({
     );
   };
 
-  // Render calendar view placeholder
+  // Render minimal calendar list (placeholder removed)
   const renderCalendarView = () => (
-    <div className="calendar-view">
-      <div className="calendar-placeholder">
-        <CalendarIcon className="w-12 h-12 text-muted-foreground" />
-        <h3>Calendar View</h3>
-        <p>Calendar view coming soon</p>
-      </div>
+    <div className="calendar-view p-4 text-sm text-muted-foreground">
+      <p>Calendar view is not available yet. Use the Board view to manage tasks.</p>
     </div>
   );
 

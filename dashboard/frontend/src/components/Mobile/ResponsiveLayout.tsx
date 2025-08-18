@@ -301,14 +301,14 @@ const ResponsiveLayoutContent: React.FC<ResponsiveLayoutProps> = ({
             
             {currentView === 'search' && (
               <div className="h-full flex items-center justify-center">
-                <p className="text-muted-foreground">Search functionality coming soon</p>
+                <p className="text-muted-foreground">Search your tasks and emails</p>
               </div>
             )}
             
             {currentView === 'settings' && (
               <div className="h-full p-4">
                 <h2 className="text-lg font-semibold mb-4">Settings</h2>
-                <p className="text-muted-foreground">Settings panel coming soon</p>
+                <p className="text-muted-foreground">Configure notifications and preferences</p>
               </div>
             )}
 

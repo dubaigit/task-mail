@@ -35,6 +35,9 @@ import { TemplateManager } from '../AIAssistant/TemplateManager';
 import { TaskKanbanBoard } from '../TaskCentric/TaskKanbanBoard';
 import { ColleagueTrackingDashboard } from '../TaskCentric/ColleagueTrackingDashboard';
 
+// Email Components
+import { EmailHeader } from './components/EmailHeader';
+
 interface Email {
   id: number;
   subject: string;
@@ -1177,104 +1180,15 @@ const ModernEmailInterface: React.FC = () => {
         {selectedEmail ? (
           <>
             {/* Email Header */}
-            <div className="email-detail-header p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  {getUrgencyIcon(selectedEmail.urgency)}
-                  <div>
-                    <h1 className="text-xl font-semibold mb-1">{selectedEmail.subject}</h1>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span className="font-medium">{selectedEmail.sender}</span>
-                      <span>•</span>
-                      <span>{selectedEmail.senderEmail}</span>
-                      <span>•</span>
-                      <span>{new Date(selectedEmail.date).toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={handleMarkRead}
-                    disabled={actionLoading === 'markRead'}
-                    className="action-button p-2 rounded-lg disabled:opacity-50"
-                    title="Mark as read"
-                  >
-                    {actionLoading === 'markRead' ? (
-                      <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <EyeIcon className="w-4 h-4" />
-                    )}
-                  </button>
-                  <button className="action-button p-2 rounded-lg">
-                    <StarIcon className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={handleArchive}
-                    disabled={actionLoading === 'archive'}
-                    className="action-button p-2 rounded-lg disabled:opacity-50"
-                    title="Archive email"
-                  >
-                    {actionLoading === 'archive' ? (
-                      <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <ArchiveBoxIcon className="w-4 h-4" />
-                    )}
-                  </button>
-                  <button 
-                    onClick={handleDelete}
-                    disabled={actionLoading === 'delete'}
-                    className="action-button p-2 rounded-lg disabled:opacity-50"
-                    title="Delete email"
-                  >
-                    {actionLoading === 'delete' ? (
-                      <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <TrashIcon className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Email Metadata */}
-              <div className="flex items-center gap-4 flex-wrap">
-                <span className={`classification-badge inline-flex items-center gap-1 text-sm px-3 py-1.5 rounded-full ${getClassificationColor(selectedEmail.classification)}`}>
-                  {selectedEmail.classification.replace('_', ' ')}
-                </span>
-                <span className="text-sm bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full">
-                  {Math.round(selectedEmail.confidence * 100)}% confidence
-                </span>
-                {selectedEmail.estimatedResponseTime && (
-                  <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <ClockIcon className="w-4 h-4" />
-                    Est. {selectedEmail.estimatedResponseTime} to read
-                  </span>
-                )}
-                {selectedEmail.has_draft && (
-                  <span className="text-sm bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-3 py-1.5 rounded-full">
-                    Draft Ready
-                  </span>
-                )}
-              </div>
-
-              {/* Current View Mode Indicator */}
-              <div className="mt-4 p-3 bg-primary/10 rounded-lg border border-primary/20">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-primary rounded-full" />
-                  <span className="text-sm font-medium text-primary">
-                    Current View: {currentViewMode.charAt(0).toUpperCase() + currentViewMode.slice(1)}
-                  </span>
-                  {viewModeAnalysis && viewModeAnalysis.confidence >= 0.8 && (
-                    <span className="text-xs text-muted-foreground ml-auto" title={viewModeAnalysis.reasoning}>
-                      AI confidence: {Math.round(viewModeAnalysis.confidence * 100)}%
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Use the view toggle buttons at the top to switch modes
-                </p>
-              </div>
+            <EmailHeader
+              selectedEmail={selectedEmail}
+              currentViewMode={currentViewMode}
+              viewModeAnalysis={viewModeAnalysis}
+              actionLoading={actionLoading}
+              onMarkRead={handleMarkRead}
+              onArchive={handleArchive}
+              onDelete={handleDelete}
+            />
 
               {/* AI Actions */}
               <div className="flex items-center gap-3 mt-4">
@@ -1324,7 +1238,6 @@ const ModernEmailInterface: React.FC = () => {
                   </button>
                 )}
               </div>
-            </div>
 
             {/* Dynamic Content Based on View Mode */}
             <div className="flex-1 overflow-y-auto scrollbar-custom">
@@ -1332,7 +1245,7 @@ const ModernEmailInterface: React.FC = () => {
                 <div className="p-6">
                   <div 
                     className="prose dark:prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{ __html: selectedEmail.content || 'Loading content...' }}
+                    dangerouslySetInnerHTML={{ __html: selectedEmail?.content || 'Loading content...' }}
                   />
                 </div>
               )}
@@ -1451,7 +1364,7 @@ const ModernEmailInterface: React.FC = () => {
                     <div className="border-t border-border pt-6 mt-6">
                       <h4 className="font-medium mb-4">Previously Generated Drafts</h4>
                       <div className="space-y-4">
-                        {drafts.filter(draft => draft.email_id === selectedEmail.id).map((draft) => (
+                        {drafts.filter(draft => draft.email_id === selectedEmail?.id).map((draft) => (
                           <div key={draft.id} className="bg-background border border-border rounded-lg p-4">
                             <div className="flex items-center justify-between mb-3">
                               <div className="flex items-center gap-3">

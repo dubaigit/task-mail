@@ -4,10 +4,11 @@ import { Badge, Button, Card, TextArea } from '../ui';
 
 interface Draft {
   id: number;
-  email_id: number;
+  task_id: number;
   content: string;
-  confidence: number;
+  version: number;
   created_at: string;
+  updated_at: string;
 }
 
 const DraftList: React.FC = () => {
@@ -26,7 +27,22 @@ const DraftList: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('http://localhost:8001/drafts/');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      
+      const response = await fetch('/api/drafts', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (response.status === 401) {
+        localStorage.clear();
+        window.location.href = '/login';
+        return;
+      }
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -69,12 +85,24 @@ const DraftList: React.FC = () => {
     try {
       setError(null);
       
-      const response = await fetch(`http://localhost:8001/drafts/${draftId}/send`, {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      
+      const response = await fetch(`/api/drafts/${draftId}/send`, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
+      
+      if (response.status === 401) {
+        localStorage.clear();
+        window.location.href = '/login';
+        return;
+      }
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -122,11 +150,12 @@ const DraftList: React.FC = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Badge variant="info">
-                  {Math.round(draft.confidence * 100)}% confidence
+                  Version {draft.version}
                 </Badge>
-                <span className="text-sm text-muted-foreground">
-                  Created: {new Date(draft.created_at).toLocaleString()}
-                </span>
+                <div className="text-sm text-muted-foreground">
+                  <div>Created: {new Date(draft.created_at).toLocaleString()}</div>
+                  <div>Updated: {new Date(draft.updated_at).toLocaleString()}</div>
+                </div>
               </div>
 
               {editingId === draft.id ? (

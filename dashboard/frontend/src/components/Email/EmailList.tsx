@@ -334,7 +334,7 @@ const EmailList: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('http://localhost:8002/emails/');
+      const response = await fetch('/api/emails');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -347,15 +347,22 @@ const EmailList: React.FC = () => {
         throw new Error('Invalid API response format');
       }
       
-      // Enhance emails with additional properties
+      // Map backend response to frontend format
       const enhancedEmails = data.map(email => ({
-        ...email,
-        isRead: Math.random() > 0.3,
-        isStarred: Math.random() > 0.8,
-        preview: `This is a preview of the email content from ${email.sender}...`,
-        tags: ['work', 'important'].slice(0, Math.floor(Math.random() * 3)),
-        estimatedResponseTime: ['2 min', '5 min', '15 min', '1 hour'][Math.floor(Math.random() * 4)],
-        senderEmail: email.sender.toLowerCase().replace(' ', '.') + '@company.com'
+        id: email.message_id || email.id || 0,
+        subject: email.subject || 'No Subject',
+        sender: email.sender || 'Unknown Sender',
+        senderEmail: email.senderEmail || email.sender || 'unknown@email.com',
+        date: email.date || new Date().toISOString(),
+        classification: email.classification || 'FYI_ONLY',
+        urgency: email.urgency || 'MEDIUM',
+        confidence: email.confidence || 0.5,
+        has_draft: email.has_draft || false,
+        isRead: email.is_read ?? email.isRead ?? false,
+        isStarred: email.is_flagged ?? email.isStarred ?? false,
+        preview: email.snippet || email.preview || email.subject || '',
+        tags: email.tags || [],
+        estimatedResponseTime: email.estimatedResponseTime || '15 min'
       }));
       
       setEmails(enhancedEmails);
@@ -620,8 +627,8 @@ const EmailList: React.FC = () => {
             <div className="border-l border-border pl-3 ml-3">
               <div className="min-w-[260px]">
                 <DateRangePicker
-                  initialRange={dateRange}
-                  onDateRangeChange={handleDateRangeChange}
+                  value={dateRange}
+                  onChange={handleDateRangeChange}
                   placeholder="Custom range..."
                   maxDate={new Date()}
                 />

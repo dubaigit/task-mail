@@ -1,5 +1,0 @@
-{
-  "subject": "Meeting Scheduled: {meeting_title}",
-  "body": "Hello {attendee_name},\n\nA meeting has been scheduled and you're invited:\n\n📅 **Meeting Details:**\nTitle: {meeting_title}\nDate: {meeting_date}\nTime: {meeting_time}\nDuration: {duration} minutes\nLocation: {location}\nOrganizer: {organizer}\n\n👥 **Attendees:**\n{attendee_list}\n\n📝 **Agenda:**\n{agenda}\n\n🔗 **Meeting Links:**\nCalendar event: {calendar_link}\nVideo call: {video_link}\nShared documents: {documents_link}\n\n📋 **Preparation:**\n{preparation_notes}\n\n✅ **Action Items:**\nPlease confirm your attendance by replying to this email or updating the calendar event.\n\nIf you cannot attend, please let the organizer know as soon as possible and suggest alternative times if needed.\n\nBest regards,\n{organizer}",
-  "reminder_text": "\n⏰ **Reminders:**\nYou will receive additional reminders 24 hours and 1 hour before the meeting."
-}

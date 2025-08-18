@@ -43,14 +43,14 @@ export const LazyEmailList = createLazyComponent(
   }
 );
 
-// Lazy load Modern Email Interface (main component)
-export const LazyModernEmailInterface = createLazyComponent(
-  () => import('../Email/ModernEmailInterface'),
+// Lazy load Task List (main task component)
+export const LazyTaskList = createLazyComponent(
+  () => import('../Tasks/TaskListUpdated'),
   {
-    fallback: LoadingSkeletons.EmailCard,
+    fallback: LoadingSkeletons.Dashboard,
     loadOnMount: true, // Load immediately when needed
     minDelay: 50,
-    trackingName: 'ModernEmailInterface'
+    trackingName: 'TaskList'
   }
 );
 
@@ -66,17 +66,6 @@ export const LazyPerformanceAnalytics = createLazyComponent(
   }
 );
 
-// Lazy load Analytics View component (data-heavy)
-export const LazyAnalyticsView = createLazyComponent(
-  () => import('../Analytics/AnalyticsView'),
-  {
-    fallback: LoadingSkeletons.Table,
-    threshold: 0.3,
-    rootMargin: '200px',
-    minDelay: 300,
-    trackingName: 'AnalyticsView'
-  }
-);
 
 // Note: SearchResults component not yet implemented
 // export const LazySearchResults = createLazyComponent(

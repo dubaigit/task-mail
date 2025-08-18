@@ -1,5 +1,0 @@
-{
-  "subject": "New Task Created: {task_title}",
-  "body": "Hello {assignee_name},\n\nA new task has been created and assigned to you:\n\n📋 **Task Details:**\nTitle: {task_title}\nDescription: {task_description}\nPriority: {priority}\nDue Date: {due_date}\nCreated by: {creator}\n\n🔗 **Links:**\nView task: {task_url}\nProject: {project_url}\n\n📝 **Next Steps:**\nPlease review the task details and confirm your availability. If you have any questions or concerns, please reply to this email or contact the task creator directly.\n\nExpected deliverables and acceptance criteria will be provided in the task description above.\n\nBest regards,\nTask Management System",
-  "footer": "\n---\nThis is an automated message from the Email Action Executor system."
-}

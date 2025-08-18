@@ -1041,7 +1041,7 @@ app.get('/api/statistics', async (req, res) => {
 // =============================================================================
 // SECURE AI ENDPOINTS WITH GPT-5 INTEGRATION
 // =============================================================================
-const aiService = require('./ai_service');
+// const aiService = require('./ai_service'); // TODO: Implement ai_service module
 const rateLimit = require('express-rate-limit');
 
 // Rate limiting for AI endpoints
@@ -1065,21 +1065,9 @@ const authenticateAI = (req, res, next) => {
 // Apply rate limiting and auth to all AI endpoints
 app.use('/api/ai/*', aiRateLimiter, authenticateAI);
 
-// GPT-5 Email Classification Endpoint
+// GPT-5 Email Classification Endpoint (TODO: Implement aiService)
 app.post('/api/ai/classify', async (req, res) => {
-  try {
-    const { emailContent, subject, sender } = req.body;
-    
-    if (!emailContent || !subject) {
-      return res.status(400).json({ error: 'Email content and subject required' });
-    }
-    
-    const classification = await aiService.classifyEmail(emailContent, subject, sender);
-    res.json(classification);
-  } catch (error) {
-    console.error('Classification error:', error);
-    res.status(500).json({ error: 'Classification failed' });
-  }
+  res.status(501).json({ error: 'AI Service not implemented yet' });
 });
 
 // GPT-5 Draft Generation Endpoint
@@ -1091,8 +1079,7 @@ app.post('/api/ai/generate-draft', async (req, res) => {
       return res.status(400).json({ error: 'Email content and subject required' });
     }
     
-    const draft = await aiService.generateDraftReply(emailContent, subject, sender, context);
-    res.json(draft);
+    res.status(501).json({ error: 'AI Service not implemented yet' });
   } catch (error) {
     console.error('Draft generation error:', error);
     res.status(500).json({ error: 'Draft generation failed' });
@@ -1108,8 +1095,7 @@ app.post('/api/ai/chat', async (req, res) => {
       return res.status(400).json({ error: 'Message required' });
     }
     
-    const response = await aiService.generateChatResponse(message, context);
-    res.json({ response });
+    res.status(501).json({ error: 'AI Service not implemented yet' });
   } catch (error) {
     console.error('Chat error:', error);
     res.status(500).json({ error: 'Chat response failed' });
@@ -1120,8 +1106,7 @@ app.post('/api/ai/chat', async (req, res) => {
 app.post('/api/ai/suggestions', async (req, res) => {
   try {
     const { tasks, emails } = req.body;
-    const suggestions = await aiService.generateSuggestions(tasks || [], emails || []);
-    res.json({ suggestions });
+    res.status(501).json({ error: 'AI Service not implemented yet' });
   } catch (error) {
     console.error('Suggestions error:', error);
     res.status(500).json({ error: 'Suggestions generation failed' });
@@ -1137,14 +1122,7 @@ app.post('/api/ai/draft-stream', async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     
-    const stream = aiService.streamDraftReply(emailContent, subject, sender);
-    
-    for await (const chunk of stream) {
-      res.write(`data: ${JSON.stringify({ content: chunk })}\n\n`);
-    }
-    
-    res.write('data: [DONE]\n\n');
-    res.end();
+    res.status(501).json({ error: 'AI Service not implemented yet' });
   } catch (error) {
     console.error('Stream error:', error);
     res.status(500).json({ error: 'Stream failed' });
@@ -1154,7 +1132,7 @@ app.post('/api/ai/draft-stream', async (req, res) => {
 // AI Usage Statistics Endpoint
 app.get('/api/ai/usage', authenticateAI, async (req, res) => {
   try {
-    const stats = aiService.getUsageStats();
+    const stats = { requestsToday: 0, totalTokens: 0, costToday: 0 }; // Mock stats until aiService is implemented
     res.json(stats);
   } catch (error) {
     console.error('Usage stats error:', error);
