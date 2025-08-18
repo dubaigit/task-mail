@@ -1054,9 +1054,10 @@ const aiRateLimiter = rateLimit({
 // Simple API key authentication middleware
 const authenticateAI = (req, res, next) => {
   const apiKey = req.headers['x-api-key'] || req.query.apiKey;
+  const expectedKey = process.env.JWT_SECRET || 'your_jwt_secret_here';
   
   // In production, compare against hashed keys
-  if (!apiKey || apiKey !== process.env.JWT_SECRET) {
+  if (!apiKey || apiKey !== expectedKey) {
     return res.status(401).json({ error: 'Unauthorized - Invalid API key' });
   }
   next();
@@ -1099,6 +1100,48 @@ app.post('/api/ai/chat', async (req, res) => {
   } catch (error) {
     console.error('Chat error:', error);
     res.status(500).json({ error: 'Chat response failed' });
+  }
+});
+
+// Command processor used by the EmailPopup chat
+app.post('/api/ai/process-command', async (req, res) => {
+  try {
+    const { command, context } = req.body || {};
+    if (!command || typeof command !== 'string') {
+      return res.status(400).json({ error: 'Command is required' });
+    }
+
+    const cmd = command.toLowerCase();
+    const actions = [];
+    let response = '';
+
+    // Basic intent detection
+    if (cmd.includes('edit') && cmd.includes('draft')) {
+      response = "I'll help you edit the draft. Tell me what tone or changes you want (more formal, concise, add urgency, etc.).";
+      actions.push({ type: 'DRAFT_EDIT_SUGGEST', payload: { strategy: 'tone-guidance' } });
+    } else if ((cmd.includes('send') && cmd.includes('email')) || cmd.includes('send it')) {
+      response = 'I can send this email. Do you want to send now or schedule it?';
+      actions.push({ type: 'EMAIL_SEND_CONFIRM' });
+    } else if (cmd.includes('complete') || cmd.includes('done')) {
+      response = 'Marked as complete. Do you want to notify the sender?';
+      actions.push({ type: 'TASK_MARK_COMPLETE' });
+    } else if (cmd.includes('priority') || cmd.includes('urgent') || cmd.includes('high priority')) {
+      response = 'Which priority should I set: low, medium, high, or urgent?';
+      actions.push({ type: 'TASK_SET_PRIORITY_PROMPT' });
+    } else if (cmd.includes('deadline') || cmd.includes('due')) {
+      response = 'What deadline would you like to set? (e.g., tomorrow 5pm)';
+      actions.push({ type: 'TASK_SET_DEADLINE_PROMPT' });
+    } else if (cmd.includes('summary') || cmd.includes('overview')) {
+      response = 'Here is a quick overview of your tasks. You can ask for urgent only or tasks with drafts.';
+      actions.push({ type: 'TASK_SUMMARY_REQUEST' });
+    } else {
+      response = 'I can help you edit drafts, send emails, update task status, set priorities, add deadlines, or answer questions about this thread. What would you like to do?';
+    }
+
+    return res.json({ response, actions, contextEcho: context || null });
+  } catch (error) {
+    console.error('process-command error:', error);
+    res.status(500).json({ error: 'Failed to process command' });
   }
 });
 

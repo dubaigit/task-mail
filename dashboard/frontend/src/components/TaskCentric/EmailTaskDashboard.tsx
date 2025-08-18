@@ -1280,7 +1280,7 @@ const EmailTaskDashboard: React.FC = () => {
   const completedTasks = tasks.filter(task => task.status === 'completed');
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-900 text-slate-100 relative overflow-x-hidden">
       <BGPattern variant="grid" mask="fade-edges" size={32} fill="rgba(59, 130, 246, 0.1)" />
       
       {/* Header - Fixed positioning to prevent disappearing */}

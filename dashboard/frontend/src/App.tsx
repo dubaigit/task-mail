@@ -91,7 +91,7 @@ function App() {
       updateCheckInterval={60000}
     >
       <ThemeContext.Provider value={{ isDark, toggleTheme }}>
-        <div className="app-container h-screen overflow-hidden" data-testid="task-centric-app">
+        <div className="app-container min-h-screen overflow-x-hidden" data-testid="task-centric-app">
           <Router>
             <Routes>
               {/* Direct access to EmailTaskDashboard - no login required */}
