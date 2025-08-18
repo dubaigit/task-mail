@@ -1,0 +1,143 @@
+{
+  "$schema": "https://raw.githubusercontent.com/GoogleChrome/lighthouse/main/types/lhr/budget.d.ts",
+  "budget": [
+    {
+      "path": "/*",
+      "timings": [
+        {
+          "metric": "largest-contentful-paint",
+          "budget": 2500,
+          "tolerance": 200
+        },
+        {
+          "metric": "cumulative-layout-shift",
+          "budget": 0.1,
+          "tolerance": 0.02
+        },
+        {
+          "metric": "total-blocking-time",
+          "budget": 300,
+          "tolerance": 50
+        },
+        {
+          "metric": "first-contentful-paint",
+          "budget": 1800,
+          "tolerance": 200
+        },
+        {
+          "metric": "interactive",
+          "budget": 3000,
+          "tolerance": 300
+        },
+        {
+          "metric": "speed-index",
+          "budget": 3000,
+          "tolerance": 300
+        }
+      ],
+      "resourceSizes": [
+        {
+          "resourceType": "total",
+          "budget": 500
+        },
+        {
+          "resourceType": "script",
+          "budget": 200
+        },
+        {
+          "resourceType": "stylesheet",
+          "budget": 50
+        },
+        {
+          "resourceType": "image",
+          "budget": 200
+        },
+        {
+          "resourceType": "font",
+          "budget": 30
+        },
+        {
+          "resourceType": "document",
+          "budget": 20
+        }
+      ],
+      "resourceCounts": [
+        {
+          "resourceType": "total",
+          "budget": 100
+        },
+        {
+          "resourceType": "script",
+          "budget": 20
+        },
+        {
+          "resourceType": "stylesheet",
+          "budget": 10
+        },
+        {
+          "resourceType": "image",
+          "budget": 30
+        },
+        {
+          "resourceType": "font",
+          "budget": 5
+        },
+        {
+          "resourceType": "third-party",
+          "budget": 10
+        }
+      ]
+    },
+    {
+      "path": "/analytics",
+      "timings": [
+        {
+          "metric": "largest-contentful-paint",
+          "budget": 3000,
+          "tolerance": 300
+        },
+        {
+          "metric": "cumulative-layout-shift",
+          "budget": 0.15,
+          "tolerance": 0.03
+        },
+        {
+          "metric": "total-blocking-time",
+          "budget": 400,
+          "tolerance": 75
+        }
+      ],
+      "resourceSizes": [
+        {
+          "resourceType": "total",
+          "budget": 800
+        },
+        {
+          "resourceType": "script",
+          "budget": 400
+        }
+      ]
+    },
+    {
+      "path": "/email/*",
+      "timings": [
+        {
+          "metric": "largest-contentful-paint",
+          "budget": 2000,
+          "tolerance": 200
+        },
+        {
+          "metric": "cumulative-layout-shift",
+          "budget": 0.05,
+          "tolerance": 0.01
+        }
+      ],
+      "resourceSizes": [
+        {
+          "resourceType": "total",
+          "budget": 400
+        }
+      ]
+    }
+  ]
+}

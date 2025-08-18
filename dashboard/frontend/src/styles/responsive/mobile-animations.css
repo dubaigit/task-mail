@@ -1,0 +1,438 @@
+/* Mobile-Optimized Animations and Transitions */
+/* Touch-optimized animations with performance considerations */
+
+:root {
+  /* Animation Timing Functions */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-back: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Animation Durations */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-medium: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+}
+
+/* Touch Feedback Animations */
+.touch-feedback {
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--duration-fast) var(--ease-out-quart);
+}
+
+.touch-feedback:active {
+  transform: scale(0.95);
+}
+
+/* Ripple Effect for Touch */
+.ripple-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0);
+  animation: ripple-animation var(--duration-medium) var(--ease-out-quart);
+}
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Swipe Gesture Animations */
+.swipe-container {
+  position: relative;
+  transition: transform var(--duration-medium) var(--ease-out-quart);
+}
+
+.swipe-left {
+  transform: translateX(-100%);
+}
+
+.swipe-right {
+  transform: translateX(100%);
+}
+
+.swipe-reset {
+  transform: translateX(0);
+}
+
+/* Swipe Action Reveal */
+.swipe-action-reveal {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all var(--duration-fast) var(--ease-out-quart);
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.swipe-action-reveal.left {
+  left: 0;
+  background: var(--success);
+}
+
+.swipe-action-reveal.right {
+  right: 0;
+  background: var(--destructive);
+}
+
+.swipe-action-reveal.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Pull to Refresh Animation */
+.pull-to-refresh {
+  position: relative;
+  overflow: hidden;
+}
+
+.pull-indicator {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  border-radius: 50%;
+  color: var(--primary-foreground);
+  transition: all var(--duration-medium) var(--ease-out-quart);
+  opacity: 0;
+}
+
+.pull-indicator.visible {
+  opacity: 1;
+  top: 20px;
+}
+
+.pull-indicator.loading {
+  animation: rotate var(--duration-slower) linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  to {
+    transform: translateX(-50%) rotate(360deg);
+  }
+}
+
+/* Bottom Sheet Animations */
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--background);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(100%);
+  transition: transform var(--duration-medium) var(--ease-out-quart);
+  z-index: 1000;
+}
+
+.bottom-sheet.visible {
+  transform: translateY(0);
+}
+
+.bottom-sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--muted-foreground);
+  border-radius: 2px;
+  margin: 12px auto 20px;
+  opacity: 0.5;
+}
+
+/* Modal Animations */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity var(--duration-medium) var(--ease-out-quart);
+  z-index: 999;
+}
+
+.modal-overlay.visible {
+  opacity: 1;
+}
+
+.modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: var(--background);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  transition: transform var(--duration-medium) var(--ease-back);
+  opacity: 0;
+  z-index: 1000;
+}
+
+.modal-content.visible {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+/* Loading Animations */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 25%,
+    rgba(var(--muted-rgb), 0.5) 50%,
+    var(--muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.bounce {
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+    transform: translate3d(0, -30px, 0);
+  }
+  70% {
+    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+    transform: translate3d(0, -15px, 0);
+  }
+  90% {
+    transform: translate3d(0, -4px, 0);
+  }
+}
+
+/* Slide Animations */
+.slide-in-left {
+  animation: slide-in-left var(--duration-medium) var(--ease-out-quart);
+}
+
+.slide-in-right {
+  animation: slide-in-right var(--duration-medium) var(--ease-out-quart);
+}
+
+.slide-in-up {
+  animation: slide-in-up var(--duration-medium) var(--ease-out-quart);
+}
+
+.slide-in-down {
+  animation: slide-in-down var(--duration-medium) var(--ease-out-quart);
+}
+
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Fade Animations */
+.fade-in {
+  animation: fade-in var(--duration-medium) var(--ease-out-quart);
+}
+
+.fade-out {
+  animation: fade-out var(--duration-medium) var(--ease-out-quart);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Scale Animations */
+.scale-in {
+  animation: scale-in var(--duration-medium) var(--ease-back);
+}
+
+.scale-out {
+  animation: scale-out var(--duration-fast) var(--ease-out-quart);
+}
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scale-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* Performance Optimizations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .touch-feedback,
+  .swipe-container,
+  .swipe-action-reveal,
+  .pull-indicator,
+  .bottom-sheet,
+  .modal-overlay,
+  .modal-content,
+  .skeleton,
+  .pulse,
+  .bounce,
+  .slide-in-left,
+  .slide-in-right,
+  .slide-in-up,
+  .slide-in-down,
+  .fade-in,
+  .fade-out,
+  .scale-in,
+  .scale-out {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .touch-feedback:active {
+    transform: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .swipe-action-reveal.left {
+    background: #000;
+    color: #fff;
+  }
+  
+  .swipe-action-reveal.right {
+    background: #fff;
+    color: #000;
+  }
+  
+  .bottom-sheet {
+    border: 2px solid currentColor;
+  }
+  
+  .modal-content {
+    border: 2px solid currentColor;
+  }
+}

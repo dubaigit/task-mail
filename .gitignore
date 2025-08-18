@@ -187,3 +187,32 @@ dist
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# Crush directory
+.crush/
+
+# Additional cleanup prevention patterns
+old/
+htmlcov/
+coverage/
+*.db
+*.log
+*.pid
+pids/
+test_results/
+build/
+dist/
+*.tar.gz
+*.zip
+myemails/
+codebase.tar.gz
+.dxt
+worktree/
+
+# Frontend build artifacts  
+*/build/
+*/coverage/
+*_log.txt
+*.lcov
+clover.xml
+coverage-final.json
