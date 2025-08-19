@@ -87,7 +87,7 @@ class WebSocketManager {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
-  private heartbeatInterval: NodeJS.Timeout | null = null;
+  private heartbeatInterval: ReturnType<typeof setTimeout> | null = null;
   private onMessage: ((data: any) => void) | null = null;
   private onConnect: (() => void) | null = null;
   private onDisconnect: (() => void) | null = null;
@@ -375,10 +375,12 @@ export class SyncManager {
   private wsManager: WebSocketManager;
   private offlineQueue: OfflineQueueManager;
   private appleCli: AppleMailCliManager;
-  private syncInterval: NodeJS.Timeout | null = null;
+  private syncInterval: ReturnType<typeof setTimeout> | null = null;
+  private pollingInterval: ReturnType<typeof setTimeout> | null = null;
   private status: SyncStatus;
   private config: SyncManagerConfig;
   private eventListeners: Map<string, ((event: SyncEvent) => void)[]> = new Map();
+  private isOnline: boolean = false;
 
   constructor(config: SyncManagerConfig) {
     this.config = config;
@@ -411,8 +413,27 @@ export class SyncManager {
    */
   async initialize(): Promise<void> {
     try {
+      // Health check with timeout before full sync
+      const isHealthy = await this.checkHealth();
+      
+      if (!isHealthy) {
+        this.isOnline = false;
+        this.startPolling();
+        this.emit('status', { state: 'offline', timestamp: new Date() });
+        return;
+      }
+
+      this.isOnline = true;
+
       if (this.config.enableRealTime) {
-        await this.wsManager.connect();
+        try {
+          await this.wsManager.connect();
+          this.emit('status', { state: 'connected', timestamp: new Date() });
+        } catch (error) {
+          console.warn('WebSocket connection failed, falling back to polling:', error);
+          this.startPolling();
+          this.emit('status', { state: 'polling', timestamp: new Date() });
+        }
       }
 
       // Process any pending offline operations
@@ -429,6 +450,7 @@ export class SyncManager {
       this.emit('initialized', { timestamp: new Date() });
     } catch (error) {
       console.error('Failed to initialize sync manager:', error);
+      this.emit('status', { state: 'error', timestamp: new Date(), error: error.message });
       throw error;
     }
   }
@@ -790,8 +812,8 @@ export class SyncManager {
 
 // Export singleton instance with default configuration
 export const syncManager = new SyncManager({
-  wsUrl: process.env.REACT_APP_WS_URL || 'ws://localhost:8080/ws',
-  applecliEndpoint: process.env.REACT_APP_APPLECLI_URL || 'http://localhost:8081/api',
+  wsUrl: process.env.REACT_APP_WS_URL || 'ws://localhost:8000/ws',
+  applecliEndpoint: process.env.REACT_APP_APPLECLI_URL || 'http://localhost:8000/api',
   syncInterval: 300000, // 5 minutes
   maxRetries: 3,
   batchSize: 50,

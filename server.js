@@ -19,8 +19,8 @@ app.use(express.json());
 const pool = new Pool({
   user: 'email_admin',
   host: 'localhost',
-  database: 'email_management',
-  password: 'secure_email_password_2024',
+  database: 'email_db',
+  password: 'secure_password_123',
   port: 5432,
 });
 
@@ -580,9 +580,7 @@ async function syncTableDirect(db, tableName, columns, whereClause = '') {
           console.log(`📊 ${tableName}: ${processed}/${rows.length} records processed`);
         }
         
-        // Update sequence
-        const maxRowId = Math.max(...rows.map(r => r.ROWID));
-        await pool.query(`SELECT setval('${tableName}_rowid_seq', $1)`, [maxRowId]);
+        // Note: No sequence update needed for BIGINT PRIMARY KEY tables (replica schema)
         
         console.log(`✅ Synced ${processed} records from ${tableName}`);
         resolve();
