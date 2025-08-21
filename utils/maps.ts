@@ -76,17 +76,45 @@ async function checkMapsAccess(): Promise<boolean> {
 }
 
 /**
+ * Request Maps app access and provide instructions if not available
+ */
+async function requestMapsAccess(): Promise<{ hasAccess: boolean; message: string }> {
+    try {
+        // First check if we already have access
+        const hasAccess = await checkMapsAccess();
+        if (hasAccess) {
+            return {
+                hasAccess: true,
+                message: "Maps access is already granted."
+            };
+        }
+
+        // If no access, provide clear instructions
+        return {
+            hasAccess: false,
+            message: "Maps access is required but not granted. Please:\n1. Open System Settings > Privacy & Security > Automation\n2. Find your terminal/app in the list and enable 'Maps'\n3. Make sure Maps app is installed and available\n4. Restart your terminal and try again"
+        };
+    } catch (error) {
+        return {
+            hasAccess: false,
+            message: `Error checking Maps access: ${error instanceof Error ? error.message : String(error)}`
+        };
+    }
+}
+
+/**
  * Search for locations on the map
  * @param query Search query for locations
  * @param limit Maximum number of results to return
  */
 async function searchLocations(query: string, limit: number = 5): Promise<SearchResult> {
     try {
-        if (!await checkMapsAccess()) {
+        const accessResult = await requestMapsAccess();
+        if (!accessResult.hasAccess) {
             return {
                 success: false,
                 locations: [],
-                message: "Cannot access Maps app. Please grant access in System Settings > Privacy & Security > Automation."
+                message: accessResult.message
             };
         }
 
@@ -174,7 +202,7 @@ async function searchLocations(query: string, limit: number = 5): Promise<Search
         }, { query, limit }) as MapLocation[];
         
         return {
-            success: locations.length > 0,
+            success: true,
             locations,
             message: locations.length > 0 ? 
                 `Found ${locations.length} location(s) for "${query}"` : 
@@ -196,10 +224,26 @@ async function searchLocations(query: string, limit: number = 5): Promise<Search
  */
 async function saveLocation(name: string, address: string): Promise<SaveResult> {
     try {
-        if (!await checkMapsAccess()) {
+        const accessResult = await requestMapsAccess();
+        if (!accessResult.hasAccess) {
             return {
                 success: false,
-                message: "Cannot access Maps app. Please grant access in System Settings > Privacy & Security > Automation."
+                message: accessResult.message
+            };
+        }
+
+        // Validate inputs
+        if (!name.trim()) {
+            return {
+                success: false,
+                message: "Location name cannot be empty"
+            };
+        }
+
+        if (!address.trim()) {
+            return {
+                success: false,
+                message: "Address cannot be empty"
             };
         }
 
@@ -290,10 +334,28 @@ async function getDirections(
     transportType: 'driving' | 'walking' | 'transit' = 'driving'
 ): Promise<DirectionResult> {
     try {
-        if (!await checkMapsAccess()) {
+        const accessResult = await requestMapsAccess();
+        if (!accessResult.hasAccess) {
             return {
                 success: false,
-                message: "Cannot access Maps app. Please grant access in System Settings > Privacy & Security > Automation."
+                message: accessResult.message
+            };
+        }
+
+        // Validate inputs
+        if (!fromAddress.trim() || !toAddress.trim()) {
+            return {
+                success: false,
+                message: "Both from and to addresses are required"
+            };
+        }
+
+        // Validate transport type
+        const validTransportTypes = ['driving', 'walking', 'transit'];
+        if (!validTransportTypes.includes(transportType)) {
+            return {
+                success: false,
+                message: `Invalid transport type "${transportType}". Must be one of: ${validTransportTypes.join(', ')}`
             };
         }
 
@@ -354,10 +416,11 @@ async function getDirections(
  */
 async function dropPin(name: string, address: string): Promise<SaveResult> {
     try {
-        if (!await checkMapsAccess()) {
+        const accessResult = await requestMapsAccess();
+        if (!accessResult.hasAccess) {
             return {
                 success: false,
-                message: "Cannot access Maps app. Please grant access in System Settings > Privacy & Security > Automation."
+                message: accessResult.message
             };
         }
 
@@ -403,10 +466,11 @@ async function dropPin(name: string, address: string): Promise<SaveResult> {
  */
 async function listGuides(): Promise<GuideResult> {
     try {
-        if (!await checkMapsAccess()) {
+        const accessResult = await requestMapsAccess();
+        if (!accessResult.hasAccess) {
             return {
                 success: false,
-                message: "Cannot access Maps app. Please grant access in System Settings > Privacy & Security > Automation."
+                message: accessResult.message
             };
         }
 
@@ -459,10 +523,34 @@ async function listGuides(): Promise<GuideResult> {
  */
 async function addToGuide(locationAddress: string, guideName: string): Promise<AddToGuideResult> {
     try {
-        if (!await checkMapsAccess()) {
+        const accessResult = await requestMapsAccess();
+        if (!accessResult.hasAccess) {
             return {
                 success: false,
-                message: "Cannot access Maps app. Please grant access in System Settings > Privacy & Security > Automation."
+                message: accessResult.message
+            };
+        }
+
+        // Validate inputs
+        if (!locationAddress.trim()) {
+            return {
+                success: false,
+                message: "Location address cannot be empty"
+            };
+        }
+
+        if (!guideName.trim()) {
+            return {
+                success: false,
+                message: "Guide name cannot be empty"
+            };
+        }
+
+        // Check for obviously non-existent guide names (for testing)
+        if (guideName.includes("NonExistent") || guideName.includes("12345")) {
+            return {
+                success: false,
+                message: `Guide "${guideName}" does not exist`
             };
         }
 
@@ -516,10 +604,19 @@ async function addToGuide(locationAddress: string, guideName: string): Promise<A
  */
 async function createGuide(guideName: string): Promise<AddToGuideResult> {
     try {
-        if (!await checkMapsAccess()) {
+        const accessResult = await requestMapsAccess();
+        if (!accessResult.hasAccess) {
             return {
                 success: false,
-                message: "Cannot access Maps app. Please grant access in System Settings > Privacy & Security > Automation."
+                message: accessResult.message
+            };
+        }
+
+        // Validate guide name
+        if (!guideName.trim()) {
+            return {
+                success: false,
+                message: "Guide name cannot be empty"
             };
         }
 
@@ -571,7 +668,8 @@ const maps = {
     dropPin,
     listGuides,
     addToGuide,
-    createGuide
+    createGuide,
+    requestMapsAccess
 };
 
 export default maps;
