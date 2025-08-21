@@ -1,0 +1,302 @@
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 8001;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.static('public'));
+
+// Mock data for demonstration
+const mockUsageStats = {
+  daily: {
+    total_processed: 1247,
+    total_cost: 0.1832,
+    avg_cost_per_email: 0.000147,
+    total_batches: 23
+  },
+  balance: 18.45,
+  unprocessed: 42,
+  isProcessing: true
+};
+
+const mockSyncStatus = {
+  emailsInPostgres: 8081,
+  emailsInAppleMail: 8081,
+  percentComplete: 100,
+  isSynced: true,
+  emailBreakdown: {
+    total: 8081,
+    tasks: {
+      count: 393,
+      percentage: 4.9
+    },
+    fyi: {
+      count: 7688,
+      percentage: 95.1
+    },
+    today: 23,
+    week: 488,
+    month: 1762
+  },
+  aiProcessing: {
+    totalProcessed: 8039,
+    analyzed: 8039,
+    completed: 7997,
+    pending: 42,
+    failed: 0,
+    processingRate: 98.5
+  },
+  syncState: {
+    isInitialSyncComplete: true,
+    isSyncing: false
+  }
+};
+
+const mockTasks = [
+  {
+    id: '1',
+    taskTitle: 'Review Budget Proposal Q4',
+    subject: 'Q4 Budget Review Request',
+    taskDescription: 'Please review and approve the Q4 budget proposal by Friday',
+    priority: 'high',
+    status: 'pending',
+    confidence: 92,
+    draftGenerated: true,
+    sender: 'Sarah Johnson',
+    senderEmail: 'sarah.johnson@company.com',
+    estimatedTime: '15 min',
+    tags: ['budget', 'review'],
+    relatedEmails: 3,
+    date_received: '2025-08-20T10:30:00Z',
+    classification: 'APPROVAL_REQUIRED'
+  },
+  {
+    id: '2',
+    taskTitle: 'Schedule Team Meeting',
+    subject: 'Team Standup Scheduling',
+    taskDescription: 'Coordinate with the team for next week\'s standup meeting',
+    priority: 'medium',
+    status: 'pending',
+    confidence: 87,
+    draftGenerated: false,
+    sender: 'Mike Chen',
+    senderEmail: 'mike.chen@company.com',
+    estimatedTime: '10 min',
+    tags: ['meeting', 'coordination'],
+    relatedEmails: 2,
+    date_received: '2025-08-20T09:15:00Z',
+    classification: 'MEETING_REQUEST'
+  },
+  {
+    id: '3',
+    taskTitle: 'Client Follow-up',
+    subject: 'Re: Project Timeline Discussion',
+    taskDescription: 'Follow up with client on project timeline and deliverables',
+    priority: 'urgent',
+    status: 'in-progress',
+    confidence: 95,
+    draftGenerated: true,
+    sender: 'Jennifer Davis',
+    senderEmail: 'jennifer.davis@client.com',
+    estimatedTime: '20 min',
+    tags: ['client', 'follow-up'],
+    relatedEmails: 5,
+    date_received: '2025-08-20T08:45:00Z',
+    classification: 'FOLLOW_UP'
+  }
+];
+
+// API Routes
+app.get('/api/ai/usage-stats', async (req, res) => {
+  try {
+    console.log('📊 GET /api/ai/usage-stats - Request received');
+    
+    // Simulate some variability in the data
+    const stats = {
+      ...mockUsageStats,
+      daily: {
+        ...mockUsageStats.daily,
+        total_processed: mockUsageStats.daily.total_processed + Math.floor(Math.random() * 10),
+        total_cost: mockUsageStats.daily.total_cost + (Math.random() * 0.01)
+      },
+      unprocessed: Math.max(0, mockUsageStats.unprocessed + Math.floor(Math.random() * 10) - 5),
+      isProcessing: Math.random() > 0.3
+    };
+    
+    console.log('✅ Usage stats retrieved successfully');
+    res.json(stats);
+  } catch (error) {
+    console.error('❌ Error fetching usage stats:', error);
+    res.status(500).json({ error: 'Failed to fetch usage stats' });
+  }
+});
+
+app.get('/api/sync-status', async (req, res) => {
+  try {
+    console.log('🔄 GET /api/sync-status - Request received');
+    res.json(mockSyncStatus);
+  } catch (error) {
+    console.error('❌ Error fetching sync status:', error);
+    res.status(500).json({ error: 'Failed to fetch sync status' });
+  }
+});
+
+app.get('/api/tasks', async (req, res) => {
+  try {
+    console.log('📋 GET /api/tasks - Request received');
+    const { limit = 50, offset = 0, filter = 'all' } = req.query;
+    
+    let filteredTasks = mockTasks;
+    if (filter === 'tasks') {
+      filteredTasks = mockTasks.filter(task => task.status !== 'completed');
+    }
+    
+    res.json({
+      items: filteredTasks.slice(parseInt(offset), parseInt(offset) + parseInt(limit)),
+      hasMore: false,
+      total: filteredTasks.length
+    });
+  } catch (error) {
+    console.error('❌ Error fetching tasks:', error);
+    res.status(500).json({ error: 'Failed to fetch tasks' });
+  }
+});
+
+app.get('/api/tasks/category-counts', async (req, res) => {
+  try {
+    res.json({
+      NEEDS_REPLY: 45,
+      APPROVAL_REQUIRED: 23,
+      DELEGATE: 12,
+      FOLLOW_UP: 67,
+      MEETING_REQUEST: 34,
+      DOCUMENT_REVIEW: 18,
+      ESCALATION: 3
+    });
+  } catch (error) {
+    console.error('❌ Error fetching category counts:', error);
+    res.status(500).json({ error: 'Failed to fetch category counts' });
+  }
+});
+
+app.get('/api/user/profile', async (req, res) => {
+  try {
+    res.json({
+      email: 'user@company.com',
+      name: 'John Doe',
+      displayName: 'John Doe'
+    });
+  } catch (error) {
+    console.error('❌ Error fetching user profile:', error);
+    res.status(500).json({ error: 'Failed to fetch user profile' });
+  }
+});
+
+app.get('/api/statistics', async (req, res) => {
+  try {
+    res.json({
+      efficiency: 87,
+      totalTasks: 393,
+      pendingTasks: 156,
+      inProgressTasks: 23,
+      completedTasks: 214,
+      averageResponseTime: 4.2
+    });
+  } catch (error) {
+    console.error('❌ Error fetching statistics:', error);
+    res.status(500).json({ error: 'Failed to fetch statistics' });
+  }
+});
+
+// AI Chat endpoint
+app.post('/api/ai/chat', async (req, res) => {
+  try {
+    const { message, context } = req.body;
+    
+    // Simple AI response logic
+    let response = "I understand you're asking about: " + message;
+    
+    if (message.toLowerCase().includes('urgent')) {
+      response = `I found ${context?.tasks?.urgent || 0} urgent tasks that need your immediate attention. Would you like me to prioritize them?`;
+    } else if (message.toLowerCase().includes('draft')) {
+      response = `There are ${context?.tasks?.withDrafts || 0} tasks with AI-generated drafts ready for review. Click on any task card to view and edit the drafts.`;
+    } else if (message.toLowerCase().includes('summary')) {
+      response = `Summary: You have ${context?.tasks?.total || 0} total tasks, ${context?.tasks?.pending || 0} pending, and ${context?.tasks?.completed || 0} completed. Efficiency: ${context?.stats?.efficiency || 0}%.`;
+    }
+    
+    res.json({
+      response,
+      action: null,
+      actionData: null
+    });
+  } catch (error) {
+    console.error('❌ Error in AI chat:', error);
+    res.status(500).json({ error: 'Failed to process AI chat' });
+  }
+});
+
+// AI processing endpoints
+app.post('/api/ai/sync', async (req, res) => {
+  try {
+    console.log('🔄 Manual sync initiated');
+    res.json({ message: 'Sync initiated' });
+  } catch (error) {
+    console.error('❌ Error initiating sync:', error);
+    res.status(500).json({ error: 'Failed to initiate sync' });
+  }
+});
+
+app.post('/api/ai/resync', async (req, res) => {
+  try {
+    console.log('🔄 Resync initiated');
+    res.json({ message: 'Resync initiated' });
+  } catch (error) {
+    console.error('❌ Error initiating resync:', error);
+    res.status(500).json({ error: 'Failed to initiate resync' });
+  }
+});
+
+app.post('/api/ai/force-reanalyze', async (req, res) => {
+  try {
+    console.log('🔍 Force reanalyze initiated');
+    res.json({ message: 'Force reanalyze initiated' });
+  } catch (error) {
+    console.error('❌ Error initiating force reanalyze:', error);
+    res.status(500).json({ error: 'Failed to initiate force reanalyze' });
+  }
+});
+
+// Task status update
+app.patch('/api/tasks/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    console.log(`📝 Updating task ${id} status to ${status}`);
+    res.json({ message: 'Task status updated' });
+  } catch (error) {
+    console.error('❌ Error updating task status:', error);
+    res.status(500).json({ error: 'Failed to update task status' });
+  }
+});
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  console.log(`🔧 API endpoints available:`);
+  console.log(`   - GET  /api/ai/usage-stats`);
+  console.log(`   - GET  /api/sync-status`);
+  console.log(`   - GET  /api/tasks`);
+  console.log(`   - POST /api/ai/chat`);
+});
+
+module.exports = app;

@@ -1,114 +1,51 @@
-version: '3.8'
+# Docker Compose for Apple MCP Email Task Manager
 
 services:
-  # Redis for caching and message queuing
+  postgres:
+    image: postgres:15-alpine
+    container_name: email_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-email_management}
+      POSTGRES_USER: ${DB_USER:-email_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secure_password_2024}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U email_admin -d email_management"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - email_network
+
   redis:
-    image: redis:7.2-alpine
-    container_name: email-redis
-    restart: always
+    image: redis:7-alpine
+    container_name: email_redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
-      - redis-data:/data
-    networks:
-      - email-network
+      - redis_data:/data
+    command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # MongoDB for email data storage
-  mongodb:
-    image: mongo:7.0
-    container_name: email-mongodb
-    restart: always
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: emailpass123
-      MONGO_INITDB_DATABASE: emaildb
-    volumes:
-      - mongo-data:/data/db
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      interval: 10s
+      timeout: 3s
+      retries: 5
     networks:
-      - email-network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # MongoDB Web Interface
-  mongo-express:
-    image: mongo-express:latest
-    container_name: email-mongo-express
-    restart: always
-    ports:
-      - "8081:8081"
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
-      ME_CONFIG_MONGODB_ADMINPASSWORD: emailpass123
-      ME_CONFIG_MONGODB_SERVER: mongodb
-      ME_CONFIG_MONGODB_URL: mongodb://admin:emailpass123@mongodb:27017/
-      ME_CONFIG_BASICAUTH: false
-    depends_on:
-      - mongodb
-    networks:
-      - email-network
-
-  # Email Intelligence Backend (Optional - for containerized deployment)
-  email-backend:
-    build:
-      context: .
-      dockerfile: Dockerfile.backend
-    container_name: email-backend
-    restart: always
-    ports:
-      - "8000:8000"
-    environment:
-      - REDIS_URL=redis://redis:6379
-      - MONGODB_URL=mongodb://admin:emailpass123@mongodb:27017/emaildb
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-    depends_on:
-      - redis
-      - mongodb
-    networks:
-      - email-network
-    volumes:
-      - ./:/app
-      - /Users/${USER}/Library/Mail:/mail_data:ro
-    profiles:
-      - full-stack
-
-  # Analytics Service (Optional - for containerized deployment)
-  email-analytics:
-    build:
-      context: .
-      dockerfile: Dockerfile.analytics
-    container_name: email-analytics
-    restart: always
-    ports:
-      - "8001:8001"
-    environment:
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - redis
-    networks:
-      - email-network
-    volumes:
-      - ./:/app
-    profiles:
-      - full-stack
+      - email_network
 
 volumes:
-  redis-data:
+  postgres_data:
     driver: local
-  mongo-data:
+  redis_data:
     driver: local
 
 networks:
-  email-network:
+  email_network:
     driver: bridge

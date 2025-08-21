@@ -23,7 +23,7 @@ interface Task {
   id: number;
   title: string;
   description?: string;
-  status: 'todo' | 'in_progress' | 'review' | 'done';
+  status: 'todo' | 'in_progress' | 'waiting_for_reply' | 'done';
   priority: 'low' | 'medium' | 'high' | 'critical';
   assignee?: string;
   dueDate?: string;
@@ -57,7 +57,7 @@ const TaskList: React.FC = () => {
   const columns: Column[] = [
     { id: 'todo', title: 'To Do', status: 'todo', color: 'bg-gray-100 border-gray-300', limit: 10 },
     { id: 'in_progress', title: 'In Progress', status: 'in_progress', color: 'bg-blue-100 border-blue-300', limit: 5 },
-    { id: 'review', title: 'Review', status: 'review', color: 'bg-amber-100 border-amber-300', limit: 3 },
+    { id: 'waiting_for_reply', title: 'Waiting for Reply', status: 'waiting_for_reply', color: 'bg-orange-100 border-orange-300', limit: 8 },
     { id: 'done', title: 'Done', status: 'done', color: 'bg-green-100 border-green-300' }
   ];
 
@@ -70,79 +70,15 @@ const TaskList: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // Simulate API call - replace with actual endpoint
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Mock data for demonstration
-      const mockTasks: Task[] = [
-        {
-          id: 1,
-          title: 'Review quarterly budget proposal',
-          description: 'Go through the Q4 budget proposal and provide feedback on resource allocation.',
-          status: 'todo',
-          priority: 'high',
-          assignee: 'John Doe',
-          dueDate: '2024-08-20',
-          tags: ['finance', 'review'],
-          emailId: 123,
-          emailSubject: 'Q4 Budget Proposal - Review Required',
-          createdAt: '2024-08-14T10:00:00Z',
-          estimatedTime: '2 hours'
-        },
-        {
-          id: 2,
-          title: 'Update project timeline',
-          description: 'Adjust project milestones based on recent scope changes.',
-          status: 'in_progress',
-          priority: 'medium',
-          assignee: 'Jane Smith',
-          dueDate: '2024-08-16',
-          tags: ['project', 'planning'],
-          createdAt: '2024-08-13T14:30:00Z',
-          estimatedTime: '1 hour'
-        },
-        {
-          id: 3,
-          title: 'Approve marketing campaign',
-          description: 'Review and approve the new product launch marketing materials.',
-          status: 'review',
-          priority: 'critical',
-          assignee: 'Mike Johnson',
-          dueDate: '2024-08-15',
-          tags: ['marketing', 'approval'],
-          emailId: 456,
-          emailSubject: 'Marketing Campaign Approval Needed',
-          createdAt: '2024-08-12T09:15:00Z',
-          estimatedTime: '30 min'
-        },
-        {
-          id: 4,
-          title: 'Schedule team meeting',
-          description: 'Coordinate with team leads to schedule quarterly planning meeting.',
-          status: 'done',
-          priority: 'low',
-          assignee: 'Sarah Wilson',
-          dueDate: '2024-08-14',
-          tags: ['meeting', 'coordination'],
-          createdAt: '2024-08-10T11:45:00Z',
-          completedAt: '2024-08-14T13:20:00Z',
-          estimatedTime: '15 min'
-        },
-        {
-          id: 5,
-          title: 'Review security policy updates',
-          description: 'Analyze proposed changes to company security policies.',
-          status: 'todo',
-          priority: 'medium',
-          assignee: 'Alex Brown',
-          dueDate: '2024-08-22',
-          tags: ['security', 'policy'],
-          createdAt: '2024-08-14T16:30:00Z',
-          estimatedTime: '1.5 hours'
-        }
-      ];
-
-      setTasks(mockTasks);
+      const response = await fetch('/api/tasks');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid API response format');
+      }
+      setTasks(data);
     } catch (err) {
       console.error('Failed to fetch tasks:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch tasks');
@@ -175,7 +111,7 @@ const TaskList: React.FC = () => {
     switch (status) {
       case 'todo': return 'default';
       case 'in_progress': return 'info';
-      case 'review': return 'warning';
+      case 'waiting_for_reply': return 'warning';
       case 'done': return 'success';
     }
   };
@@ -429,7 +365,7 @@ const TaskList: React.FC = () => {
               { value: 'all', label: 'All statuses' },
               { value: 'todo', label: 'To Do' },
               { value: 'in_progress', label: 'In Progress' },
-              { value: 'review', label: 'Review' },
+              { value: 'waiting_for_reply', label: 'Waiting for Reply' },
               { value: 'done', label: 'Done' }
             ]}
           />

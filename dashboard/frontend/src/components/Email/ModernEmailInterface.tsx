@@ -19,9 +19,25 @@ import {
   EyeIcon,
   ArrowPathIcon,
   XMarkIcon,
-  PlusIcon
+  PlusIcon,
+  InformationCircleIcon,
+  UsersIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
+
+// AI Assistant Components
+import { DraftGenerationInterface } from '../AIAssistant/DraftGenerationInterface';
+import { ConversationalAIPanel } from '../AIAssistant/ConversationalAIPanel';
+import { DraftEditor } from '../AIAssistant/DraftEditor';
+import { TemplateManager } from '../AIAssistant/TemplateManager';
+
+// Task-Centric Components
+import { TaskKanbanBoard } from '../TaskCentric/TaskKanbanBoard';
+import { ColleagueTrackingDashboard } from '../TaskCentric/ColleagueTrackingDashboard';
+
+// Email Components
+import { EmailHeader } from './components/EmailHeader';
 
 interface Email {
   id: number;
@@ -52,12 +68,24 @@ interface Task {
   email_id?: number;
 }
 
+interface RefinementAction {
+  id: string;
+  instruction: string;
+  timestamp: string;
+  applied: boolean;
+  preview?: string;
+}
+
 interface Draft {
   id: number;
   email_id: number;
   content: string;
   confidence: number;
   created_at: string;
+  version: number;
+  template_used?: string;
+  refinement_history?: RefinementAction[];
+  updatedAt?: string;
 }
 
 interface ViewModeAnalysis {
@@ -69,7 +97,7 @@ interface ViewModeAnalysis {
   actionableItemCount: number;
 }
 
-type ViewMode = 'email' | 'task' | 'draft';
+type ViewMode = 'email' | 'task' | 'draft' | 'info' | 'colleagues';
 
 interface VirtualEmailListProps {
   emails: Email[];
@@ -292,14 +320,33 @@ const ModernEmailInterface: React.FC = () => {
   const [isGeneratingTasks, setIsGeneratingTasks] = useState(false);
   const [isGeneratingDraft, setIsGeneratingDraft] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [currentViewMode, setCurrentViewMode] = useState<ViewMode>('email');
+  const [currentViewMode, setCurrentViewMode] = useState<ViewMode>('task');
   const [autoSwitchEnabled, setAutoSwitchEnabled] = useState(true);
   const [viewModeAnalysis, setViewModeAnalysis] = useState<ViewModeAnalysis | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
   const [performanceMetrics, setPerformanceMetrics] = useState({
     memoryUsage: 0,
     renderTime: 0,
     visibleItems: 0,
     totalItems: 0
+  });
+
+  // AI Assistant State
+  const [currentDraft, setCurrentDraft] = useState<Draft | null>(null);
+  const [isRefiningDraft, setIsRefiningDraft] = useState(false);
+  const [showConversationalAI, setShowConversationalAI] = useState(false);
+  const [draftVersionHistory, setDraftVersionHistory] = useState<Array<{
+    version: number;
+    content: string;
+    timestamp: string;
+    changes: string;
+  }>>([]);
+  const [aiDraftOptions, setAIDraftOptions] = useState({
+    tone: 'professional' as const,
+    length: 'standard' as const,
+    includeSignature: true,
+    urgencyLevel: 'medium' as const,
+    customInstructions: ''
   });
 
   // Keyboard navigation state
@@ -320,7 +367,7 @@ const ModernEmailInterface: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('/emails/');
+      const response = await fetch('http://localhost:8001/emails/');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -607,49 +654,160 @@ const ModernEmailInterface: React.FC = () => {
     }
   };
 
-  // AI Draft Generation
-  const handleGenerateDraft = async () => {
-    if (!selectedEmail) return;
+  // Enhanced AI Draft Generation with AI Assistant Integration
+  const handleGenerateDraft = async (emailId: number, options?: any): Promise<Draft> => {
+    const targetEmail = selectedEmail || { id: emailId };
+    if (!targetEmail) throw new Error('No email specified for draft generation');
     
     setIsGeneratingDraft(true);
     try {
-      const response = await fetch(`/drafts/?email_id=${selectedEmail.id}`, {
-        method: 'GET',
+      const response = await fetch('/drafts/generate', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          email_id: targetEmail.id,
+          tone: options?.tone || aiDraftOptions.tone,
+          length: options?.length || aiDraftOptions.length,
+          include_signature: options?.includeSignature ?? aiDraftOptions.includeSignature,
+          urgency_level: options?.urgencyLevel || aiDraftOptions.urgencyLevel,
+          custom_instructions: options?.customInstructions || aiDraftOptions.customInstructions
+        }),
       });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const newDrafts = await response.json();
-      if (newDrafts.length > 0) {
-        setDrafts(newDrafts);
-        setSelectedDraft(newDrafts[0]);
-        setShowDraftPanel(true);
-        
-        // Auto-switch to draft view if drafts generated
-        if (autoSwitchEnabled && selectedEmail.classification === 'NEEDS_REPLY') {
-          setCurrentViewMode('draft');
-          showToast('Generated AI draft reply, switched to draft view', 'success');
-        } else {
-          showToast('Generated AI draft reply', 'success');
-        }
-        
-        // Re-analyze view mode with new drafts
-        if (selectedEmail) {
-          handleAutoViewSwitch(selectedEmail);
-        }
+      const newDraft = await response.json();
+      
+      // Update current draft state
+      setCurrentDraft(newDraft.content);
+      
+      // Add to version history
+      const newVersion = {
+        version: draftVersionHistory.length + 1,
+        content: newDraft.content,
+        timestamp: new Date().toISOString(),
+        changes: 'Initial AI generation'
+      };
+      setDraftVersionHistory(prev => [...prev, newVersion]);
+      
+      // Update drafts array
+      setDrafts(prev => [...prev, newDraft]);
+      setSelectedDraft(newDraft);
+      setShowDraftPanel(true);
+      
+      // Auto-switch to draft view if drafts generated
+      if (autoSwitchEnabled && selectedEmail && selectedEmail.classification === 'NEEDS_REPLY') {
+        setCurrentViewMode('draft');
+        showToast(`Generated AI draft reply (${Math.round(newDraft.confidence * 100)}% confidence), switched to draft view`, 'success');
       } else {
-        showToast('No draft needed for this email', 'info');
+        showToast(`Generated AI draft reply with ${Math.round(newDraft.confidence * 100)}% confidence`, 'success');
       }
+      
+      // Re-analyze view mode with new drafts
+      if (selectedEmail) {
+        handleAutoViewSwitch(selectedEmail);
+      }
+      
+      return newDraft;
     } catch (error) {
       console.error('Failed to generate draft:', error);
       showToast('Failed to generate draft', 'error');
+      throw error;
     } finally {
       setIsGeneratingDraft(false);
+    }
+  };
+
+  // Wrapper for onClick usage
+  const handleGenerateDraftClick = async () => {
+    if (selectedEmail) {
+      await handleGenerateDraft(selectedEmail.id);
+    }
+  };
+
+  // AI Draft Refinement - FIXED to use new API endpoint
+  const handleDraftRefine = async (draftId: number, instruction: string): Promise<Draft> => {
+    const targetDraft = selectedDraft || currentDraft;
+    if (!targetDraft) throw new Error('No draft specified for refinement');
+    
+    setIsRefiningDraft(true);
+    try {
+      const authToken = localStorage.getItem('authToken');
+      const response = await fetch('/api/ai/refine-draft', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          draftId: targetDraft.id,
+          instruction: instruction,
+          draftContent: targetDraft.content || ''
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || 'Unknown error'}`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(`Refinement failed: ${result.error || 'Unknown error'}`);
+      }
+      
+      // Create updated draft with refined content
+      const refinedDraft: Draft = {
+        ...targetDraft,
+        content: result.refinedContent,
+        version: (targetDraft.version || 1) + 1,
+        updatedAt: result.timestamp || new Date().toISOString()
+      };
+      
+      // Update current draft
+      setCurrentDraft(refinedDraft);
+      
+      // Add to version history
+      const newVersion = {
+        version: refinedDraft.version,
+        content: refinedDraft.content,
+        timestamp: new Date().toISOString(),
+        changes: `Refined: ${instruction}`
+      };
+      setDraftVersionHistory(prev => [...prev, newVersion]);
+      
+      // Update selected draft
+      setSelectedDraft(refinedDraft);
+      
+      showToast('Draft refined successfully', 'success');
+      return refinedDraft;
+    } catch (error) {
+      console.error('Failed to refine draft:', error);
+      showToast('Failed to refine draft', 'error');
+      throw error;
+    } finally {
+      setIsRefiningDraft(false);
+    }
+  };
+
+  // Draft Update Handler
+  const handleDraftUpdate = (draft: Draft) => {
+    setCurrentDraft(draft);
+    
+    // Add to version history if content has changed significantly
+    if (draft.content.length > 0 && draft.content !== draftVersionHistory[draftVersionHistory.length - 1]?.content) {
+      const newVersion = {
+        version: draftVersionHistory.length + 1,
+        content: draft.content,
+        timestamp: new Date().toISOString(),
+        changes: 'Manual edit'
+      };
+      setDraftVersionHistory(prev => [...prev, newVersion]);
     }
   };
 
@@ -659,11 +817,20 @@ const ModernEmailInterface: React.FC = () => {
     
     setActionLoading('archive');
     try {
-      // Note: Archive endpoint not implemented in backend yet
-      // Using placeholder response
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      const response = await fetch(`http://localhost:8001/emails/${selectedEmail.id}/archive`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      await response.json();
       
-      // Remove from current list
+      // Remove from current list (email is archived)
       setEmails(prev => prev.filter(email => email.id !== selectedEmail.id));
       setSelectedEmail(null);
       showToast('Email archived successfully', 'success');
@@ -680,11 +847,20 @@ const ModernEmailInterface: React.FC = () => {
     
     setActionLoading('delete');
     try {
-      // Note: Delete endpoint not implemented in backend yet
-      // Using placeholder response
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      const response = await fetch(`http://localhost:8001/emails/${selectedEmail.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      await response.json();
       
-      // Remove from current list
+      // Remove from current list (email is deleted)
       setEmails(prev => prev.filter(email => email.id !== selectedEmail.id));
       setSelectedEmail(null);
       showToast('Email deleted successfully', 'success');
@@ -701,7 +877,7 @@ const ModernEmailInterface: React.FC = () => {
     
     setActionLoading('markRead');
     try {
-      const response = await fetch(`/emails/${selectedEmail.id}/mark-read`, {
+      const response = await fetch(`http://localhost:8001/emails/${selectedEmail.id}/mark-read`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -771,7 +947,7 @@ const ModernEmailInterface: React.FC = () => {
       </div>
       
       {/* Left Sidebar - Navigation */}
-      <nav className={`${sidebarCollapsed ? 'w-16' : 'w-60'} email-sidebar border-r border-border flex flex-col transition-all duration-300 flex-shrink-0`} role="navigation" aria-label="Main navigation">
+      <nav className={`${sidebarCollapsed ? 'w-16' : 'w-60'} email-sidebar border-r border-border flex flex-col transition-all duration-300 flex-shrink-0 h-full overflow-hidden`} role="navigation" aria-label="Main navigation">
         {/* Header */}
         <div className="p-4 border-b border-border flex items-center justify-between">
           {!sidebarCollapsed && (
@@ -801,8 +977,8 @@ const ModernEmailInterface: React.FC = () => {
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-2">
+        {/* Navigation - Scrollable */}
+        <nav className="flex-1 px-2 overflow-y-auto">
           {sidebarItems.map((item) => {
             const Icon = item.icon;
             const isActive = selectedCategory === item.id;
@@ -857,9 +1033,94 @@ const ModernEmailInterface: React.FC = () => {
       </nav>
 
       {/* Center Panel - Email List */}
-      <main id="main-content" className="w-96 email-list-panel border-r border-border flex flex-col" role="main" aria-label="Email list">
+      <main id="main-content" className="flex-1 min-w-0 max-w-2xl email-list-panel border-r border-border flex flex-col" role="main" aria-label="Email list">
         {/* Search & Filters */}
         <div className="p-4 border-b border-border">
+          {/* Task-Centric Interface Header */}
+          <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">Task-Centric Email Interface</span>
+              </div>
+              <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded-full">
+                AI-Powered
+              </span>
+            </div>
+            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+              Switch between Email, Task, and Draft views below
+            </p>
+          </div>
+
+          {/* View Mode Toggle System - Prominent Location */}
+          <div className="mb-4 p-3 bg-secondary/30 rounded-lg border border-border">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-foreground">View Mode:</span>
+                <div className="flex items-center bg-background border border-border rounded-lg p-1 shadow-sm">
+                  {(['task', 'draft', 'colleagues', 'info', 'email'] as ViewMode[]).map((mode) => (
+                    <button
+                      key={mode}
+                      onClick={() => {
+                        setCurrentViewMode(mode);
+                        showToast(`Switched to ${mode} view`, 'info');
+                      }}
+                      className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 relative ${
+                        currentViewMode === mode
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                      }`}
+                      data-testid="view-toggle"
+                      title={`Switch to ${mode} view`}
+                    >
+                      {mode === 'email' && <EnvelopeIcon className="w-4 h-4 mr-2 inline" />}
+                      {mode === 'task' && <CalendarDaysIcon className="w-4 h-4 mr-2 inline" />}
+                      {mode === 'draft' && <PaperAirplaneIcon className="w-4 h-4 mr-2 inline" />}
+                      {mode === 'info' && <InformationCircleIcon className="w-4 h-4 mr-2 inline" />}
+                      {mode === 'colleagues' && (
+                        <>
+                          <UsersIcon className="w-4 h-4 mr-2 inline" />
+                          {/* Notification badge for pending colleague responses */}
+                          <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                            2
+                          </span>
+                        </>
+                      )}
+                      {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="auto-switch"
+                  checked={autoSwitchEnabled}
+                  onChange={(e) => setAutoSwitchEnabled(e.target.checked)}
+                  className="w-4 h-4 text-primary rounded focus:ring-primary"
+                />
+                <label htmlFor="auto-switch" className="text-xs text-muted-foreground cursor-pointer">
+                  Auto-switch
+                </label>
+              </div>
+            </div>
+            
+            {/* View Mode Analysis Indicator */}
+            {viewModeAnalysis && viewModeAnalysis.confidence >= 0.8 && (
+              <div className="flex items-center gap-2 text-xs mt-2 p-2 bg-background rounded-md">
+                <div className={`w-2 h-2 rounded-full ${
+                  viewModeAnalysis.suggestedView === currentViewMode 
+                    ? 'bg-green-500' 
+                    : 'bg-amber-500'
+                }`} />
+                <span className="text-muted-foreground" title={viewModeAnalysis.reasoning}>
+                  AI suggests: {viewModeAnalysis.suggestedView} view ({Math.round(viewModeAnalysis.confidence * 100)}% confidence)
+                </span>
+              </div>
+            )}
+          </div>
+
           <div className="relative mb-3">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
@@ -938,141 +1199,15 @@ const ModernEmailInterface: React.FC = () => {
         {selectedEmail ? (
           <>
             {/* Email Header */}
-            <div className="email-detail-header p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  {getUrgencyIcon(selectedEmail.urgency)}
-                  <div>
-                    <h1 className="text-xl font-semibold mb-1">{selectedEmail.subject}</h1>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span className="font-medium">{selectedEmail.sender}</span>
-                      <span>•</span>
-                      <span>{selectedEmail.senderEmail}</span>
-                      <span>•</span>
-                      <span>{new Date(selectedEmail.date).toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={handleMarkRead}
-                    disabled={actionLoading === 'markRead'}
-                    className="action-button p-2 rounded-lg disabled:opacity-50"
-                    title="Mark as read"
-                  >
-                    {actionLoading === 'markRead' ? (
-                      <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <EyeIcon className="w-4 h-4" />
-                    )}
-                  </button>
-                  <button className="action-button p-2 rounded-lg">
-                    <StarIcon className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={handleArchive}
-                    disabled={actionLoading === 'archive'}
-                    className="action-button p-2 rounded-lg disabled:opacity-50"
-                    title="Archive email"
-                  >
-                    {actionLoading === 'archive' ? (
-                      <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <ArchiveBoxIcon className="w-4 h-4" />
-                    )}
-                  </button>
-                  <button 
-                    onClick={handleDelete}
-                    disabled={actionLoading === 'delete'}
-                    className="action-button p-2 rounded-lg disabled:opacity-50"
-                    title="Delete email"
-                  >
-                    {actionLoading === 'delete' ? (
-                      <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <TrashIcon className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Email Metadata */}
-              <div className="flex items-center gap-4 flex-wrap">
-                <span className={`classification-badge inline-flex items-center gap-1 text-sm px-3 py-1.5 rounded-full ${getClassificationColor(selectedEmail.classification)}`}>
-                  {selectedEmail.classification.replace('_', ' ')}
-                </span>
-                <span className="text-sm bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full">
-                  {Math.round(selectedEmail.confidence * 100)}% confidence
-                </span>
-                {selectedEmail.estimatedResponseTime && (
-                  <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <ClockIcon className="w-4 h-4" />
-                    Est. {selectedEmail.estimatedResponseTime} to read
-                  </span>
-                )}
-                {selectedEmail.has_draft && (
-                  <span className="text-sm bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-3 py-1.5 rounded-full">
-                    Draft Ready
-                  </span>
-                )}
-              </div>
-
-              {/* View Mode Toggle System */}
-              <div className="flex items-center justify-between mt-4 p-4 bg-secondary/30 rounded-lg border border-border">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-muted-foreground">View Mode:</span>
-                    <div className="flex items-center bg-background border border-border rounded-lg p-1">
-                      {(['email', 'task', 'draft'] as ViewMode[]).map((mode) => (
-                        <button
-                          key={mode}
-                          onClick={() => {
-                            setCurrentViewMode(mode);
-                            showToast(`Switched to ${mode} view`, 'info');
-                          }}
-                          className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                            currentViewMode === mode
-                              ? 'bg-primary text-primary-foreground'
-                              : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                          }`}
-                          data-testid="view-toggle"
-                        >
-                          {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="auto-switch"
-                      checked={autoSwitchEnabled}
-                      onChange={(e) => setAutoSwitchEnabled(e.target.checked)}
-                      className="w-4 h-4 text-primary"
-                    />
-                    <label htmlFor="auto-switch" className="text-xs text-muted-foreground cursor-pointer">
-                      Auto-switch views
-                    </label>
-                  </div>
-                </div>
-                
-                {/* View Mode Analysis Indicator */}
-                {viewModeAnalysis && viewModeAnalysis.confidence >= 0.8 && (
-                  <div className="flex items-center gap-2 text-xs">
-                    <div className={`w-2 h-2 rounded-full ${
-                      viewModeAnalysis.suggestedView === currentViewMode 
-                        ? 'bg-green-500' 
-                        : 'bg-amber-500'
-                    }`} />
-                    <span className="text-muted-foreground" title={viewModeAnalysis.reasoning}>
-                      AI suggests: {viewModeAnalysis.suggestedView} ({Math.round(viewModeAnalysis.confidence * 100)}%)
-                    </span>
-                  </div>
-                )}
-              </div>
+            <EmailHeader
+              selectedEmail={selectedEmail}
+              currentViewMode={currentViewMode}
+              viewModeAnalysis={viewModeAnalysis}
+              actionLoading={actionLoading}
+              onMarkRead={handleMarkRead}
+              onArchive={handleArchive}
+              onDelete={handleDelete}
+            />
 
               {/* AI Actions */}
               <div className="flex items-center gap-3 mt-4">
@@ -1090,7 +1225,7 @@ const ModernEmailInterface: React.FC = () => {
                 </button>
                 
                 <button
-                  onClick={handleGenerateDraft}
+                  onClick={handleGenerateDraftClick}
                   disabled={isGeneratingDraft}
                   className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50 transition-colors"
                 >
@@ -1122,7 +1257,6 @@ const ModernEmailInterface: React.FC = () => {
                   </button>
                 )}
               </div>
-            </div>
 
             {/* Dynamic Content Based on View Mode */}
             <div className="flex-1 overflow-y-auto scrollbar-custom">
@@ -1130,174 +1264,244 @@ const ModernEmailInterface: React.FC = () => {
                 <div className="p-6">
                   <div 
                     className="prose dark:prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{ __html: selectedEmail.content || 'Loading content...' }}
+                    dangerouslySetInnerHTML={{ __html: selectedEmail?.content || 'Loading content...' }}
                   />
                 </div>
               )}
               
               {currentViewMode === 'task' && (
-                <div className="p-6">
+                <TaskKanbanBoard
+                  emails={filteredEmails.map(email => ({
+                    ...email,
+                    urgency: email.urgency as 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW',
+                    senderEmail: email.senderEmail || email.sender,
+                    to_addresses: [],
+                    cc_addresses: [],
+                    bcc_addresses: []
+                  }))}
+                  onEmailView={(email) => {
+                    setSelectedEmail(email);
+                    setCurrentViewMode('email');
+                  }}
+                  onTaskCreate={(email) => {
+                    // Handle task creation
+                    console.log('Creating task for email:', email);
+                  }}
+                />
+              )}
+              
+              {currentViewMode === 'draft' && (
+                <div className="p-6 space-y-6">
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                      <CalendarDaysIcon className="w-5 h-5" />
-                      Task-Centric View
+                      <PaperAirplaneIcon className="w-5 h-5" />
+                      AI-Powered Draft Center
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Focus on actionable items and tasks generated from this email.
+                      Generate, refine, and manage AI-powered draft responses with conversational refinement.
                     </p>
                   </div>
-                  
-                  {/* Email Context Summary */}
-                  <div className="bg-secondary/30 border border-border rounded-lg p-4 mb-6">
-                    <h4 className="font-medium mb-2">Email Context</h4>
-                    <p className="text-sm text-muted-foreground mb-2">{selectedEmail.subject}</p>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className={`px-2 py-1 rounded-full ${getClassificationColor(selectedEmail.classification)}`}>
-                        {selectedEmail.classification.replace('_', ' ')}
-                      </span>
-                      <span className="text-muted-foreground">•</span>
-                      <span className="text-muted-foreground">{selectedEmail.urgency} urgency</span>
+
+                  {/* Draft Generation Interface */}
+                  <div className="space-y-4">
+                    <DraftGenerationInterface
+                      selectedEmail={selectedEmail}
+                      currentDraft={currentDraft}
+                      onDraftUpdate={handleDraftUpdate}
+                      onDraftGenerate={handleGenerateDraft}
+                      onDraftRefine={handleDraftRefine}
+                      className="border border-border rounded-lg"
+                    />
+
+                    {/* Conversational AI Panel */}
+                    {showConversationalAI && (
+                      <ConversationalAIPanel
+                        draft={currentDraft}
+                        email={selectedEmail}
+                        onRefinementInstruction={async (instruction: string) => {
+                          if (currentDraft) {
+                            await handleDraftRefine(currentDraft.id, instruction);
+                          }
+                        }}
+                        isProcessing={isRefiningDraft}
+                        className="border border-border rounded-lg"
+                      />
+                    )}
+
+                    {/* Draft Editor */}
+                    {currentDraft && (
+                      <DraftEditor
+                        draft={currentDraft}
+                        email={selectedEmail}
+                        onDraftUpdate={handleDraftUpdate}
+                        versionHistory={[]}
+                        onVersionRevert={(version) => {
+                          setCurrentDraft(version);
+                          showToast(`Restored to version ${version.version}`, 'info');
+                        }}
+                        className="border border-border rounded-lg"
+                      />
+                    )}
+
+                    {/* Template Manager */}
+                    <TemplateManager
+                      selectedEmail={selectedEmail}
+                      currentDraft={currentDraft}
+                      onTemplateApply={(template) => {
+                        const newDraft: Draft = {
+                          id: Date.now(),
+                          email_id: selectedEmail?.id || 0,
+                          content: template.content,
+                          confidence: 0.95,
+                          created_at: new Date().toISOString(),
+                          version: 1,
+                          template_used: template.name
+                        };
+                        setCurrentDraft(newDraft);
+                        showToast(`Applied template: ${template.name}`, 'success');
+                      }}
+                      onTemplateCreate={(content, metadata) => {
+                        // Handle template creation if needed
+                        showToast('Template created successfully', 'success');
+                      }}
+                      className="border border-border rounded-lg"
+                    />
+
+                    {/* AI Panel Toggle */}
+                    <div className="flex items-center justify-center">
+                      <button
+                        onClick={() => setShowConversationalAI(!showConversationalAI)}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                      >
+                        {showConversationalAI ? 'Hide AI Assistant' : 'Show AI Assistant'}
+                      </button>
                     </div>
                   </div>
-                  
-                  {/* Tasks Section */}
-                  {tasks.length > 0 ? (
-                    <div className="space-y-4">
-                      {tasks.filter(task => task.email_id === selectedEmail.id).map((task) => (
-                        <div key={task.id} className="bg-background border border-border rounded-lg p-4 hover:shadow-sm transition-shadow">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h4 className="font-medium mb-2">{task.title}</h4>
-                              <p className="text-sm text-muted-foreground mb-3">{task.description}</p>
-                              <div className="flex items-center gap-3 text-xs">
-                                <span className={`px-2 py-1 rounded-full ${
-                                  task.priority === 'high' 
-                                    ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                                    : task.priority === 'medium'
-                                    ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
-                                    : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                }`}>
-                                  {task.priority} priority
+
+                  {/* Legacy Draft Display (if no current draft is being edited) */}
+                  {!currentDraft && drafts.length > 0 && (
+                    <div className="border-t border-border pt-6 mt-6">
+                      <h4 className="font-medium mb-4">Previously Generated Drafts</h4>
+                      <div className="space-y-4">
+                        {drafts.filter(draft => draft.email_id === selectedEmail?.id).map((draft) => (
+                          <div key={draft.id} className="bg-background border border-border rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm font-medium">AI Draft #{draft.id}</span>
+                                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                                  {Math.round(draft.confidence * 100)}% confidence
                                 </span>
-                                <span className={`px-2 py-1 rounded-full ${
-                                  task.status === 'pending' 
-                                    ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
-                                    : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                }`}>
-                                  {task.status}
-                                </span>
-                                {task.due_date && (
-                                  <span className="text-muted-foreground">
-                                    Due: {new Date(task.due_date).toLocaleDateString()}
-                                  </span>
-                                )}
                               </div>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(draft.created_at).toLocaleDateString()}
+                              </span>
                             </div>
-                            <button className="text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors">
-                              Complete
-                            </button>
+                            
+                            <div className="bg-secondary/20 border border-border/50 rounded p-4 mb-4">
+                              <pre className="whitespace-pre-wrap text-sm font-sans text-foreground">{draft.content}</pre>
+                            </div>
+                            
+                            <div className="flex gap-3">
+                              <button 
+                                onClick={() => {
+                                  setCurrentDraft(draft);
+                                  showToast('Draft loaded for editing', 'info');
+                                }}
+                                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm"
+                              >
+                                Edit with AI
+                              </button>
+                              <button className="px-4 py-2 border border-border rounded-lg hover:bg-secondary transition-colors text-sm">
+                                Send Draft
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <CalendarDaysIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h4 className="font-medium mb-2">No tasks generated yet</h4>
-                      <p className="text-sm text-muted-foreground mb-4">Generate tasks from this email to see them in task view.</p>
-                      <button
-                        onClick={handleGenerateTasks}
-                        disabled={isGeneratingTasks}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
-                      >
-                        {isGeneratingTasks ? (
-                          <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <CalendarDaysIcon className="w-4 h-4" />
-                        )}
-                        {isGeneratingTasks ? 'Generating...' : 'Generate Tasks'}
-                      </button>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
               )}
               
-              {currentViewMode === 'draft' && (
+              {currentViewMode === 'colleagues' && (
+                <div className="p-6">
+                  <ColleagueTrackingDashboard
+                    onViewTask={(taskId) => {
+                      console.log('Viewing task:', taskId);
+                      showToast(`Viewing colleague task: ${taskId}`, 'info');
+                    }}
+                    onTaskUpdate={(taskId, updates) => {
+                      console.log('Updating task:', taskId, updates);
+                      showToast(`Updated colleague task: ${taskId}`, 'success');
+                    }}
+                  />
+                </div>
+              )}
+
+              {currentViewMode === 'info' && (
                 <div className="p-6">
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                      <PaperAirplaneIcon className="w-5 h-5" />
-                      Draft-Centric View
+                      <InformationCircleIcon className="w-5 h-5" />
+                      Information & FYI
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Focus on AI-generated draft responses and reply management.
+                      Non-actionable emails for your information. These don't require immediate response or tasks.
                     </p>
                   </div>
                   
-                  {/* Email Context for Reply */}
-                  <div className="bg-secondary/30 border border-border rounded-lg p-4 mb-6">
-                    <h4 className="font-medium mb-2">Replying to</h4>
-                    <p className="text-sm font-medium mb-1">{selectedEmail.subject}</p>
-                    <p className="text-xs text-muted-foreground">From: {selectedEmail.sender} • {new Date(selectedEmail.date).toLocaleDateString()}</p>
-                  </div>
-                  
-                  {/* Drafts Section */}
-                  {drafts.length > 0 ? (
-                    <div className="space-y-4">
-                      {drafts.filter(draft => draft.email_id === selectedEmail.id).map((draft) => (
-                        <div key={draft.id} className="bg-background border border-border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                              <span className="text-sm font-medium">AI Draft #{draft.id}</span>
-                              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                                {Math.round(draft.confidence * 100)}% confidence
-                              </span>
-                            </div>
+                  {/* FYI Email List */}
+                  <div className="space-y-3">
+                    {filteredEmails.filter(email => email.classification === 'FYI_ONLY').map((email) => (
+                      <div 
+                        key={email.id} 
+                        className="bg-background border border-border rounded-lg p-4 hover:shadow-sm transition-shadow cursor-pointer"
+                        onClick={() => {
+                          setSelectedEmail(email);
+                          setCurrentViewMode('email');
+                        }}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-sm mb-1 truncate">{email.subject}</h4>
+                            <p className="text-xs text-muted-foreground">From: {email.sender}</p>
+                          </div>
+                          <div className="flex flex-col items-end gap-1">
                             <span className="text-xs text-muted-foreground">
-                              {new Date(draft.created_at).toLocaleDateString()}
+                              {formatTime(email.date)}
+                            </span>
+                            <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-2 py-1 rounded-full">
+                              FYI
                             </span>
                           </div>
-                          
-                          <div className="bg-secondary/20 border border-border/50 rounded p-4 mb-4">
-                            <pre className="whitespace-pre-wrap text-sm font-sans text-foreground">{draft.content}</pre>
-                          </div>
-                          
-                          <div className="flex gap-3">
-                            <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm">
-                              Send Draft
-                            </button>
-                            <button className="px-4 py-2 border border-border rounded-lg hover:bg-secondary transition-colors text-sm">
-                              Edit Draft
-                            </button>
-                            <button 
-                              onClick={() => setSelectedDraft(draft)}
-                              className="px-4 py-2 border border-border rounded-lg hover:bg-secondary transition-colors text-sm"
-                            >
-                              Select
-                            </button>
-                          </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <PaperAirplaneIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h4 className="font-medium mb-2">No drafts generated yet</h4>
-                      <p className="text-sm text-muted-foreground mb-4">Generate AI draft replies to see them in draft view.</p>
-                      <button
-                        onClick={handleGenerateDraft}
-                        disabled={isGeneratingDraft}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
-                      >
-                        {isGeneratingDraft ? (
-                          <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <PaperAirplaneIcon className="w-4 h-4" />
+                        
+                        <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                          {email.preview}
+                        </p>
+                        
+                        {email.tags && email.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {email.tags.slice(0, 3).map((tag) => (
+                              <span key={tag} className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded-full">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
                         )}
-                        {isGeneratingDraft ? 'Generating...' : 'Generate Draft'}
-                      </button>
-                    </div>
-                  )}
+                      </div>
+                    ))}
+                    
+                    {filteredEmails.filter(email => email.classification === 'FYI_ONLY').length === 0 && (
+                      <div className="text-center py-12">
+                        <InformationCircleIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <h4 className="font-medium mb-2">No informational emails</h4>
+                        <p className="text-sm text-muted-foreground">
+                          All emails in your current filter require action or responses.
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -1388,7 +1592,7 @@ const ModernEmailInterface: React.FC = () => {
                         Edit Draft
                       </button>
                       <button 
-                        onClick={handleGenerateDraft}
+                        onClick={handleGenerateDraftClick}
                         disabled={isGeneratingDraft}
                         className="px-4 py-2 border border-border rounded-lg hover:bg-secondary transition-colors disabled:opacity-50"
                       >

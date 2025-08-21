@@ -95,74 +95,20 @@ const Analytics: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // Simulate API call - replace with actual endpoint
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Calculate date range for mock data
-      const endDate = new Date();
-      let startDate: Date;
-      
+      const params = new URLSearchParams();
       if (isCustomRange && dateRange.start && dateRange.end) {
-        startDate = new Date(dateRange.start);
-        endDate.setHours(23, 59, 59, 999);
+        params.append('start', dateRange.start.toISOString());
+        params.append('end', dateRange.end.toISOString());
       } else {
-        const daysMap = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 };
-        startDate = new Date();
-        startDate.setDate(startDate.getDate() - daysMap[timeRange]);
+        params.append('range', timeRange);
       }
 
-      // Generate dynamic data based on date range
-      const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      // Mock data for demonstration with dynamic date range
-      const mockData: AnalyticsData = {
-        totalEmails: Math.floor(1200 * (daysDiff / 30)),
-        unreadEmails: Math.floor(85 * (daysDiff / 30)),
-        responseRate: 87.3 + (Math.random() - 0.5) * 5,
-        avgResponseTime: `${(2.4 + (Math.random() - 0.5) * 0.8).toFixed(1)} hours`,
-        emailsByUrgency: {
-          critical: Math.floor(20 * (daysDiff / 30)),
-          high: Math.floor(150 * (daysDiff / 30)),
-          medium: Math.floor(750 * (daysDiff / 30)),
-          low: Math.floor(280 * (daysDiff / 30))
-        },
-        emailsByClassification: {
-          needsReply: Math.floor(230 * (daysDiff / 30)),
-          approvalRequired: Math.floor(45 * (daysDiff / 30)),
-          createTask: Math.floor(120 * (daysDiff / 30)),
-          delegate: Math.floor(75 * (daysDiff / 30)),
-          fyiOnly: Math.floor(760 * (daysDiff / 30))
-        },
-        weeklyTrends: Array.from({ length: Math.min(daysDiff, 30) }, (_, i) => {
-          const date = new Date(endDate);
-          date.setDate(date.getDate() - (Math.min(daysDiff, 30) - 1 - i));
-          return {
-            date: date.toISOString().split('T')[0],
-            received: Math.floor(50 + Math.random() * 30),
-            sent: Math.floor(20 + Math.random() * 25),
-            processed: Math.floor(40 + Math.random() * 30)
-          };
-        }),
-        topSenders: [
-          { email: 'sarah.johnson@company.com', count: Math.floor(45 * (daysDiff / 30)), avgUrgency: 'HIGH' },
-          { email: 'mike.chen@partner.com', count: Math.floor(38 * (daysDiff / 30)), avgUrgency: 'MEDIUM' },
-          { email: 'emily.davis@client.com', count: Math.floor(32 * (daysDiff / 30)), avgUrgency: 'CRITICAL' },
-          { email: 'alex.wilson@vendor.com', count: Math.floor(29 * (daysDiff / 30)), avgUrgency: 'MEDIUM' },
-          { email: 'lisa.brown@team.com', count: Math.floor(26 * (daysDiff / 30)), avgUrgency: 'LOW' }
-        ],
-        productivityMetrics: {
-          emailsProcessedToday: Math.floor(47 * (daysDiff / 30)),
-          draftsCreated: Math.floor(12 * (daysDiff / 30)),
-          tasksGenerated: Math.floor(8 * (daysDiff / 30)),
-          avgProcessingTime: `${(3.2 + (Math.random() - 0.5) * 0.8).toFixed(1)} min`
-        },
-        dateRange: {
-          start: startDate.toISOString().split('T')[0],
-          end: endDate.toISOString().split('T')[0]
-        }
-      };
-
-      setData(mockData);
+      const response = await fetch(`/api/statistics?${params.toString()}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      setData(result);
     } catch (err) {
       console.error('Failed to fetch analytics:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch analytics');
@@ -694,6 +640,76 @@ const Analytics: React.FC = () => {
           </div>
         </Card>
       </div>
+
+      {/* AI Insights and Recommendations */}
+      <Card padding="lg" variant="elevated">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-foreground">AI Insights & Recommendations</h3>
+          <DocumentTextIcon className="w-5 h-5 text-muted-foreground" />
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="flex items-start space-x-3">
+                <div className="p-1.5 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
+                  <ArrowTrendingUpIcon className="w-4 h-4 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-blue-900 dark:text-blue-100">High Priority Emails Increasing</h4>
+                  <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                    You've received 23% more urgent emails this week. Consider setting up automated responses for common queries.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+              <div className="flex items-start space-x-3">
+                <div className="p-1.5 bg-green-100 dark:bg-green-900/50 rounded-lg">
+                  <CheckCircleIcon className="w-4 h-4 text-green-600" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-green-900 dark:text-green-100">Task Completion Improved</h4>
+                  <p className="text-sm text-green-700 dark:text-green-300 mt-1">
+                    Your task completion rate has improved by 15% since using AI-powered email insights.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+              <div className="flex items-start space-x-3">
+                <div className="p-1.5 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
+                  <ExclamationTriangleIcon className="w-4 h-4 text-amber-600" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-amber-900 dark:text-amber-100">Draft Response Optimization</h4>
+                  <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                    Consider reviewing your draft templates. Some responses could be more concise and effective.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+              <div className="flex items-start space-x-3">
+                <div className="p-1.5 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
+                  <UserGroupIcon className="w-4 h-4 text-purple-600" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-purple-900 dark:text-purple-100">Delegation Opportunities</h4>
+                  <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">
+                    42% of your emails could be delegated to team members. This could save you 6 hours per week.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };

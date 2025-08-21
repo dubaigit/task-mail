@@ -4,10 +4,11 @@ import { Badge, Button, Card, TextArea } from '../ui';
 
 interface Draft {
   id: number;
-  email_id: number;
+  task_id: number;
   content: string;
-  confidence: number;
+  version: number;
   created_at: string;
+  updated_at: string;
 }
 
 const DraftList: React.FC = () => {
@@ -26,7 +27,22 @@ const DraftList: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('http://localhost:8002/drafts/');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      
+      const response = await fetch('/api/drafts', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (response.status === 401) {
+        localStorage.clear();
+        window.location.href = '/login';
+        return;
+      }
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -66,8 +82,47 @@ const DraftList: React.FC = () => {
   };
 
   const sendDraft = async (draftId: number) => {
-    // TODO: Implement sending draft through Apple Mail
-    console.log('Sending draft:', draftId);
+    try {
+      setError(null);
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      
+      const response = await fetch(`/api/drafts/${draftId}/send`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.status === 401) {
+        localStorage.clear();
+        window.location.href = '/login';
+        return;
+      }
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      // Show success message
+      alert(`Email sent successfully to ${result.recipient}!\nSubject: ${result.subject}`);
+      
+      // Optionally refresh drafts list to reflect sent status
+      fetchDrafts();
+      
+    } catch (err) {
+      console.error('Failed to send draft:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to send draft';
+      setError(`Failed to send draft: ${errorMessage}`);
+      alert(`Failed to send draft: ${errorMessage}`);
+    }
   };
 
   if (loading) return <div className="flex justify-center items-center py-8 text-muted-foreground">Loading drafts...</div>;
@@ -95,11 +150,12 @@ const DraftList: React.FC = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Badge variant="info">
-                  {Math.round(draft.confidence * 100)}% confidence
+                  Version {draft.version}
                 </Badge>
-                <span className="text-sm text-muted-foreground">
-                  Created: {new Date(draft.created_at).toLocaleString()}
-                </span>
+                <div className="text-sm text-muted-foreground">
+                  <div>Created: {new Date(draft.created_at).toLocaleString()}</div>
+                  <div>Updated: {new Date(draft.updated_at).toLocaleString()}</div>
+                </div>
               </div>
 
               {editingId === draft.id ? (
@@ -135,9 +191,12 @@ const DraftList: React.FC = () => {
                       <span className="w-5 h-5 mr-2 font-bold">✏</span>
                       Edit
                     </Button>
-                    <Button onClick={() => sendDraft(draft.id)}>
+                    <Button 
+                      onClick={() => sendDraft(draft.id)}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
                       <span className="w-5 h-5 mr-2 font-bold">➤</span>
-                      Send
+                      Send via Apple Mail
                     </Button>
                   </div>
                 </div>

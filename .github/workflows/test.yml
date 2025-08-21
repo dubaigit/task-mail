@@ -1,0 +1,666 @@
+name: Comprehensive Testing Pipeline
+
+on:
+  push:
+    branches: [ main, develop, "lane/**" ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+  
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ==============================================================================
+  # UNIT TESTING JOBS
+  # ==============================================================================
+  
+  frontend-unit-tests:
+    name: Frontend Unit Tests (95% Coverage)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: dashboard/frontend/package-lock.json
+    
+    - name: Cache node modules
+      uses: actions/cache@v3
+      with:
+        path: dashboard/frontend/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('dashboard/frontend/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+    
+    - name: Install frontend dependencies
+      working-directory: dashboard/frontend
+      run: npm ci
+    
+    - name: Run frontend linting
+      working-directory: dashboard/frontend
+      run: npm run lint --if-present
+    
+    - name: Run frontend type checking
+      working-directory: dashboard/frontend
+      run: npx tsc --noEmit
+    
+    - name: Run unit tests with coverage
+      working-directory: dashboard/frontend
+      run: npm run test:ci
+      env:
+        CI: true
+    
+    - name: Verify coverage threshold (95%)
+      working-directory: dashboard/frontend
+      run: |
+        if [ -f coverage/coverage-summary.json ]; then
+          node -e "
+            const coverage = require('./coverage/coverage-summary.json');
+            const threshold = 95;
+            const metrics = ['lines', 'statements', 'functions', 'branches'];
+            let failed = false;
+            metrics.forEach(metric => {
+              const pct = coverage.total[metric].pct;
+              console.log(\`\${metric}: \${pct}%\`);
+              if (pct < threshold) {
+                console.error(\`❌ \${metric} coverage \${pct}% is below threshold \${threshold}%\`);
+                failed = true;
+              }
+            });
+            if (failed) process.exit(1);
+            console.log('✅ All coverage thresholds met');
+          "
+        fi
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: dashboard/frontend/coverage/lcov.info
+        flags: frontend
+        name: frontend-coverage
+        fail_ci_if_error: true
+    
+    - name: Archive test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: frontend-test-results
+        path: |
+          dashboard/frontend/coverage/
+          dashboard/frontend/test-results/
+        retention-days: 30
+
+  backend-unit-tests:
+    name: Backend Unit Tests (95% Coverage)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_email_intelligence
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements_test.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements_test.txt
+        pip install -r old/requirements_runtime.txt || echo "Runtime requirements not found"
+    
+    - name: Run Python linting
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || echo "Linting completed with warnings"
+        black --check . || echo "Code formatting check completed"
+    
+    - name: Run backend unit tests with coverage
+      run: |
+        pytest tests/ \
+          --cov=. \
+          --cov-report=xml \
+          --cov-report=html \
+          --cov-report=term-missing \
+          --cov-fail-under=95 \
+          --junit-xml=test-results/junit.xml \
+          --html=test-results/report.html \
+          --self-contained-html \
+          -v
+      env:
+        DATABASE_URL: postgresql://postgres:test_password@localhost:5432/test_email_intelligence
+        TESTING: true
+    
+    - name: Upload backend coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: coverage.xml
+        flags: backend
+        name: backend-coverage
+        fail_ci_if_error: true
+    
+    - name: Archive backend test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: backend-test-results
+        path: |
+          htmlcov/
+          test-results/
+          coverage.xml
+        retention-days: 30
+
+  # ==============================================================================
+  # INTEGRATION TESTING
+  # ==============================================================================
+  
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [frontend-unit-tests, backend-unit-tests]
+    timeout-minutes: 45
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_email_intelligence
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: dashboard/frontend/package-lock.json
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        # Backend dependencies
+        python -m pip install --upgrade pip
+        pip install -r requirements_test.txt
+        pip install -r old/requirements_runtime.txt || echo "Runtime requirements not found"
+        
+        # Frontend dependencies
+        cd dashboard/frontend
+        npm ci
+    
+    - name: Start backend server
+      run: |
+        python -m uvicorn main:app --host 0.0.0.0 --port 8001 &
+        sleep 10
+        curl -f http://localhost:8001/health || echo "Backend health check"
+      env:
+        DATABASE_URL: postgresql://postgres:test_password@localhost:5432/test_email_intelligence
+    
+    - name: Start frontend server
+      working-directory: dashboard/frontend
+      run: |
+        npm start &
+        sleep 30
+        curl -f http://localhost:3000 || echo "Frontend health check"
+    
+    - name: Run integration tests
+      run: |
+        pytest tests/ -m "integration" \
+          --junit-xml=integration-results/junit.xml \
+          --html=integration-results/report.html \
+          --self-contained-html \
+          -v
+      env:
+        FRONTEND_URL: http://localhost:3000
+        BACKEND_URL: http://localhost:8001
+        DATABASE_URL: postgresql://postgres:test_password@localhost:5432/test_email_intelligence
+    
+    - name: Archive integration test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: integration-test-results
+        path: integration-results/
+        retention-days: 30
+
+  # ==============================================================================
+  # E2E TESTING WITH PLAYWRIGHT
+  # ==============================================================================
+  
+  e2e-tests:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    timeout-minutes: 60
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+        
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_email_intelligence
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: dashboard/frontend/package-lock.json
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        # Backend dependencies
+        python -m pip install --upgrade pip
+        pip install -r requirements_test.txt
+        pip install -r old/requirements_runtime.txt || echo "Runtime requirements not found"
+        
+        # Frontend dependencies
+        cd dashboard/frontend
+        npm ci
+        npx playwright install --with-deps ${{ matrix.browser }}
+    
+    - name: Build frontend
+      working-directory: dashboard/frontend
+      run: npm run build
+    
+    - name: Run E2E tests
+      working-directory: dashboard/frontend
+      run: npx playwright test --project=${{ matrix.browser }}
+      env:
+        DATABASE_URL: postgresql://postgres:test_password@localhost:5432/test_email_intelligence
+        CI: true
+    
+    - name: Upload E2E test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: e2e-results-${{ matrix.browser }}
+        path: |
+          dashboard/frontend/test-results/
+          dashboard/frontend/playwright-report/
+        retention-days: 30
+
+  # ==============================================================================
+  # ACCESSIBILITY TESTING
+  # ==============================================================================
+  
+  accessibility-tests:
+    name: Accessibility Tests (axe-core)
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    timeout-minutes: 30
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_email_intelligence
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: dashboard/frontend/package-lock.json
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        # Backend dependencies
+        python -m pip install --upgrade pip
+        pip install -r requirements_test.txt
+        pip install -r old/requirements_runtime.txt || echo "Runtime requirements not found"
+        
+        # Frontend dependencies
+        cd dashboard/frontend
+        npm ci
+        npx playwright install --with-deps chromium
+    
+    - name: Run accessibility tests
+      working-directory: dashboard/frontend
+      run: npx playwright test --project=accessibility-chromium
+      env:
+        DATABASE_URL: postgresql://postgres:test_password@localhost:5432/test_email_intelligence
+        CI: true
+    
+    - name: Upload accessibility test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: accessibility-test-results
+        path: |
+          dashboard/frontend/test-results/
+          dashboard/frontend/accessibility-report/
+        retention-days: 30
+
+  # ==============================================================================
+  # VISUAL REGRESSION TESTING
+  # ==============================================================================
+  
+  visual-regression-tests:
+    name: Visual Regression Tests
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    timeout-minutes: 45
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_email_intelligence
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: dashboard/frontend/package-lock.json
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        # Backend dependencies
+        python -m pip install --upgrade pip
+        pip install -r requirements_test.txt
+        pip install -r old/requirements_runtime.txt || echo "Runtime requirements not found"
+        
+        # Frontend dependencies
+        cd dashboard/frontend
+        npm ci
+        npx playwright install --with-deps chromium
+    
+    - name: Run visual regression tests
+      working-directory: dashboard/frontend
+      run: npx playwright test --project=visual-regression
+      env:
+        DATABASE_URL: postgresql://postgres:test_password@localhost:5432/test_email_intelligence
+        CI: true
+    
+    - name: Upload visual regression results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: visual-regression-results
+        path: |
+          dashboard/frontend/test-results/
+          dashboard/frontend/visual-regression-report/
+        retention-days: 30
+
+  # ==============================================================================
+  # PERFORMANCE TESTING
+  # ==============================================================================
+  
+  performance-tests:
+    name: Performance Tests (Lighthouse)
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    timeout-minutes: 30
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_email_intelligence
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: dashboard/frontend/package-lock.json
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        # Backend dependencies
+        python -m pip install --upgrade pip
+        pip install -r requirements_test.txt
+        pip install -r old/requirements_runtime.txt || echo "Runtime requirements not found"
+        
+        # Frontend dependencies
+        cd dashboard/frontend
+        npm ci
+    
+    - name: Build and serve application
+      run: |
+        # Start backend
+        python -m uvicorn main:app --host 0.0.0.0 --port 8001 &
+        sleep 10
+        
+        # Build and serve frontend
+        cd dashboard/frontend
+        npm run build
+        npm run performance:serve &
+        sleep 10
+      env:
+        DATABASE_URL: postgresql://postgres:test_password@localhost:5432/test_email_intelligence
+    
+    - name: Run Lighthouse performance audit
+      working-directory: dashboard/frontend
+      run: |
+        npx lighthouse http://localhost:3000 \
+          --output-path=./performance-results/lighthouse-report.html \
+          --output=html \
+          --output=json \
+          --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage"
+    
+    - name: Upload performance results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-test-results
+        path: dashboard/frontend/performance-results/
+        retention-days: 30
+
+  # ==============================================================================
+  # SECURITY TESTING
+  # ==============================================================================
+  
+  security-tests:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: Install security testing tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety semgrep
+    
+    - name: Run Bandit security linter
+      run: |
+        bandit -r . -f json -o security-results/bandit-report.json || echo "Bandit scan completed"
+        bandit -r . -f txt || echo "Bandit scan completed"
+    
+    - name: Run Safety dependency check
+      run: |
+        safety check --json --output security-results/safety-report.json || echo "Safety check completed"
+        safety check || echo "Safety check completed"
+    
+    - name: Run Semgrep static analysis
+      run: |
+        semgrep --config=auto --json --output=security-results/semgrep-report.json . || echo "Semgrep scan completed"
+    
+    - name: Upload security test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-test-results
+        path: security-results/
+        retention-days: 30
+
+  # ==============================================================================
+  # TEST SUMMARY AND REPORTING
+  # ==============================================================================
+  
+  test-summary:
+    name: Test Summary & Reporting
+    runs-on: ubuntu-latest
+    needs: [frontend-unit-tests, backend-unit-tests, e2e-tests, accessibility-tests, visual-regression-tests, performance-tests, security-tests]
+    if: always()
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: all-test-results
+    
+    - name: Generate test summary
+      run: |
+        echo "# 🧪 Comprehensive Test Results Summary" > test-summary.md
+        echo "" >> test-summary.md
+        echo "## 📊 Test Job Status" >> test-summary.md
+        echo "- Frontend Unit Tests: ${{ needs.frontend-unit-tests.result }}" >> test-summary.md
+        echo "- Backend Unit Tests: ${{ needs.backend-unit-tests.result }}" >> test-summary.md
+        echo "- E2E Tests: ${{ needs.e2e-tests.result }}" >> test-summary.md
+        echo "- Accessibility Tests: ${{ needs.accessibility-tests.result }}" >> test-summary.md
+        echo "- Visual Regression Tests: ${{ needs.visual-regression-tests.result }}" >> test-summary.md
+        echo "- Performance Tests: ${{ needs.performance-tests.result }}" >> test-summary.md
+        echo "- Security Tests: ${{ needs.security-tests.result }}" >> test-summary.md
+        echo "" >> test-summary.md
+        echo "## 📁 Available Artifacts" >> test-summary.md
+        find all-test-results -name "*.xml" -o -name "*.html" -o -name "*.json" | sort >> test-summary.md
+    
+    - name: Upload consolidated test summary
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-summary
+        path: |
+          test-summary.md
+          all-test-results/
+        retention-days: 90

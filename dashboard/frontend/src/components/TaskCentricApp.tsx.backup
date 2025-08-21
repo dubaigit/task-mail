@@ -1,0 +1,410 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { useTheme } from '../App';
+import { API_BASE_URL } from '../utils/constants';
+import { TaskKanbanBoard } from './TaskCentric/TaskKanbanBoard';
+import { ColleagueTrackingDashboard } from './TaskCentric/ColleagueTrackingDashboard';
+import { DraftGenerationInterface } from './AIAssistant/DraftGenerationInterface';
+import { 
+  CalendarDaysIcon,
+  InboxIcon,
+  UsersIcon,
+  DocumentDuplicateIcon,
+  BellIcon,
+  Cog6ToothIcon,
+  MagnifyingGlassIcon,
+  SunIcon,
+  MoonIcon,
+  ArrowPathIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon
+} from '@heroicons/react/24/outline';
+import type { TaskCentricEmail, TaskCentricDraft } from './TaskCentric/types';
+import TaskCentricDashboard from "./TaskCentric/TaskCentricDashboard";
+
+type ViewMode = 'tasks' | 'colleagues' | 'drafts' | 'info';
+
+const API_URL = process.env.REACT_APP_API_URL || API_BASE_URL || 'http://localhost:8000';
+
+const TaskCentricApp: React.FC = () => {
+  const { isDark, toggleTheme } = useTheme();
+  const [viewMode, setViewMode] = useState<ViewMode>('tasks');
+  const [emails, setEmails] = useState<TaskCentricEmail[]>([]);
+  const [drafts, setDrafts] = useState<TaskCentricDraft[]>([]);
+  const [selectedEmail, setSelectedEmail] = useState<TaskCentricEmail | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Fetch emails from backend
+  const fetchEmails = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/emails/`);
+      const data = await response.json();
+      
+      // Transform to TaskCentricEmail format
+      const transformedEmails: TaskCentricEmail[] = data.map((email: any) => ({
+        ...email,
+        id: email.message_id || email.id,
+        urgency: email.urgency || 'MEDIUM',
+        confidence: email.confidence || 0.8,
+        has_draft: email.has_draft || false,
+        isRead: email.is_read || false,
+        isStarred: email.is_flagged || false,
+        actionItems: email.action_items || [],
+        tags: email.tags || []
+      }));
+      
+      setEmails(transformedEmails);
+    } catch (error) {
+      console.error('Failed to fetch emails:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch drafts from backend
+  const fetchDrafts = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/drafts/`);
+      const data = await response.json();
+      setDrafts(data);
+    } catch (error) {
+      console.error('Failed to fetch drafts:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEmails();
+    fetchDrafts();
+    // Refresh every 30 seconds
+    const interval = setInterval(() => {
+      fetchEmails();
+      fetchDrafts();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [fetchEmails, fetchDrafts]);
+
+  // Filter emails based on search
+  const filteredEmails = emails.filter(email => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      email.subject?.toLowerCase().includes(query) ||
+      email.sender?.toLowerCase().includes(query) ||
+      email.preview?.toLowerCase().includes(query) ||
+      email.tags?.some(tag => tag.toLowerCase().includes(query))
+    );
+  });
+
+  // Separate FYI emails from actionable ones
+  const actionableEmails = filteredEmails.filter(e => e.classification !== 'FYI_ONLY');
+  const fyiEmails = filteredEmails.filter(e => e.classification === 'FYI_ONLY');
+
+  // Convert emails to delegated tasks for colleague tracking
+  const convertEmailsToTasks = (emails: TaskCentricEmail[]) => {
+    return emails
+      .filter(email => email.classification === 'DELEGATED' || email.actionItems?.length > 0)
+      .map(email => ({
+        id: String(email.id),
+        title: email.subject || 'Untitled Task',
+        description: email.preview || email.content?.substring(0, 200) || '',
+        status: email.isRead ? 'IN_PROGRESS' as const : 'TODO' as const,
+        priority: email.urgency === 'HIGH' ? 'HIGH' as const : 
+                 email.urgency === 'LOW' ? 'LOW' as const : 'MEDIUM' as const,
+        assignee: email.sender || 'Unknown',
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Default to 7 days from now
+        createdAt: email.date,
+        updatedAt: email.date,
+        emailId: String(email.id),
+        delegatedBy: email.sender || '',
+        actionItems: email.actionItems || [],
+        tags: email.tags || []
+      }));
+  };
+
+  const delegatedTasks = convertEmailsToTasks(actionableEmails);
+
+  const getViewContent = () => {
+    switch (viewMode) {
+      case 'tasks':
+        return (
+          <TaskKanbanBoard
+            emails={actionableEmails}
+            onEmailView={setSelectedEmail}
+          />
+        );
+      case 'colleagues':
+        return (
+          <ColleagueTrackingDashboard
+            tasks={delegatedTasks}
+            onTaskUpdate={(taskId, updates) => {
+              console.log('Task update:', taskId, updates);
+              // Update the task status in the email data
+              const email = actionableEmails.find(e => String(e.id) === String(taskId));
+              if (email) {
+                // In a real implementation, you would update this via API call
+                console.log('Updating email task status:', email.subject, updates);
+              }
+            }}
+            onViewTask={(taskId) => {
+              const email = actionableEmails.find(e => String(e.id) === String(taskId));
+              if (email) setSelectedEmail(email);
+            }}
+          />
+        );
+      case 'drafts':
+        return (
+          <DraftGenerationInterface
+            selectedEmail={selectedEmail ? {
+              id: Number(selectedEmail.id),
+              subject: selectedEmail.subject || '',
+              sender: selectedEmail.sender || '',
+              senderEmail: selectedEmail.sender || '',
+              content: selectedEmail.content || selectedEmail.preview || '',
+              classification: selectedEmail.classification || '',
+              urgency: selectedEmail.urgency || '',
+              date: selectedEmail.date || ''
+            } : null}
+            currentDraft={(() => {
+              const foundDraft = drafts.find(d => d.emailId === selectedEmail?.id);
+              return foundDraft ? {
+                id: Number(foundDraft.id),
+                email_id: Number(foundDraft.emailId),
+                content: foundDraft.content,
+                confidence: foundDraft.confidence || 0.8,
+                created_at: foundDraft.createdAt || new Date().toISOString(),
+                version: 1
+              } : null;
+            })()}
+            onDraftUpdate={(draft) => {
+              console.log('Draft updated:', draft);
+              fetchDrafts();
+            }}
+            onDraftGenerate={async (emailId, options) => {
+              const response = await fetch(`${API_URL}/drafts/generate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email_id: emailId, ...options })
+              });
+              const draft = await response.json();
+              await fetchDrafts();
+              return draft;
+            }}
+            onDraftRefine={async (draftId, instruction) => {
+              const response = await fetch(`${API_URL}/drafts/${draftId}/refine`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ instruction })
+              });
+              const draft = await response.json();
+              await fetchDrafts();
+              return draft;
+            }}
+          />
+        );
+      case 'info':
+        return (
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-4">FYI / Information Only</h2>
+            <p className="text-muted-foreground mb-4">
+              These emails are for your information only and don't require action.
+            </p>
+            <div className="space-y-2">
+              {fyiEmails.map(email => (
+                <div 
+                  key={email.id}
+                  className="p-4 border rounded-lg hover:bg-secondary/50 cursor-pointer"
+                  onClick={() => setSelectedEmail(email)}
+                >
+                  <h3 className="font-medium">{email.subject}</h3>
+                  <p className="text-sm text-muted-foreground">From: {email.sender}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{email.preview}</p>
+                </div>
+              ))}
+              {fyiEmails.length === 0 && (
+                <p className="text-muted-foreground">No FYI emails at this time.</p>
+              )}
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="flex h-screen w-screen overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-950 dark:to-black text-foreground font-sans">
+      {/* Sidebar Navigation */}
+      <div className={`${sidebarCollapsed ? 'w-20' : 'w-72'} bg-card/80 backdrop-blur-md border-r border-border shadow-lg transition-all duration-300 flex flex-col`}>
+        {/* Logo/Header */}
+        <div className="p-4 border-b border-border flex items-center justify-between">
+          {!sidebarCollapsed && (
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Task Manager
+            </h1>
+          )}
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="p-1 hover:bg-secondary rounded"
+          >
+            {sidebarCollapsed ? <ChevronRightIcon className="w-5 h-5" /> : <ChevronLeftIcon className="w-5 h-5" />}
+          </button>
+        </div>
+
+        {/* Navigation Items */}
+        <nav className="flex-1 p-2">
+          <button
+            onClick={() => setViewMode('tasks')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+              viewMode === 'tasks' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'
+            }`}
+          >
+            <CalendarDaysIcon className="w-5 h-5" />
+            {!sidebarCollapsed && <span>Tasks</span>}
+          </button>
+          
+          <button
+            onClick={() => setViewMode('colleagues')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+              viewMode === 'colleagues' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'
+            }`}
+          >
+            <UsersIcon className="w-5 h-5" />
+            {!sidebarCollapsed && <span>Colleagues</span>}
+          </button>
+          
+          <button
+            onClick={() => setViewMode('drafts')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+              viewMode === 'drafts' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'
+            }`}
+          >
+            <DocumentDuplicateIcon className="w-5 h-5" />
+            {!sidebarCollapsed && <span>Drafts</span>}
+          </button>
+          
+          <button
+            onClick={() => setViewMode('info')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+              viewMode === 'info' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'
+            }`}
+          >
+            <BellIcon className="w-5 h-5" />
+            {!sidebarCollapsed && (
+              <span className="flex items-center justify-between w-full">
+                <span>FYI</span>
+                {fyiEmails.length > 0 && (
+                  <span className="text-xs bg-secondary px-2 py-0.5 rounded-full">
+                    {fyiEmails.length}
+                  </span>
+                )}
+              </span>
+            )}
+          </button>
+        </nav>
+
+        {/* Bottom Actions */}
+        <div className="p-2 border-t border-border">
+          <button
+            onClick={toggleTheme}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-secondary"
+          >
+            {isDark ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
+            {!sidebarCollapsed && <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>}
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Bar */}
+        <div className="h-16 border-b border-border bg-card/70 backdrop-blur-md flex items-center justify-between px-6 shadow-sm">
+          <div className="flex items-center gap-4 flex-1">
+            {/* Search Bar */}
+            <div className="relative flex-1 max-w-md">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search tasks, emails, or colleagues..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+          </div>
+
+          {/* Status Indicators */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <CalendarDaysIcon className="w-4 h-4" />
+              <span>{actionableEmails.length} active tasks</span>
+            </div>
+            <button
+              onClick={() => {
+                fetchEmails();
+                fetchDrafts();
+              }}
+              className="p-2 hover:bg-secondary rounded-lg transition-colors"
+              disabled={loading}
+            >
+              <ArrowPathIcon className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
+        </div>
+
+        {/* View Content */}
+        <div className="flex-1 overflow-auto">
+          {getViewContent()}
+        </div>
+      </div>
+
+      {/* Email Detail Modal */}
+      {selectedEmail && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-auto m-4">
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <h2 className="text-xl font-semibold">{selectedEmail.subject}</h2>
+                <button
+                  onClick={() => setSelectedEmail(null)}
+                  className="p-1 hover:bg-secondary rounded"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="space-y-2 text-sm">
+                <p><strong>From:</strong> {selectedEmail.sender}</p>
+                <p><strong>Date:</strong> {new Date(selectedEmail.date).toLocaleString()}</p>
+                <p><strong>Classification:</strong> <span className="px-2 py-1 bg-primary/10 rounded">{selectedEmail.classification}</span></p>
+                <p><strong>Urgency:</strong> <span className="px-2 py-1 bg-orange-500/10 rounded">{selectedEmail.urgency}</span></p>
+              </div>
+              <div className="mt-4 p-4 bg-secondary rounded">
+                <p className="whitespace-pre-wrap">{selectedEmail.content || selectedEmail.preview}</p>
+              </div>
+              <div className="mt-4 flex gap-2">
+                <button
+                  onClick={() => {
+                    setViewMode('drafts');
+                    setSelectedEmail(null);
+                  }}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+                >
+                  Generate Draft
+                </button>
+                <button
+                  onClick={() => setSelectedEmail(null)}
+                  className="px-4 py-2 bg-secondary rounded hover:bg-secondary/80"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default TaskCentricDashboard;

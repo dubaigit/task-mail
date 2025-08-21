@@ -1,0 +1,117 @@
+{
+  "mcpServers": {
+    "firecrawl": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "firecrawl-mcp"
+      ],
+      "env": {
+        "FIRECRAWL_API_KEY": "fc-e5548207a77f43a9ae189eaf4474e3aa"
+      }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "git": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "@modelcontextprotocol/server-git"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": ""
+      }
+    },
+    "chrome-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-mcp"
+      ]
+    },
+    "claude-context": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@anthropic-ai/claude-context"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@context7/mcp-server"
+      ]
+    },
+    "magic": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@21st-dev/magic@latest",
+        "API_KEY=\"3d83bece1fe1749092908dd08b96cc6318fa2472c128c8c2a6d109fd7759a439\""
+      ],
+      "env": {}
+    },
+    "apple-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@apple-mcp/server"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-playwright"
+      ]
+    },
+    "chrome-browser": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@humanloop/chrome-browser-mcp"
+      ]
+    },
+    "postgres": {
+      "command": "uv",
+      "args": [
+        "tool",
+        "run",
+        "postgres-mcp"
+      ],
+      "env": {
+        "DATABASE_URI": "postgresql://email_admin:secure_password_123@localhost:5432/email_management",
+        "REDIS_URL": "redis://:secure_redis_password_123@localhost:6379"
+      }
+    },
+    "sqlite": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-sqlite",
+        "/Users/iamomen/apple-mcp/apple_mail_envelope_index"
+      ]
+    }
+  }
+}

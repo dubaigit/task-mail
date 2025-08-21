@@ -1,0 +1,633 @@
+/**
+ * Enterprise Email Management - Responsive Layout System
+ * CSS Grid and Flexbox layouts optimized for all viewports
+ * 
+ * Features:
+ * - Mobile-first responsive design
+ * - CSS Grid for complex layouts
+ * - Flexbox for component-level layouts
+ * - Container queries for advanced responsiveness
+ * - Accessibility-focused spacing and sizing
+ */
+
+/* Container System */
+.container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 var(--spacing-4);
+}
+
+.container-sm {
+  max-width: 640px;
+}
+
+.container-md {
+  max-width: 768px;
+}
+
+.container-lg {
+  max-width: 1024px;
+}
+
+.container-xl {
+  max-width: 1280px;
+}
+
+.container-2xl {
+  max-width: 1536px;
+}
+
+/* Responsive Container Queries */
+@container (min-width: 640px) {
+  .container-responsive {
+    padding: 0 var(--spacing-6);
+  }
+}
+
+@container (min-width: 768px) {
+  .container-responsive {
+    padding: 0 var(--spacing-8);
+  }
+}
+
+/* CSS Grid Layout System */
+.grid {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+
+/* Grid Column Spanning */
+.col-span-1 { grid-column: span 1 / span 1; }
+.col-span-2 { grid-column: span 2 / span 2; }
+.col-span-3 { grid-column: span 3 / span 3; }
+.col-span-4 { grid-column: span 4 / span 4; }
+.col-span-5 { grid-column: span 5 / span 5; }
+.col-span-6 { grid-column: span 6 / span 6; }
+.col-span-7 { grid-column: span 7 / span 7; }
+.col-span-8 { grid-column: span 8 / span 8; }
+.col-span-9 { grid-column: span 9 / span 9; }
+.col-span-10 { grid-column: span 10 / span 10; }
+.col-span-11 { grid-column: span 11 / span 11; }
+.col-span-12 { grid-column: span 12 / span 12; }
+.col-span-full { grid-column: 1 / -1; }
+
+/* Grid Row System */
+.grid-rows-1 { grid-template-rows: repeat(1, minmax(0, 1fr)); }
+.grid-rows-2 { grid-template-rows: repeat(2, minmax(0, 1fr)); }
+.grid-rows-3 { grid-template-rows: repeat(3, minmax(0, 1fr)); }
+.grid-rows-4 { grid-template-rows: repeat(4, minmax(0, 1fr)); }
+.grid-rows-5 { grid-template-rows: repeat(5, minmax(0, 1fr)); }
+.grid-rows-6 { grid-template-rows: repeat(6, minmax(0, 1fr)); }
+
+/* Grid Row Spanning */
+.row-span-1 { grid-row: span 1 / span 1; }
+.row-span-2 { grid-row: span 2 / span 2; }
+.row-span-3 { grid-row: span 3 / span 3; }
+.row-span-4 { grid-row: span 4 / span 4; }
+.row-span-5 { grid-row: span 5 / span 5; }
+.row-span-6 { grid-row: span 6 / span 6; }
+.row-span-full { grid-row: 1 / -1; }
+
+/* Email Dashboard Specific Grids */
+.email-dashboard-grid {
+  display: grid;
+  grid-template-areas: 
+    "sidebar header header"
+    "sidebar main toolbar"
+    "sidebar main toolbar";
+  grid-template-columns: 280px 1fr 320px;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+  gap: 0;
+}
+
+.email-sidebar { grid-area: sidebar; }
+.email-header { grid-area: header; }
+.email-main { grid-area: main; }
+.email-toolbar { grid-area: toolbar; }
+
+/* Task-Centric Layout */
+.task-centric-grid {
+  display: grid;
+  grid-template-areas:
+    "navigation header actions"
+    "navigation content details"
+    "navigation content details";
+  grid-template-columns: 240px 1fr 360px;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+  gap: var(--spacing-1);
+}
+
+.task-navigation { grid-area: navigation; }
+.task-header { grid-area: header; }
+.task-actions { grid-area: actions; }
+.task-content { grid-area: content; }
+.task-details { grid-area: details; }
+
+/* Email List Grid */
+.email-list-grid {
+  display: grid;
+  grid-template-columns: 32px auto 120px 80px;
+  gap: var(--spacing-3);
+  align-items: center;
+  padding: var(--spacing-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.email-list-grid:hover {
+  background-color: var(--email-hover);
+}
+
+.email-checkbox { grid-column: 1; }
+.email-content { grid-column: 2; }
+.email-date { grid-column: 3; }
+.email-priority { grid-column: 4; }
+
+/* Flexbox Layout System */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-nowrap {
+  flex-wrap: nowrap;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+.flex-auto {
+  flex: 1 1 auto;
+}
+
+.flex-initial {
+  flex: 0 1 auto;
+}
+
+.flex-none {
+  flex: none;
+}
+
+/* Justify Content */
+.justify-start { justify-content: flex-start; }
+.justify-end { justify-content: flex-end; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-around { justify-content: space-around; }
+.justify-evenly { justify-content: space-evenly; }
+
+/* Align Items */
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+.items-center { align-items: center; }
+.items-baseline { align-items: baseline; }
+.items-stretch { align-items: stretch; }
+
+/* Align Content */
+.content-start { align-content: flex-start; }
+.content-end { align-content: flex-end; }
+.content-center { align-content: center; }
+.content-between { align-content: space-between; }
+.content-around { align-content: space-around; }
+.content-evenly { align-content: space-evenly; }
+
+/* Align Self */
+.self-auto { align-self: auto; }
+.self-start { align-self: flex-start; }
+.self-end { align-self: flex-end; }
+.self-center { align-self: center; }
+.self-stretch { align-self: stretch; }
+.self-baseline { align-self: baseline; }
+
+/* Gap System */
+.gap-0 { gap: 0; }
+.gap-1 { gap: var(--spacing-1); }
+.gap-2 { gap: var(--spacing-2); }
+.gap-3 { gap: var(--spacing-3); }
+.gap-4 { gap: var(--spacing-4); }
+.gap-5 { gap: var(--spacing-5); }
+.gap-6 { gap: var(--spacing-6); }
+.gap-8 { gap: var(--spacing-8); }
+.gap-10 { gap: var(--spacing-10); }
+.gap-12 { gap: var(--spacing-12); }
+.gap-16 { gap: var(--spacing-16); }
+.gap-20 { gap: var(--spacing-20); }
+.gap-24 { gap: var(--spacing-24); }
+
+.gap-x-0 { column-gap: 0; }
+.gap-x-1 { column-gap: var(--spacing-1); }
+.gap-x-2 { column-gap: var(--spacing-2); }
+.gap-x-3 { column-gap: var(--spacing-3); }
+.gap-x-4 { column-gap: var(--spacing-4); }
+.gap-x-5 { column-gap: var(--spacing-5); }
+.gap-x-6 { column-gap: var(--spacing-6); }
+.gap-x-8 { column-gap: var(--spacing-8); }
+
+.gap-y-0 { row-gap: 0; }
+.gap-y-1 { row-gap: var(--spacing-1); }
+.gap-y-2 { row-gap: var(--spacing-2); }
+.gap-y-3 { row-gap: var(--spacing-3); }
+.gap-y-4 { row-gap: var(--spacing-4); }
+.gap-y-5 { row-gap: var(--spacing-5); }
+.gap-y-6 { row-gap: var(--spacing-6); }
+.gap-y-8 { row-gap: var(--spacing-8); }
+
+/* Email Component Layouts */
+.email-header-layout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-4) var(--spacing-6);
+  border-bottom: 1px solid var(--border);
+  background-color: var(--surface);
+}
+
+.email-sidebar-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-4);
+  background-color: var(--surface-secondary);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+.email-main-layout {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background);
+  overflow: hidden;
+}
+
+.email-toolbar-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  background-color: var(--surface-tertiary);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+.email-conversation-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-4);
+}
+
+.email-thread-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 640px) {
+  .email-dashboard-grid {
+    grid-template-areas: 
+      "header"
+      "main"
+      "toolbar";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+  
+  .email-sidebar {
+    display: none;
+  }
+  
+  .task-centric-grid {
+    grid-template-areas:
+      "header"
+      "content"
+      "details";
+    grid-template-columns: 1fr;
+  }
+  
+  .task-navigation {
+    display: none;
+  }
+  
+  .task-actions {
+    display: none;
+  }
+  
+  .container {
+    padding: 0 var(--spacing-2);
+  }
+  
+  .email-list-grid {
+    grid-template-columns: auto 80px;
+    gap: var(--spacing-2);
+  }
+  
+  .email-date {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  
+  .email-priority {
+    display: none;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .email-dashboard-grid {
+    grid-template-areas: 
+      "sidebar header"
+      "sidebar main"
+      "sidebar toolbar";
+    grid-template-columns: 240px 1fr;
+  }
+  
+  .email-toolbar {
+    grid-area: toolbar;
+    border-top: 1px solid var(--border);
+    border-left: none;
+    padding: var(--spacing-3);
+  }
+  
+  .task-centric-grid {
+    grid-template-columns: 200px 1fr;
+    grid-template-areas:
+      "navigation header"
+      "navigation content"
+      "navigation details";
+  }
+  
+  .task-actions {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .email-dashboard-grid {
+    grid-template-columns: 260px 1fr 280px;
+  }
+  
+  .task-centric-grid {
+    grid-template-columns: 220px 1fr 280px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .email-dashboard-grid {
+    grid-template-columns: 280px 1fr 320px;
+  }
+  
+  .task-centric-grid {
+    grid-template-columns: 240px 1fr 360px;
+  }
+}
+
+/* High-Resolution Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .email-list-grid {
+    border-width: 0.5px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .email-dashboard-grid {
+    display: block;
+  }
+  
+  .email-sidebar,
+  .email-toolbar {
+    display: none;
+  }
+  
+  .email-main {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .grid,
+  .flex {
+    transition: none;
+  }
+}
+
+/* Container Queries for Advanced Responsiveness */
+@container (min-width: 300px) {
+  .email-responsive-card {
+    grid-template-columns: auto 1fr auto;
+  }
+}
+
+@container (min-width: 500px) {
+  .email-responsive-card {
+    grid-template-columns: auto 1fr auto auto;
+  }
+}
+
+/* Email Priority Layout Variations */
+.priority-layout-compact {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--spacing-2);
+  align-items: center;
+}
+
+.priority-layout-expanded {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  gap: var(--spacing-3);
+  align-items: center;
+  padding: var(--spacing-3);
+}
+
+/* Drag and Drop Layouts */
+.drag-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  min-height: 100px;
+  padding: var(--spacing-3);
+  border: 2px dashed transparent;
+  border-radius: var(--radius);
+  transition: var(--transition-colors);
+}
+
+.drag-container.drag-over {
+  border-color: var(--primary);
+  background-color: var(--primary-foreground);
+}
+
+.drag-item {
+  padding: var(--spacing-3);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: grab;
+  transition: var(--transition-all);
+}
+
+.drag-item:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.drag-item.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+  transform: rotate(5deg);
+}
+
+/* Accessibility Enhancements */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.focus-visible-only:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 8px;
+  text-decoration: none;
+  border-radius: var(--radius);
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Layout Utilities */
+.aspect-square { aspect-ratio: 1 / 1; }
+.aspect-video { aspect-ratio: 16 / 9; }
+.aspect-auto { aspect-ratio: auto; }
+
+.overflow-auto { overflow: auto; }
+.overflow-hidden { overflow: hidden; }
+.overflow-visible { overflow: visible; }
+.overflow-scroll { overflow: scroll; }
+.overflow-x-auto { overflow-x: auto; }
+.overflow-y-auto { overflow-y: auto; }
+.overflow-x-hidden { overflow-x: hidden; }
+.overflow-y-hidden { overflow-y: hidden; }
+
+.overscroll-auto { overscroll-behavior: auto; }
+.overscroll-contain { overscroll-behavior: contain; }
+.overscroll-none { overscroll-behavior: none; }
+
+/* Position Utilities */
+.static { position: static; }
+.fixed { position: fixed; }
+.absolute { position: absolute; }
+.relative { position: relative; }
+.sticky { position: sticky; }
+
+/* Z-Index Utilities */
+.z-0 { z-index: 0; }
+.z-10 { z-index: 10; }
+.z-20 { z-index: 20; }
+.z-30 { z-index: 30; }
+.z-40 { z-index: 40; }
+.z-50 { z-index: 50; }
+.z-auto { z-index: auto; }
+
+/* Performance Optimization */
+.contain-layout { contain: layout; }
+.contain-style { contain: style; }
+.contain-size { contain: size; }
+.contain-paint { contain: paint; }
+.contain-strict { contain: strict; }
+.contain-content { contain: content; }
+
+.will-change-auto { will-change: auto; }
+.will-change-scroll { will-change: scroll-position; }
+.will-change-contents { will-change: contents; }
+.will-change-transform { will-change: transform; }
+
+/* Email-Specific Responsive Components */
+.email-card-responsive {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: var(--transition-all);
+}
+
+@container (min-width: 320px) {
+  .email-card-responsive {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "avatar sender date"
+      "avatar subject actions"
+      "preview preview preview";
+  }
+}
+
+@container (min-width: 480px) {
+  .email-card-responsive {
+    grid-template-columns: auto 1fr auto auto;
+    grid-template-areas:
+      "avatar sender date actions"
+      "avatar subject subject actions"
+      "preview preview preview preview";
+  }
+}
+
+@container (min-width: 640px) {
+  .email-card-responsive {
+    grid-template-columns: auto 1fr auto auto auto;
+    grid-template-areas:
+      "avatar sender subject date actions"
+      "avatar preview preview preview actions";
+  }
+}
+
+.email-avatar { grid-area: avatar; }
+.email-sender { grid-area: sender; }
+.email-subject { grid-area: subject; }
+.email-date { grid-area: date; }
+.email-actions { grid-area: actions; }
+.email-preview { grid-area: preview; }
