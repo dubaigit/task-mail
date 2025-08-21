@@ -21,7 +21,8 @@ import {
   XMarkIcon,
   PlusIcon,
   InformationCircleIcon,
-  UsersIcon
+  UsersIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 
@@ -84,6 +85,7 @@ interface Draft {
   version: number;
   template_used?: string;
   refinement_history?: RefinementAction[];
+  updatedAt?: string;
 }
 
 interface ViewModeAnalysis {
@@ -321,6 +323,7 @@ const ModernEmailInterface: React.FC = () => {
   const [currentViewMode, setCurrentViewMode] = useState<ViewMode>('task');
   const [autoSwitchEnabled, setAutoSwitchEnabled] = useState(true);
   const [viewModeAnalysis, setViewModeAnalysis] = useState<ViewModeAnalysis | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
   const [performanceMetrics, setPerformanceMetrics] = useState({
     memoryUsage: 0,
     renderTime: 0,
@@ -726,36 +729,52 @@ const ModernEmailInterface: React.FC = () => {
     }
   };
 
-  // AI Draft Refinement
+  // AI Draft Refinement - FIXED to use new API endpoint
   const handleDraftRefine = async (draftId: number, instruction: string): Promise<Draft> => {
-    const targetDraft = selectedDraft || currentDraft || { id: draftId };
+    const targetDraft = selectedDraft || currentDraft;
     if (!targetDraft) throw new Error('No draft specified for refinement');
     
     setIsRefiningDraft(true);
     try {
-      const response = await fetch('/drafts/refine', {
+      const authToken = localStorage.getItem('authToken');
+      const response = await fetch('/api/ai/refine-draft', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
         },
         body: JSON.stringify({
-          draft_id: targetDraft.id.toString(),
-          instruction: instruction
+          draftId: targetDraft.id,
+          instruction: instruction,
+          draftContent: targetDraft.content || ''
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || 'Unknown error'}`);
       }
 
-      const refinedDraft = await response.json();
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(`Refinement failed: ${result.error || 'Unknown error'}`);
+      }
+      
+      // Create updated draft with refined content
+      const refinedDraft: Draft = {
+        ...targetDraft,
+        content: result.refinedContent,
+        version: (targetDraft.version || 1) + 1,
+        updatedAt: result.timestamp || new Date().toISOString()
+      };
       
       // Update current draft
-      setCurrentDraft(refinedDraft.content);
+      setCurrentDraft(refinedDraft);
       
       // Add to version history
       const newVersion = {
-        version: draftVersionHistory.length + 1,
+        version: refinedDraft.version,
         content: refinedDraft.content,
         timestamp: new Date().toISOString(),
         changes: `Refined: ${instruction}`
@@ -928,7 +947,7 @@ const ModernEmailInterface: React.FC = () => {
       </div>
       
       {/* Left Sidebar - Navigation */}
-      <nav className={`${sidebarCollapsed ? 'w-16' : 'w-60'} email-sidebar border-r border-border flex flex-col transition-all duration-300 flex-shrink-0`} role="navigation" aria-label="Main navigation">
+      <nav className={`${sidebarCollapsed ? 'w-16' : 'w-60'} email-sidebar border-r border-border flex flex-col transition-all duration-300 flex-shrink-0 h-full overflow-hidden`} role="navigation" aria-label="Main navigation">
         {/* Header */}
         <div className="p-4 border-b border-border flex items-center justify-between">
           {!sidebarCollapsed && (
@@ -958,8 +977,8 @@ const ModernEmailInterface: React.FC = () => {
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-2">
+        {/* Navigation - Scrollable */}
+        <nav className="flex-1 px-2 overflow-y-auto">
           {sidebarItems.map((item) => {
             const Icon = item.icon;
             const isActive = selectedCategory === item.id;
@@ -1014,7 +1033,7 @@ const ModernEmailInterface: React.FC = () => {
       </nav>
 
       {/* Center Panel - Email List */}
-      <main id="main-content" className="w-96 email-list-panel border-r border-border flex flex-col" role="main" aria-label="Email list">
+      <main id="main-content" className="flex-1 min-w-0 max-w-2xl email-list-panel border-r border-border flex flex-col" role="main" aria-label="Email list">
         {/* Search & Filters */}
         <div className="p-4 border-b border-border">
           {/* Task-Centric Interface Header */}

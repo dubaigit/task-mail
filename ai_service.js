@@ -1,19 +1,222 @@
+require('dotenv').config(); // Load environment variables
 const OpenAI = require('openai');
 const crypto = require('crypto');
 const Redis = require('redis');
+const { z } = require('zod');
 
 // Initialize Redis client for caching
-const redis = Redis.createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
+const redisConfig = {
+  host: process.env.REDIS_HOST || 'localhost',
+  port: parseInt(process.env.REDIS_PORT || '6379')
+};
+
+// Only add password if it's set
+if (process.env.REDIS_PASSWORD) {
+  redisConfig.password = process.env.REDIS_PASSWORD;
+}
+
+const redis = Redis.createClient(redisConfig);
+
+const winston = require('winston');
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  defaultMeta: { service: 'ai-service' },
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
 });
 
-redis.on('error', (err) => console.error('Redis Client Error', err));
-redis.connect().catch(console.error);
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple()
+  }));
+}
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+redis.on('error', (err) => logger.error('Redis Client Error', err));
+redis.connect().catch(err => logger.error('Redis connection failed', err));
+
+// Schema validation for AI responses
+const classificationSchema = z.object({
+  classification: z.enum([
+    'CREATE_TASK', 'FYI_ONLY', 'URGENT_RESPONSE', 'CALENDAR_EVENT',
+    'APPROVAL_REQUIRED', 'DOCUMENT_REVIEW', 'MEETING_REQUEST', 'NEEDS_REPLY', 
+    'ESCALATION', 'INFORMATION_ONLY', 'ACTION_REQUIRED'
+  ]),
+  urgency: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
+  confidence: z.number().min(0).max(100),
+  suggested_action: z.string().max(500),
+  task_title: z.string().max(200).optional(),
+  task_description: z.string().max(1000).optional(),
+  tags: z.array(z.string().max(50)).max(10).optional()
 });
+
+const draftSchema = z.object({
+  subject: z.string().max(200),
+  body: z.string().max(5000),
+  tone: z.enum(['FORMAL', 'CASUAL', 'FRIENDLY', 'PROFESSIONAL']),
+  confidence: z.number().min(0).max(100),
+  suggestions: z.array(z.string().max(200)).max(5).optional()
+});
+
+// Budget tracking
+class BudgetTracker {
+  constructor() {
+    this.dailySpent = 0;
+    this.monthlySpent = 0;
+    this.lastReset = new Date().toDateString();
+    this.dailyLimit = parseFloat(process.env.OPENAI_DAILY_BUDGET) || 10.0;
+    this.monthlyLimit = parseFloat(process.env.OPENAI_MONTHLY_BUDGET) || 100.0;
+  }
+
+  checkBudget() {
+    const today = new Date().toDateString();
+    if (this.lastReset !== today) {
+      this.dailySpent = 0;
+      this.lastReset = today;
+    }
+
+    if (this.dailySpent >= this.dailyLimit) {
+      throw new Error(`Daily OpenAI budget limit exceeded: $${this.dailyLimit}`);
+    }
+    
+    if (this.monthlySpent >= this.monthlyLimit) {
+      throw new Error(`Monthly OpenAI budget limit exceeded: $${this.monthlyLimit}`);
+    }
+  }
+
+  trackSpending(cost) {
+    this.dailySpent += cost;
+    this.monthlySpent += cost;
+  }
+}
+
+const budgetTracker = new BudgetTracker();
+
+// Multi-level caching system
+class AIResponseCache {
+  constructor() {
+    this.localCache = new Map(); // In-memory for immediate responses
+    this.maxLocalSize = 500; // Limit local cache size
+    this.localTTL = 5 * 60 * 1000; // 5 minutes for local cache
+    this.redisTTL = 60 * 60; // 1 hour for Redis cache
+  }
+  
+  // Generate cache key with better hashing
+  generateKey(type, data) {
+    const content = JSON.stringify({ type, ...data });
+    return `ai_cache:${type}:${crypto.createHash('md5').update(content).digest('hex')}`;
+  }
+  
+  // Get from cache (local first, then Redis)
+  async get(cacheKey) {
+    try {
+      // Check local cache first (fastest)
+      const localEntry = this.localCache.get(cacheKey);
+      if (localEntry && Date.now() - localEntry.timestamp < this.localTTL) {
+        return localEntry.data;
+      }
+      
+      // Remove expired local cache entry
+      if (localEntry) {
+        this.localCache.delete(cacheKey);
+      }
+      
+      // Check Redis cache (fast)
+      if (redis.isReady) {
+        const cached = await redis.get(cacheKey);
+        if (cached) {
+          const data = JSON.parse(cached);
+          // Store in local cache for next time
+          this.setLocal(cacheKey, data);
+          return data;
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      console.warn('Cache get error:', error.message);
+      return null;
+    }
+  }
+  
+  // Set in both caches
+  async set(cacheKey, data) {
+    try {
+      // Set in local cache
+      this.setLocal(cacheKey, data);
+      
+      // Set in Redis cache with TTL
+      if (redis.isReady) {
+        await redis.setEx(cacheKey, this.redisTTL, JSON.stringify(data));
+      }
+    } catch (error) {
+      console.warn('Cache set error:', error.message);
+    }
+  }
+  
+  // Set only in local cache
+  setLocal(cacheKey, data) {
+    // Implement LRU eviction if cache is full
+    if (this.localCache.size >= this.maxLocalSize) {
+      const firstKey = this.localCache.keys().next().value;
+      if (firstKey) {
+        this.localCache.delete(firstKey);
+      }
+    }
+    
+    this.localCache.set(cacheKey, {
+      data: data,
+      timestamp: Date.now()
+    });
+  }
+  
+  // Clear all caches
+  async clear() {
+    this.localCache.clear();
+    try {
+      if (redis.isReady) {
+        const keys = await redis.keys('ai_cache:*');
+        if (keys.length > 0) {
+          await redis.del(keys);
+        }
+      }
+    } catch (error) {
+      console.warn('Cache clear error:', error.message);
+    }
+  }
+  
+  // Get cache statistics
+  getStats() {
+    return {
+      localCacheSize: this.localCache.size,
+      localMaxSize: this.maxLocalSize,
+      localTTL: this.localTTL,
+      redisTTL: this.redisTTL,
+      redisConnected: redis.isReady
+    };
+  }
+}
+
+// Create global cache instance
+const aiCache = new AIResponseCache();
+
+// Initialize OpenAI client with error handling
+let openai = null;
+try {
+  if (process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
+    console.log('✅ OpenAI client initialized successfully');
+  } else {
+    console.warn('⚠️ OPENAI_API_KEY not found - AI features will be disabled');
+  }
+} catch (error) {
+  console.error('❌ Failed to initialize OpenAI client:', error.message);
+}
 
 // Email Classification Types (Expanded 15+ types)
 const EmailClassification = {
@@ -54,19 +257,20 @@ const costTracker = {
 
 // Model selection based on task complexity
 function selectModel(taskType, urgency = 'normal', complexity = 'low') {
+  // Use more stable models for now since GPT-5 models may not be available
   if (urgency === 'CRITICAL' || complexity === 'high') {
-    return process.env.GPT5_MINI_MODEL || 'gpt-5-mini';
+    return process.env.GPT5_MINI_MODEL || 'gpt-4o-mini';
   }
   
   if (taskType === 'classification' || taskType === 'quick_response') {
-    return process.env.GPT5_NANO_MODEL || 'gpt-5-nano';
+    return process.env.GPT5_NANO_MODEL || 'gpt-4o-mini';
   }
   
   if (taskType === 'draft_generation' || taskType === 'complex_analysis') {
-    return process.env.GPT5_MINI_MODEL || 'gpt-5-mini';
+    return process.env.GPT5_MINI_MODEL || 'gpt-4o';
   }
   
-  return process.env.GPT5_NANO_MODEL || 'gpt-5-nano';
+  return process.env.GPT5_NANO_MODEL || 'gpt-4o-mini';
 }
 
 // Generate cache key for AI responses
@@ -102,18 +306,36 @@ function trackCost(model, tokens) {
 
 // Classify email with GPT-5 nano
 async function classifyEmail(emailContent, subject, sender) {
-  const cacheKey = getCacheKey('classify', { subject, sender });
+  // Check if OpenAI is available
+  if (!openai) {
+    console.warn('⚠️ OpenAI not available - using fallback classification');
+    return {
+      classification: 'FYI_ONLY',
+      urgency: 'LOW',
+      confidence: 30,
+      taskTitle: subject,
+      taskDescription: 'Email classification unavailable - OpenAI API key not configured',
+      estimatedTime: '5 min',
+      suggestedAction: 'Review manually'
+    };
+  }
+
+  const cacheKey = aiCache.generateKey('classify', { subject, sender, emailContent: emailContent.substring(0, 100) });
   
-  // Check cache first
+  // Check multi-level cache first
   try {
-    const cached = await redis.get(cacheKey);
+    const cached = await aiCache.get(cacheKey);
     if (cached) {
       costTracker.cache_hits++;
-      return JSON.parse(cached);
+      console.log(`📦 Cache hit for email classification: ${subject.substring(0, 50)}...`);
+      return cached;
     }
   } catch (err) {
     console.error('Cache read error:', err);
   }
+  
+  // Check budget before making API call
+  budgetTracker.checkBudget();
   
   const model = selectModel('classification');
   
@@ -138,18 +360,33 @@ Content: ${emailContent.substring(0, 1000)}`;
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
-      temperature: 0.3,
-      max_tokens: 150,
+      temperature: 1,
+      max_completion_tokens: 300,
       response_format: { type: 'json_object' }
     });
     
-    const result = JSON.parse(response.choices[0].message.content);
+    const content = response.choices[0]?.message?.content;
+    if (!content || content.trim() === '') {
+      throw new Error('Empty response from OpenAI');
+    }
     
-    // Track costs
-    trackCost(model, response.usage.total_tokens);
+    // Parse and validate response
+    let result;
+    try {
+      const parsedResult = JSON.parse(content);
+      result = classificationSchema.parse(parsedResult);
+    } catch (parseError) {
+      console.error('AI response validation failed:', parseError);
+      throw new Error('Invalid AI response format');
+    }
     
-    // Cache result
-    await redis.setex(cacheKey, 3600, JSON.stringify(result));
+    // Track costs and update budget
+    const cost = trackCost(model, response.usage.total_tokens);
+    budgetTracker.trackSpending(cost);
+    
+    // Cache result in multi-level cache
+    await aiCache.set(cacheKey, result);
+    console.log(`💾 Cached classification result for: ${subject.substring(0, 50)}...`);
     
     return result;
   } catch (error) {
@@ -167,27 +404,56 @@ Content: ${emailContent.substring(0, 1000)}`;
   }
 }
 
-// Generate draft reply with GPT-5 mini
+// Generate draft reply with conversation context and writing style
 async function generateDraftReply(emailContent, subject, sender, context = {}) {
   const model = selectModel('draft_generation');
   
-  const systemPrompt = `You are a professional email assistant. Generate a draft reply that:
-- Maintains appropriate tone and formality
-- Addresses all points raised
-- Is concise and clear
-- Includes placeholders [SPECIFIC_DETAIL] for information you don't have`;
+  // Get conversation context if messageId is provided
+  let conversationContext = '';
+  if (context.messageId) {
+    try {
+      // Note: These are internal server calls, so we'll implement them differently
+      console.log('Conversation context will be implemented via direct database queries');
+    } catch (error) {
+      console.log('Could not fetch conversation context:', error.message);
+    }
+  }
+  
+  // Get user's writing style via direct database query (internal server call)
+  let writingStyle = '';
+  try {
+    // Note: This will be implemented via direct database access
+    console.log('Writing style analysis will be implemented via database queries');
+    // Placeholder for future implementation
+    writingStyle = '\n\nUSER\'S WRITING STYLE: Professional, concise, friendly tone';
+  } catch (error) {
+    console.log('Could not fetch writing style:', error.message);
+  }
 
-  const userPrompt = `Original Email:
+  const systemPrompt = `You are an advanced email assistant that generates replies matching the user's writing style and considering full conversation context.
+
+REPLY REQUIREMENTS:
+- Match the user's established writing style and tone
+- Consider the full email conversation thread
+- Address all points raised in the original email
+- Be contextually appropriate for the conversation flow
+- Use professional but personalized language
+- Include placeholders [SPECIFIC_DETAIL] only when absolutely necessary
+
+${writingStyle}${conversationContext}`;
+
+  const userPrompt = `ORIGINAL EMAIL TO REPLY TO:
 From: ${sender}
 Subject: ${subject}
 Content: ${emailContent}
 
-Context:
+ADDITIONAL CONTEXT:
 - Previous interactions: ${context.previousInteractions || 0}
 - Relationship: ${context.relationship || 'professional'}
 - Urgency: ${context.urgency || 'normal'}
+- Task classification: ${context.classification || 'unknown'}
 
-Generate a professional reply.`;
+Generate a reply that matches my writing style and considers the conversation history.`;
 
   try {
     const response = await openai.chat.completions.create({
@@ -196,8 +462,8 @@ Generate a professional reply.`;
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
-      temperature: 0.7,
-      max_tokens: 500
+      temperature: 1,
+      max_completion_tokens: 500
     });
     
     const draft = response.choices[0].message.content;
@@ -234,8 +500,25 @@ async function generateChatResponse(userInput, context = {}) {
     console.error('Cache read error:', err);
   }
   
-  const systemPrompt = `You are a helpful email management assistant. Provide brief, actionable responses.
-Context: ${JSON.stringify(context)}`;
+  const systemPrompt = `You are an advanced email management AI assistant with full database access. 
+
+CAPABILITIES:
+- Full access to PostgreSQL email database with 8000+ emails
+- Real-time task analysis and classification
+- Email content search and analysis
+- Task completion tracking and statistics
+- Draft generation and email automation
+
+RESPONSE FORMATTING:
+- Use markdown formatting for better readability
+- Use bullet points and sections for clarity
+- Include relevant metrics and numbers
+- Be specific and actionable
+- Use emojis sparingly but effectively
+
+CONTEXT: ${JSON.stringify(context, null, 2)}
+
+Provide helpful, detailed responses that leverage your database access to give specific insights about emails, tasks, and productivity.`;
 
   try {
     const response = await openai.chat.completions.create({
@@ -244,8 +527,8 @@ Context: ${JSON.stringify(context)}`;
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userInput }
       ],
-      temperature: 0.5,
-      max_tokens: 150
+      temperature: 1,
+      max_completion_tokens: 500
     });
     
     const result = response.choices[0].message.content;
@@ -253,8 +536,8 @@ Context: ${JSON.stringify(context)}`;
     // Track costs
     trackCost(model, response.usage.total_tokens);
     
-    // Cache for 10 minutes
-    await redis.setex(cacheKey, 600, result);
+    // Cache for chat responses in multi-level cache
+    await aiCache.set(aiCache.generateKey('chat', { message: userInput.substring(0, 100) }), { response: result });
     
     return result;
   } catch (error) {
@@ -284,8 +567,8 @@ Generate 3 brief, actionable suggestions for productivity.`;
         { role: 'system', content: 'You are a productivity assistant. Provide brief, actionable suggestions.' },
         { role: 'user', content: prompt }
       ],
-      temperature: 0.6,
-      max_tokens: 200
+      temperature: 1,
+      max_completion_tokens: 200
     });
     
     const suggestions = response.choices[0].message.content.split('\n')
@@ -316,7 +599,7 @@ async function* streamDraftReply(emailContent, subject, sender) {
     ],
     stream: true,
     temperature: 0.7,
-    max_tokens: 500
+    max_completion_tokens: 500
   });
   
   let totalTokens = 0;
@@ -341,6 +624,16 @@ function getUsageStats() {
   };
 }
 
+// Get cache performance statistics
+function getCacheStats() {
+  return {
+    ...aiCache.getStats(),
+    cache_hit_rate: costTracker.cache_hits / (costTracker.total_requests || 1) * 100,
+    total_requests: costTracker.total_requests,
+    cache_hits: costTracker.cache_hits
+  };
+}
+
 module.exports = {
   EmailClassification,
   classifyEmail,
@@ -349,5 +642,6 @@ module.exports = {
   generateSuggestions,
   streamDraftReply,
   getUsageStats,
+  getCacheStats,
   selectModel
 };

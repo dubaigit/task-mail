@@ -24,6 +24,8 @@ export interface EmailMessage {
   threadId?: string;
   labels: string[];
   tags: string[];
+  timestamp?: Date;
+  metadata?: any;
 }
 
 // AI Classification System Types
@@ -702,7 +704,7 @@ export interface CacheConfig {
   strategy?: 'LRU' | 'LFU' | 'FIFO';
 }
 
-export type ConflictResolutionStrategy = 'local' | 'remote' | 'merge' | 'ask';
+export type ConflictResolutionStrategy = 'local' | 'remote' | 'merge' | 'ask' | 'server-wins' | 'client-wins' | 'manual';
 
 // Sort Types
 export interface SortCriteria {

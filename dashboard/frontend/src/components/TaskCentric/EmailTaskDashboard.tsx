@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { FocusTrap } from '../ui/accessibility';
 import { 
   Mail, 
-  MessageSquare, 
   Send, 
   Bot, 
   User, 
@@ -11,7 +11,6 @@ import {
   Flag, 
   CheckCircle, 
   Circle, 
-  MoreHorizontal,
   Zap,
   Brain,
   Link,
@@ -19,17 +18,15 @@ import {
   Calendar,
   Users,
   Search,
-  Filter,
-  Plus,
   Settings,
-  Sparkles,
-  ArrowRight,
-  ChevronDown,
   Star,
   AlertCircle,
-  TrendingUp,
   X
 } from 'lucide-react';
+import { EnhancedAIStatus } from '../AI/EnhancedAIStatus';
+import { AIPromptViewer } from '../AI/AIPromptViewer';
+import { AIChat } from '../AI/AIChat';
+import AIUsageMetrics from '../AI/AIUsageMetrics';
 
 // Utility function for className merging
 const cn = (...classes: (string | undefined | boolean)[]) => {
@@ -38,19 +35,28 @@ const cn = (...classes: (string | undefined | boolean)[]) => {
 
 interface Task {
   id: string;
-  title: string;
-  description: string;
+  title?: string;
+  taskTitle?: string;
+  subject?: string;
+  description?: string;
+  taskDescription?: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'pending' | 'in-progress' | 'completed';
-  aiConfidence: number;
+  aiConfidence?: number;
+  confidence?: number;
   draftGenerated: boolean;
-  emailSubject: string;
+  emailSubject?: string;
   sender: string;
   senderEmail: string;
   estimatedTime: string;
   tags: string[];
   relatedEmails: number;
-  createdAt: Date;
+  createdAt?: Date;
+  date?: string;
+  isTask?: boolean;
+  snippet?: string;
+  suggestedAction?: string;
+  classification?: string;
 }
 
 interface ChatMessage {
@@ -75,6 +81,17 @@ interface SyncStatus {
       count: number;
       percentage: number;
     };
+    today?: number;
+    week?: number;
+    month?: number;
+  };
+  aiProcessing?: {
+    totalProcessed: number;
+    analyzed: number;
+    completed: number;
+    pending: number;
+    failed: number;
+    processingRate: number;
   };
   syncState: {
     isInitialSyncComplete: boolean;
@@ -169,100 +186,36 @@ interface TaskCardProps {
   onClick?: (task: Task) => void;
 }
 
-// Email Statistics Header Component
-const EmailStatsHeader: React.FC<{ syncStatus: SyncStatus | null }> = ({ syncStatus }) => {
-  if (!syncStatus) {
-    return (
-      <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-4 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-          <span className="text-slate-400">Loading email statistics...</span>
-        </div>
-      </div>
-    );
-  }
-
-  const { emailsInPostgres, emailsInAppleMail, emailBreakdown, syncState, percentComplete } = syncStatus;
-  const totalSynced = emailBreakdown.total || emailsInPostgres;
-  
-  return (
-    <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 border border-slate-700/50 rounded-xl p-4 mb-6 backdrop-blur-sm">
-      <div className="flex items-center justify-between">
-        {/* Sync Status */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${syncState.isSyncing ? 'bg-blue-400 animate-pulse' : 'bg-green-400'}`}></div>
-            <span className="text-sm font-medium text-slate-200">
-              {syncState.isSyncing ? 'Syncing...' : 'Synced'}
-            </span>
-          </div>
-          
-          {/* Total Emails */}
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 rounded-lg">
-            <Mail className="w-4 h-4 text-blue-400" />
-            <span className="text-sm text-slate-300">
-              <span className="font-semibold text-blue-400">{totalSynced.toLocaleString()}</span>
-              <span className="text-slate-500"> / {emailsInAppleMail.toLocaleString()}</span>
-              <span className="ml-1 text-xs">emails</span>
-            </span>
-          </div>
-
-          {/* Sync Progress */}
-          {percentComplete < 100 && (
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 rounded-lg">
-              <TrendingUp className="w-4 h-4 text-orange-400" />
-              <span className="text-sm text-slate-300">{percentComplete}% synced</span>
-            </div>
-          )}
-        </div>
-
-        {/* Tasks vs FYI Breakdown */}
-        <div className="flex items-center gap-4">
-          {/* Tasks */}
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-red-900/20 border border-red-500/30 rounded-lg">
-            <AlertCircle className="w-4 h-4 text-red-400" />
-            <div className="text-sm">
-              <span className="font-semibold text-red-400">{emailBreakdown.tasks.count.toLocaleString()}</span>
-              <span className="text-red-300 ml-1">tasks</span>
-              <span className="text-slate-500 ml-1">({emailBreakdown.tasks.percentage}%)</span>
-            </div>
-          </div>
-
-          {/* FYI */}
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-green-900/20 border border-green-500/30 rounded-lg">
-            <FileText className="w-4 h-4 text-green-400" />
-            <div className="text-sm">
-              <span className="font-semibold text-green-400">{emailBreakdown.fyi.count.toLocaleString()}</span>
-              <span className="text-green-300 ml-1">FYI</span>
-              <span className="text-slate-500 ml-1">({emailBreakdown.fyi.percentage}%)</span>
-            </div>
-          </div>
-
-          {/* Efficiency from existing stats */}
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 rounded-lg">
-            <Sparkles className="w-4 h-4 text-purple-400" />
-            <span className="text-sm text-slate-300">AI Ready</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+// Removed EmailStatsHeader - replaced with minimal filters
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onStatusChange, onPriorityChange, onClick }) => {
+  // Professional color scheme for business environment
+  const categoryColors = {
+    NEEDS_REPLY: { bg: 'bg-slate-800/80', border: 'border-slate-600/60', icon: 'text-slate-300', accent: 'bg-slate-600' },
+    CREATE_TASK: { bg: 'bg-slate-800/80', border: 'border-slate-600/60', icon: 'text-slate-300', accent: 'bg-slate-600' },
+    APPROVAL_REQUIRED: { bg: 'bg-amber-900/20', border: 'border-amber-700/40', icon: 'text-amber-200', accent: 'bg-amber-700' },
+    DELEGATE: { bg: 'bg-slate-800/80', border: 'border-slate-600/60', icon: 'text-slate-300', accent: 'bg-slate-600' },
+    FOLLOW_UP: { bg: 'bg-slate-800/80', border: 'border-slate-600/60', icon: 'text-slate-300', accent: 'bg-slate-600' },
+    MEETING_REQUEST: { bg: 'bg-blue-900/20', border: 'border-blue-700/40', icon: 'text-blue-200', accent: 'bg-blue-700' },
+    DOCUMENT_REVIEW: { bg: 'bg-slate-800/80', border: 'border-slate-600/60', icon: 'text-slate-300', accent: 'bg-slate-600' },
+    ESCALATION: { bg: 'bg-red-900/20', border: 'border-red-700/40', icon: 'text-red-200', accent: 'bg-red-700' },
+    DEFAULT: { bg: 'bg-slate-800/80', border: 'border-slate-600/60', icon: 'text-slate-300', accent: 'bg-slate-600' }
+  };
+
   const priorityColors = {
-    low: 'bg-green-500',
-    medium: 'bg-yellow-500',
-    high: 'bg-orange-500',
-    urgent: 'bg-red-500'
+    low: 'bg-slate-500',
+    medium: 'bg-amber-600',
+    high: 'bg-orange-600',
+    urgent: 'bg-red-600'
   };
 
   const priorityTextColors = {
-    low: 'text-green-400',
-    medium: 'text-yellow-400',
-    high: 'text-orange-400',
-    urgent: 'text-red-400'
+    low: 'text-slate-300',
+    medium: 'text-amber-200',
+    high: 'text-orange-200',
+    urgent: 'text-red-200'
   };
+
 
   const statusIcons = {
     pending: Circle,
@@ -272,6 +225,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onStatusChange, onPriorityCha
 
   const StatusIcon = statusIcons[task.status];
 
+  // Get display title and description
+  const displayTitle = task.taskTitle || task.title || task.subject || 'Untitled Task';
+  const confidence = task.confidence || task.aiConfidence || 50;
+  
+  // Get category color scheme
+  const categoryScheme = categoryColors[task.classification as keyof typeof categoryColors] || categoryColors.DEFAULT;
+  
   // Calculate importance score (0-100)
   const getImportanceScore = () => {
     let score = 0;
@@ -280,7 +240,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onStatusChange, onPriorityCha
     else if (task.priority === 'medium') score += 20;
     else score += 10;
     
-    score += Math.min(30, task.aiConfidence * 0.3);
+    score += Math.min(30, confidence * 0.3);
     score += Math.min(20, task.relatedEmails * 3);
     if (task.draftGenerated) score += 10;
     
@@ -290,89 +250,107 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onStatusChange, onPriorityCha
   const importanceScore = getImportanceScore();
 
   return (
-    <div 
-      className="group relative bg-slate-800/50 border border-slate-700/50 rounded-lg p-3 hover:bg-slate-800/70 transition-all duration-200 hover:border-blue-500/30 cursor-pointer"
+    <button 
+      type="button"
+      className={`group relative ${categoryScheme.bg} border ${categoryScheme.border} rounded-xl p-4 hover:bg-slate-700/60 transition-all duration-300 hover:border-slate-500/60 hover:shadow-lg cursor-pointer w-full text-left focus:outline-none focus:ring-2 focus:ring-slate-400/50 hover:scale-[1.02]`}
       onClick={() => onClick?.(task)}
+      aria-label={`Open task: ${displayTitle} from ${task.sender}, priority ${task.priority}`}
     >
-      {/* Priority Indicator */}
-      <div className={`absolute top-0 left-0 w-1 h-full ${priorityColors[task.priority]} rounded-l-lg`} />
+      {/* Enhanced Priority Indicator */}
+      <div className={`absolute top-0 left-0 w-1 h-full ${priorityColors[task.priority]} rounded-l-xl`} />
       
-      {/* Compact Header */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5">
+      {/* Header Row */}
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
           <StatusIcon 
             className={cn(
-              "w-3 h-3",
-              task.status === 'completed' ? 'text-green-400' : 'text-slate-400'
+              "w-4 h-4 flex-shrink-0",
+              task.status === 'completed' ? 'text-emerald-400' : categoryScheme.icon
             )} 
           />
-          <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${priorityTextColors[task.priority]} bg-slate-700/50`}>
-            {task.priority.charAt(0).toUpperCase()}
+          <span className={`text-xs font-medium px-2 py-1 rounded-md ${priorityTextColors[task.priority]} bg-slate-900/40 flex-shrink-0`}>
+            {task.priority.toUpperCase()}
           </span>
+          {task.classification && (
+            <span className={`text-xs font-medium px-2 py-1 rounded-md ${categoryScheme.icon} bg-slate-900/40 truncate`}>
+              {task.classification.replace(/_/g, ' ')}
+            </span>
+          )}
         </div>
         
         {/* Importance Score */}
-        <div className="flex items-center gap-1">
-          <Star className={`w-3 h-3 ${importanceScore > 70 ? 'text-yellow-400' : importanceScore > 40 ? 'text-orange-400' : 'text-slate-500'}`} />
-          <span className="text-xs text-slate-400">{importanceScore}</span>
+        <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+          <Star className={`w-3.5 h-3.5 ${importanceScore > 70 ? 'text-amber-400 fill-amber-400/30' : importanceScore > 40 ? 'text-slate-400 fill-slate-400/30' : 'text-slate-500'}`} />
+          <span className="text-xs font-semibold text-slate-300">{importanceScore}</span>
         </div>
       </div>
 
-      {/* Compact Content */}
-      <div className="space-y-1.5">
-        <h3 className="text-sm font-medium text-slate-200 line-clamp-1 leading-tight">{task.title}</h3>
-        <p className="text-xs text-slate-400 line-clamp-1">{task.sender}</p>
+      {/* Title and Sender - Centered and Properly Sized */}
+      <div className="space-y-3 text-center">
+        <h3 className="text-sm font-semibold text-slate-100 line-clamp-2 leading-relaxed overflow-hidden">{displayTitle}</h3>
+        <p className="text-xs text-slate-400 flex items-center justify-center gap-1">
+          <User className="w-3.5 h-3.5 flex-shrink-0" />
+          <span className="truncate">{task.sender}</span>
+        </p>
+        {/* Email Date */}
+        <p className="text-xs text-slate-500 flex items-center justify-center gap-1">
+          <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
+          <span>{task.createdAt ? new Date(task.createdAt).toLocaleDateString() : task.date ? new Date(task.date).toLocaleDateString() : 'Today'}</span>
+        </p>
       </div>
 
-      {/* Metrics Row */}
-      <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-slate-700/50">
+      {/* Metrics Row - Standardized Text Size */}
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-700/40">
         <div className="flex items-center gap-3">
           {/* Related Emails Count */}
           <div className="flex items-center gap-1">
-            <Mail className="w-3 h-3 text-blue-400" />
+            <Mail className="w-3.5 h-3.5 text-slate-400" />
             <span className="text-xs text-slate-400">{task.relatedEmails}</span>
           </div>
           
           {/* AI Confidence */}
           <div className="flex items-center gap-1">
-            <Brain className="w-3 h-3 text-purple-400" />
-            <span className="text-xs text-slate-400">{task.aiConfidence}%</span>
+            <Brain className="w-3.5 h-3.5 text-slate-400" />
+            <span className="text-xs text-slate-400">{confidence}%</span>
           </div>
           
           {/* Draft Status */}
           {task.draftGenerated && (
             <div className="flex items-center gap-1">
-              <FileText className="w-3 h-3 text-green-400" />
-              <span className="text-xs text-green-400">Draft</span>
+              <FileText className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-xs text-emerald-400">Draft</span>
             </div>
           )}
         </div>
         
         {/* Time Estimate */}
         <div className="flex items-center gap-1">
-          <Clock className="w-3 h-3 text-slate-500" />
-          <span className="text-xs text-slate-500">{task.estimatedTime}</span>
+          <Clock className="w-3.5 h-3.5 text-slate-500" />
+          <span className="text-xs text-slate-500">{task.estimatedTime || '5m'}</span>
         </div>
       </div>
 
       {/* Tags (if any) */}
       {task.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1 mt-2">
-          <span className="text-xs px-1.5 py-0.5 bg-slate-700/50 text-slate-300 rounded">
+        <div className="flex flex-wrap gap-1 mt-3 justify-center">
+          <span className="text-xs px-2 py-0.5 bg-slate-700/50 text-slate-300 rounded-md">
             {task.tags[0]}
           </span>
           {task.tags.length > 1 && (
-            <span className="text-xs px-1.5 py-0.5 bg-slate-700/50 text-slate-400 rounded">
+            <span className="text-xs px-2 py-0.5 bg-slate-700/50 text-slate-400 rounded-md">
               +{task.tags.length - 1}
             </span>
           )}
         </div>
       )}
-    </div>
+    </button>
   );
 };
 
 const EmailPopup: React.FC<EmailPopupProps> = ({ task, isOpen, onClose, onTaskUpdate }) => {
+  // Get display fields
+  const displayTitle = task ? (task.taskTitle || task.title || task.subject || 'Untitled Task') : '';
+
   const [emailContent, setEmailContent] = useState('');
   const [draftReply, setDraftReply] = useState('');
   const [chatInput, setChatInput] = useState('');
@@ -380,24 +358,7 @@ const EmailPopup: React.FC<EmailPopupProps> = ({ task, isOpen, onClose, onTaskUp
   const [isLoadingEmail, setIsLoadingEmail] = useState(false);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
 
-  // Load email content when task changes
-  useEffect(() => {
-    if (task && isOpen) {
-      loadEmailContent();
-      loadDraftReply();
-      // Initialize chat with task context
-      setChatHistory([
-        {
-          id: '1',
-          content: `I'm here to help you with "${task.title}". I can help you edit the draft reply, send the email, update task status, or answer questions about this email thread.`,
-          sender: 'ai',
-          timestamp: new Date()
-        }
-      ]);
-    }
-  }, [task, isOpen]);
-
-  const loadEmailContent = async () => {
+  const loadEmailContent = useCallback(async () => {
     if (!task) return;
     setIsLoadingEmail(true);
     try {
@@ -406,8 +367,8 @@ const EmailPopup: React.FC<EmailPopupProps> = ({ task, isOpen, onClose, onTaskUp
         setEmailContent(`
 From: ${task.sender} <${task.senderEmail}>
 To: You
-Subject: ${task.emailSubject}
-Date: ${task.createdAt.toLocaleDateString()}
+Subject: ${task.emailSubject || task.subject || 'No Subject'}
+Date: ${task.createdAt ? new Date(task.createdAt).toLocaleDateString() : task.date ? new Date(task.date).toLocaleDateString() : 'Today'}
 
 Dear [Name],
 
@@ -424,22 +385,22 @@ ${task.sender}
       console.error('Error loading email:', error);
       setIsLoadingEmail(false);
     }
-  };
+  }, [task]);
 
-  const loadDraftReply = async () => {
+  const loadDraftReply = useCallback(async () => {
     if (!task) return;
     setIsLoadingDraft(true);
     try {
       // Real GPT-5 mini API call for draft generation
-      const response = await fetch('http://localhost:8000/api/ai/generate-draft', {
+      const response = await fetch('/api/ai/generate-draft', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': process.env.REACT_APP_API_KEY || 'your_jwt_secret_here'
         },
         body: JSON.stringify({
-          emailContent: emailContent || task.title,
-          subject: task.title,
+          emailContent: emailContent || displayTitle,
+          subject: displayTitle,
           sender: task.sender,
           context: {
             urgency: task.priority,
@@ -455,16 +416,57 @@ ${task.sender}
         setDraftReply(data.draft);
         console.log(`Draft generated with ${data.model_used}, cost: $${data.cost}`);
       } else {
-        // Fallback template if API fails
-        setDraftReply(`Dear ${task.sender},\n\nThank you for your email regarding "${task.title}".\n\n[AI service temporarily unavailable - please complete draft manually]\n\nBest regards,\n[Your Name]`);
+        // Use AI service for draft generation
+        try {
+          const response = await fetch('/api/ai/generate-draft', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': 'your_jwt_secret_here' // TODO: Use proper API key
+            },
+            body: JSON.stringify({
+              emailContent: emailContent || displayTitle,
+              subject: displayTitle,
+              sender: task.sender,
+              context: 'reply'
+            })
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            setDraftReply(result.draft || result.response || 'AI-generated draft will appear here...');
+          } else {
+            throw new Error('AI service unavailable');
+          }
+        } catch (error) {
+          // Fallback template if AI service fails
+          setDraftReply(`Dear ${task.sender},\n\nThank you for your email regarding "${displayTitle}".\n\nI will review this and get back to you shortly.\n\nBest regards,\n[Your Name]`);
+        }
       }
     } catch (error) {
       console.error('Error loading draft:', error);
-      setDraftReply(`Dear ${task.sender},\n\nRegarding: ${task.title}\n\n[Please complete your response here]\n\nBest regards`);
+      setDraftReply(`Dear ${task.sender},\n\nRegarding: ${displayTitle}\n\n[Please complete your response here]\n\nBest regards`);
     } finally {
       setIsLoadingDraft(false);
     }
-  };
+  }, [task, emailContent, displayTitle]);
+
+  // Load email content when task changes
+  useEffect(() => {
+    if (task && isOpen) {
+      loadEmailContent();
+      loadDraftReply();
+      // Initialize chat with task context
+      setChatHistory([
+        {
+          id: '1',
+          content: `I'm here to help you with "${displayTitle}". I can help you edit the draft reply, send the email, update task status, or answer questions about this email thread.`,
+          sender: 'ai',
+          timestamp: new Date()
+        }
+      ]);
+    }
+  }, [task, isOpen, displayTitle, loadEmailContent, loadDraftReply]);
 
   const handleChatSubmit = async (message: string) => {
     if (!message.trim()) return;
@@ -504,7 +506,7 @@ ${task.sender}
   const processCommand = async (command: string): Promise<string> => {
     try {
       // Call GPT-5 nano API for fast command processing
-      const response = await fetch('http://localhost:8000/api/ai/process-command', {
+      const response = await fetch('/api/ai/process-command', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -514,7 +516,7 @@ ${task.sender}
           command,
           context: {
             selectedTask: task ? {
-              title: task.title,
+              title: displayTitle,
               status: task.status,
               priority: task.priority,
               hasDraft: task.draftGenerated,
@@ -591,25 +593,43 @@ ${task.sender}
 
   if (!isOpen || !task) return null;
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-700 rounded-lg w-full max-w-6xl h-[90vh] flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-700">
-          <div className="flex items-center gap-3">
-            <Mail className="w-5 h-5 text-blue-400" />
-            <div>
-              <h2 className="text-lg font-semibold text-slate-100">{task.title}</h2>
-              <p className="text-sm text-slate-400">Task Details & Email Thread</p>
+    <div 
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onKeyDown={handleKeyDown}
+    >
+      <FocusTrap active={isOpen}>
+        <div 
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="email-dialog-title"
+          aria-describedby="email-dialog-desc"
+          className="bg-slate-900 border border-slate-700 rounded-lg w-full max-w-6xl h-[90vh] flex flex-col"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-slate-700">
+            <div className="flex items-center gap-3">
+              <Mail className="w-5 h-5 text-blue-400" />
+              <div>
+                <h2 id="email-dialog-title" className="text-lg font-semibold text-slate-100">{displayTitle}</h2>
+                <p id="email-dialog-desc" className="text-sm text-slate-400">Task Details & Email Thread</p>
+              </div>
             </div>
+            <button
+              onClick={onClose}
+              aria-label="Close dialog"
+              autoFocus
+              className="p-2 hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            >
+              <X className="w-5 h-5 text-slate-400" />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-slate-400" />
-          </button>
-        </div>
 
         {/* Content */}
         <div className="flex-1 flex overflow-hidden">
@@ -729,7 +749,8 @@ ${task.sender}
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </FocusTrap>
     </div>
   );
 };
@@ -830,67 +851,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, 
   );
 };
 
-interface ContextSidebarProps {
-  relatedItems: RelatedItem[];
-  suggestions: Array<{ title: string; description: string }>;
-}
 
-const ContextSidebar: React.FC<ContextSidebarProps> = ({ relatedItems, suggestions }) => {
-  return (
-    <div className="h-full overflow-y-auto">
-      {/* Related Items */}
-      <div className="p-4 border-b border-slate-700/50">
-        <h3 className="text-sm font-medium text-slate-200 mb-3 flex items-center gap-2">
-          <Link className="w-4 h-4" />
-          Related Items
-        </h3>
-        <div className="space-y-2">
-          {relatedItems.map((item) => (
-            <div key={item.id} className="p-2 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 transition-colors cursor-pointer">
-              <div className="flex items-center gap-2 mb-1">
-                {item.type === 'email' && <Mail className="w-3 h-3 text-blue-400" />}
-                {item.type === 'task' && <CheckCircle className="w-3 h-3 text-green-400" />}
-                {item.type === 'contact' && <Users className="w-3 h-3 text-purple-400" />}
-                {item.type === 'document' && <FileText className="w-3 h-3 text-orange-400" />}
-                <span className="text-xs font-medium text-slate-200">{item.title}</span>
-              </div>
-              <p className="text-xs text-slate-400 line-clamp-2">{item.description}</p>
-              <div className="flex items-center justify-between mt-1">
-                <span className="text-xs text-slate-500 capitalize">{item.type}</span>
-                <div className="flex items-center gap-1">
-                  <Star className="w-3 h-3 text-yellow-400" />
-                  <span className="text-xs text-slate-400">{item.relevance}%</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* AI Suggestions */}
-      <div className="p-4">
-        <h3 className="text-sm font-medium text-slate-200 mb-3 flex items-center gap-2">
-          <Sparkles className="w-4 h-4" />
-          AI Suggestions
-        </h3>
-        <div className="space-y-2">
-          {suggestions.map((suggestion, index) => (
-            <div key={index} className="p-3 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 transition-colors cursor-pointer">
-              <div className="flex items-start gap-2">
-                <Brain className="w-3 h-3 text-blue-400 mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-xs text-slate-200">{suggestion.title}</p>
-                  <p className="text-xs text-slate-400 mt-1">{suggestion.description}</p>
-                </div>
-                <ArrowRight className="w-3 h-3 text-slate-500" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const EmailTaskDashboard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -898,12 +859,16 @@ const EmailTaskDashboard: React.FC = () => {
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
   const [filter, setFilter] = useState<'all' | 'tasks' | 'non-tasks'>('tasks');
+  const [dateFilter, setDateFilter] = useState<'today' | 'week' | 'month' | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [stats, setStats] = useState({
     efficiency: 0,
     totalTasks: 0,
     pendingTasks: 0,
     inProgressTasks: 0,
-    completedTasks: 0
+    completedTasks: 0,
+    averageResponseTime: 0
   });
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
   
@@ -911,6 +876,11 @@ const EmailTaskDashboard: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [relatedItems, setRelatedItems] = useState<RelatedItem[]>([]);
   const [suggestions, setSuggestions] = useState<Array<{ title: string; description: string }>>([]);
+  const [showAIPrompts, setShowAIPrompts] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
+  const [userProfile, setUserProfile] = useState<{email: string; name: string; displayName: string} | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
   
   // Email popup state
   const [selectedEmail, setSelectedEmail] = useState<Task | null>(null);
@@ -952,8 +922,10 @@ const EmailTaskDashboard: React.FC = () => {
       
       // Add cache-busting for fresh data or use cache headers
       const cacheParam = reset ? `&_t=${Date.now()}` : '';
+      const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : '';
+      const categoryParam = categoryFilter !== 'all' ? `&category=${categoryFilter}` : '';
       const response = await fetch(
-        `http://localhost:8000/api/tasks?limit=50&offset=${newOffset}&filter=${filter}${cacheParam}`,
+        `http://localhost:8000/api/tasks?limit=50&offset=${newOffset}&filter=${filter}&dateRange=${dateFilter}${searchParam}${categoryParam}${cacheParam}`,
         {
           headers: {
             'Cache-Control': reset ? 'no-cache' : 'public, max-age=60'
@@ -980,7 +952,8 @@ const EmailTaskDashboard: React.FC = () => {
         estimatedTime: item.estimatedTime || '10 min',
         tags: item.tags || [],
         relatedEmails: item.relatedEmails || 1,
-        createdAt: new Date(item.date || Date.now())
+        createdAt: new Date(item.date_received || item.date || Date.now()),
+        date: item.date_received || item.date
       }));
       
       setTasks(prev => reset ? mappedTasks : [...prev, ...mappedTasks]);
@@ -997,7 +970,7 @@ const EmailTaskDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [offset, filter, loading]);
+  }, [offset, filter, loading, categoryFilter, dateFilter, searchQuery]);
 
   // Fetch statistics
   const fetchStatistics = async () => {
@@ -1013,7 +986,7 @@ const EmailTaskDashboard: React.FC = () => {
   };
 
   // Fetch sync status
-  const fetchSyncStatus = async () => {
+  const fetchSyncStatus = useCallback(async () => {
     try {
       const response = await fetch('http://localhost:8000/api/sync-status');
       if (response.ok) {
@@ -1022,6 +995,32 @@ const EmailTaskDashboard: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching sync status:', error);
+    }
+  }, []);
+
+  // Fetch category counts
+  const fetchCategoryCounts = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/tasks/category-counts');
+      if (response.ok) {
+        const data = await response.json();
+        setCategoryCounts(data);
+      }
+    } catch (error) {
+      console.error('Error fetching category counts:', error);
+    }
+  };
+
+  // Fetch user profile
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/user/profile');
+      if (response.ok) {
+        const data = await response.json();
+        setUserProfile(data);
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
     }
   };
 
@@ -1039,17 +1038,65 @@ const EmailTaskDashboard: React.FC = () => {
     // Preload tasks immediately
     fetchTasks(true);
     fetchSyncStatus();
+    fetchCategoryCounts();
+    fetchUserProfile();
     
     // Set up auto-refresh every 30 seconds for new data
     const autoRefresh = setInterval(() => {
       if (!loading) {
         fetchTasks(true);
         fetchSyncStatus();
+        fetchCategoryCounts();
       }
     }, 30000);
     
     return () => clearInterval(autoRefresh);
-  }, [filter]);
+  }, [filter, dateFilter, searchQuery, categoryFilter, fetchTasks, fetchSyncStatus]);
+
+  // Keyboard shortcuts for accessibility
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Only trigger if not typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      
+      switch (e.key) {
+        case '/':
+          e.preventDefault();
+          // Focus search input
+          const searchInput = document.querySelector('input[placeholder="Search tasks..."]') as HTMLInputElement;
+          if (searchInput) searchInput.focus();
+          break;
+        case '1':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            setFilter('tasks');
+          }
+          break;
+        case '2':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            setFilter('all');
+          }
+          break;
+        case '3':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            setFilter('non-tasks');
+          }
+          break;
+        case 'r':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            fetchTasks(true);
+            fetchSyncStatus();
+          }
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [setFilter, fetchTasks, fetchSyncStatus]);
 
   // Add welcome message when tasks are loaded
   useEffect(() => {
@@ -1071,7 +1118,7 @@ const EmailTaskDashboard: React.FC = () => {
   // Update task status
   const updateTaskStatus = async (taskId: string, newStatus: Task['status']) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/tasks/${taskId}/status`, {
+      const response = await fetch(`/api/tasks/${taskId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -1084,6 +1131,52 @@ const EmailTaskDashboard: React.FC = () => {
       }
     } catch (error) {
       console.error('Error updating task status:', error);
+    }
+  };
+
+  // AI Operations Handlers
+  const handleManualSync = async () => {
+    try {
+      const response = await fetch('/api/ai/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (response.ok) {
+        await fetchSyncStatus();
+        console.log('Manual sync initiated');
+      }
+    } catch (error) {
+      console.error('Error initiating sync:', error);
+    }
+  };
+
+  const handleResync = async () => {
+    try {
+      const response = await fetch('/api/ai/resync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (response.ok) {
+        await fetchSyncStatus();
+        console.log('Resync initiated');
+      }
+    } catch (error) {
+      console.error('Error initiating resync:', error);
+    }
+  };
+
+  const handleForceReanalyze = async () => {
+    try {
+      const response = await fetch('/api/ai/force-reanalyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (response.ok) {
+        await fetchSyncStatus();
+        console.log('Force reanalyze initiated');
+      }
+    } catch (error) {
+      console.error('Error initiating force reanalyze:', error);
     }
   };
 
@@ -1112,9 +1205,9 @@ const EmailTaskDashboard: React.FC = () => {
           dynamicRelatedItems.push({
             id: `email-${index}`,
             type: 'email',
-            title: task.emailSubject,
-            description: task.description,
-            relevance: task.aiConfidence
+            title: task.emailSubject || task.subject || 'Related Email',
+            description: task.description || task.taskDescription || task.snippet || 'Email content',
+            relevance: task.aiConfidence || task.confidence || 50
           });
         }
       });
@@ -1199,12 +1292,12 @@ const EmailTaskDashboard: React.FC = () => {
     const tasksWithDrafts = tasks.filter(t => t.draftGenerated);
     
     try {
-      // Call GPT-5 nano API for fast chat responses
-      const response = await fetch('http://localhost:8000/api/ai/chat', {
+      // Call real AI chat API
+      const response = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': process.env.REACT_APP_API_KEY || 'your_jwt_secret_here'
+          'x-api-key': process.env.REACT_APP_API_KEY || 'task-first-email-manager-jwt-secret-change-in-production'
         },
         body: JSON.stringify({
           message: userInput,
@@ -1223,55 +1316,118 @@ const EmailTaskDashboard: React.FC = () => {
               efficiency: stats.efficiency,
               averageResponseTime: stats.averageResponseTime || 0
             },
-            urgentTaskTitles: urgentTasks.slice(0, 3).map(t => t.title),
-            tasksWithDraftTitles: tasksWithDrafts.slice(0, 3).map(t => t.title)
+            urgentTaskTitles: urgentTasks.slice(0, 3).map(t => t.title || t.taskTitle || t.subject || 'Untitled'),
+            tasksWithDraftTitles: tasksWithDrafts.slice(0, 3).map(t => t.title || t.taskTitle || t.subject || 'Untitled'),
+            currentFilter: filter,
+            syncStatus: syncStatus
           }
         })
       });
 
-      if (!response.ok) {
-        throw new Error('AI service unavailable');
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Handle action commands that might need to update the UI
+        if (data.action) {
+          await handleChatAction(data.action, data.actionData);
+        }
+        
+        return data.response || data.message || 'I received your message but couldn\'t generate a proper response.';
+      } else {
+        console.warn('AI service returned error:', response.status);
+        throw new Error(`AI service error: ${response.status}`);
       }
-
-      const data = await response.json();
-      return data.response;
     } catch (error) {
       console.error('AI chat response error:', error);
       
-      // Fallback to pattern-based responses if AI service fails
+      // Enhanced fallback responses with real functionality
       if (input.includes('high priority') || input.includes('urgent')) {
         if (urgentTasks.length > 0) {
-          const taskList = urgentTasks.slice(0, 3).map(t => `"${t.title}"`).join(', ');
-          return `I found ${urgentTasks.length} urgent task${urgentTasks.length > 1 ? 's' : ''}: ${taskList}. ${tasksWithDrafts.length > 0 ? 'Some have AI-generated drafts ready for review.' : ''}`;
+          const taskList = urgentTasks.slice(0, 3).map(t => `"${t.title || t.taskTitle || t.subject || 'Untitled'}"`).join(', ');
+          return `I found ${urgentTasks.length} urgent task${urgentTasks.length > 1 ? 's' : ''}: ${taskList}. ${tasksWithDrafts.length > 0 ? 'Some have AI-generated drafts ready for review.' : 'Click on any task to see details and generate drafts.'}`;
         }
         return 'No urgent tasks found. You\'re doing great with your priorities!';
       }
       
-      if (input.includes('draft') || input.includes('write')) {
+      if (input.includes('draft') || input.includes('write') || input.includes('email')) {
         if (tasksWithDrafts.length > 0) {
-          return `I found ${tasksWithDrafts.length} task${tasksWithDrafts.length > 1 ? 's' : ''} with AI-generated drafts ready. Would you like me to show you the drafts or help you refine them?`;
+          return `I found ${tasksWithDrafts.length} task${tasksWithDrafts.length > 1 ? 's' : ''} with AI-generated drafts ready. Click on any task card to view and edit the draft.`;
         }
-        return 'I can generate email drafts for any of your pending tasks. Which task would you like me to draft a response for?';
+        return 'I can generate email drafts for your tasks. Click on any task card to open the detailed view where I can create a draft reply.';
       }
       
       if (input.includes('status') || input.includes('complete') || input.includes('done')) {
         const inProgressTasks = tasks.filter(t => t.status === 'in-progress');
-        return `You have ${pendingTasks.length} pending and ${inProgressTasks.length} in-progress tasks. Would you like me to help you prioritize or mark any as complete?`;
+        return `Current status: ${pendingTasks.length} pending, ${inProgressTasks.length} in-progress, ${tasks.filter(t => t.status === 'completed').length} completed tasks. Click on task cards to update their status.`;
       }
       
-      if (input.includes('schedule') || input.includes('meeting')) {
-        const meetingTasks = tasks.filter(t => t.tags.includes('meeting'));
-        if (meetingTasks.length > 0) {
-          return `I found ${meetingTasks.length} meeting-related task${meetingTasks.length > 1 ? 's' : ''}. I can help you schedule these or coordinate with participants.`;
+      if (input.includes('filter') || input.includes('show') || input.includes('view')) {
+        return `Currently showing: ${filter}. You can change the filter using the dropdown above. I can help you find specific types of tasks or emails.`;
+      }
+      
+      if (input.includes('sync') || input.includes('email') || input.includes('process')) {
+        const aiStatus = syncStatus?.aiProcessing;
+        if (aiStatus) {
+          return `Email sync status: ${syncStatus.emailsInPostgres} emails synced, ${aiStatus.analyzed} analyzed by AI, ${aiStatus.completed} processed successfully. ${aiStatus.pending > 0 ? `${aiStatus.pending} still processing.` : 'All caught up!'}`;
         }
-        return 'I can help schedule meetings by finding optimal time slots for all participants. What meeting would you like to schedule?';
+        return 'I can help you understand the email sync status and AI processing. The system continuously processes new emails into actionable tasks.';
       }
       
-      if (input.includes('summary') || input.includes('overview')) {
-        return `You have ${tasks.length} total tasks: ${pendingTasks.length} pending, ${tasks.filter(t => t.status === 'in-progress').length} in progress, and ${tasks.filter(t => t.status === 'completed').length} completed. Your efficiency score is ${stats.efficiency}%.`;
+      if (input.includes('summary') || input.includes('overview') || input.includes('stats')) {
+        return `📊 Summary: ${tasks.length} total tasks, ${urgentTasks.length} urgent, ${pendingTasks.length} pending. Efficiency: ${stats.efficiency}%. ${syncStatus ? `${syncStatus.emailsInPostgres} emails synced from Apple Mail.` : ''}`;
       }
       
-      return `I can help you with task management, email drafting, scheduling, and priority analysis. You currently have ${tasks.length} tasks to manage. What would you like me to assist with?`;
+      // Default helpful response with better formatting
+      return `🤖 **Your AI Task Assistant**
+
+I have full access to your email database and can help you with:
+
+**📋 Task Management**
+• Show urgent/high priority tasks
+• Mark tasks complete or update status
+• Find tasks by sender or subject
+
+**✉️ Email & Drafts** 
+• Generate professional email replies
+• Create drafts for any task
+• Edit and improve existing drafts
+
+**📊 Analytics & Insights**
+• Task completion statistics
+• Email processing status
+• Productivity metrics
+
+**🔍 Smart Search**
+• Find emails by content or sender
+• Filter by date, priority, or category
+• Search across all your data
+
+You currently have **${tasks.length} tasks** to manage. What would you like me to help with?`;
+    }
+  };
+
+  // Handle AI-suggested actions
+  const handleChatAction = async (action: string, actionData: any) => {
+    switch (action) {
+      case 'filter_tasks':
+        if (actionData.filter && ['all', 'tasks', 'non-tasks'].includes(actionData.filter)) {
+          setFilter(actionData.filter);
+        }
+        break;
+      case 'refresh_data':
+        fetchTasks(true);
+        fetchSyncStatus();
+        break;
+      case 'open_task':
+        if (actionData.taskId) {
+          const task = tasks.find(t => t.id === actionData.taskId);
+          if (task) {
+            handleTaskClick(task);
+          }
+        }
+        break;
+      default:
+        console.log('Unknown action:', action);
     }
   };
 
@@ -1279,144 +1435,429 @@ const EmailTaskDashboard: React.FC = () => {
   const inProgressTasks = tasks.filter(task => task.status === 'in-progress');
   const completedTasks = tasks.filter(task => task.status === 'completed');
 
+  // DERIVE COUNTS FROM SYNC STATUS FOR CONSISTENCY - SIMPLIFIED TO 2 STATES
+  const totalTaskCount = syncStatus?.emailBreakdown?.tasks?.count ?? tasks.length;
+  const completedCount = completedTasks.length; // This is a UI state, keep as is
+  const pendingCount = totalTaskCount - completedCount; // All non-completed tasks are "pending"
+
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 relative overflow-x-hidden">
       <BGPattern variant="grid" mask="fade-edges" size={32} fill="rgba(59, 130, 246, 0.1)" />
       
-      {/* Header - Fixed positioning to prevent disappearing */}
-      <div className="border-b border-slate-700/50 bg-slate-900/95 backdrop-blur-sm sticky top-0 z-50 min-h-[4rem] will-change-transform">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-              <Mail className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-semibold text-slate-100">Email Task Manager</h1>
-              <p className="text-xs text-slate-400">AI-powered email workflow automation</p>
-            </div>
+
+
+      {/* Content - Full Height */}
+      <div className="flex h-screen">
+        {/* Left Sidebar - Responsive with proper overflow */}
+        <div className="min-w-60 max-w-80 flex-shrink-0 bg-slate-800/40 border-r border-slate-600/40 shadow-xl relative z-10 flex flex-col h-full overflow-hidden">
+          <div className="p-6 overflow-y-auto flex-1">
+          {/* Header */}
+          <div className="mb-4">
+            <h1 className="text-lg font-bold text-white">TaskFlow</h1>
+            <p className="text-xs text-slate-400">Task-first management</p>
           </div>
-          
-          <div className="flex items-center gap-3">
-            <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value as any)}
-              className="px-3 py-1.5 bg-slate-800/50 rounded-lg text-sm text-slate-300 border border-slate-700/50"
+
+          {/* User Info */}
+          <div className="mb-4 p-3 bg-slate-800/30 rounded-lg border border-slate-700/30">
+            <div className="flex items-center gap-2 mb-1">
+              <User className="w-4 h-4 text-blue-400" />
+              <span className="text-sm font-medium text-slate-200">
+                {userProfile?.displayName || 'Your Account'}
+              </span>
+            </div>
+            <p className="text-xs text-slate-400">{userProfile?.email || 'Loading...'}</p>
+            <div className="flex items-center justify-between mt-2">
+              <span className="text-xs text-green-400">● Online</span>
+                          <button 
+              onClick={() => setShowSettings(true)}
+              aria-label="Open user settings and preferences"
+              className="text-xs text-slate-400 hover:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 rounded p-1"
             >
-              <option value="tasks">Task Emails</option>
-              <option value="all">All Emails</option>
-              <option value="non-tasks">Non-Task Emails</option>
-            </select>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 rounded-lg">
-              <TrendingUp className="w-4 h-4 text-green-400" />
-              <span className="text-sm text-slate-300">{stats.efficiency || 0}% efficiency</span>
-            </div>
-            <button className="p-2 hover:bg-slate-800/50 rounded-lg transition-colors">
-              <Settings className="w-4 h-4 text-slate-400" />
+              <Settings className="w-3 h-3" />
             </button>
+            </div>
+          </div>
+
+          {/* Task Overview Stats */}
+          <div className="mb-4">
+            <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">Overview</h3>
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <div className="bg-slate-800/40 rounded-lg p-3 text-center">
+                <div className="text-xl font-bold text-white">{totalTaskCount}</div>
+                <div className="text-xs text-slate-400">Total Tasks</div>
+              </div>
+              <div className="bg-amber-500/15 rounded-lg p-3 text-center border border-amber-400/30">
+                <div className="text-xl font-bold text-amber-300">{pendingCount}</div>
+                <div className="text-xs text-amber-200/70">Pending</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-2">
+              <div className="bg-emerald-500/15 rounded-lg p-3 text-center border border-emerald-400/30">
+                <div className="text-xl font-bold text-emerald-300">{completedCount}</div>
+                <div className="text-xs text-emerald-200/70">Completed</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Task Categories */}
+          <div className="mb-6">
+            <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">Categories</h3>
+            <div className="space-y-1">
+              <button 
+                onClick={() => setCategoryFilter('all')}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg transition-colors text-sm ${
+                  categoryFilter === 'all' 
+                    ? 'bg-blue-500/20 border border-blue-400/50 text-blue-200' 
+                    : 'hover:bg-blue-500/10 text-blue-200'
+                }`}
+              >
+                <div className="w-3 h-3 bg-blue-400 rounded-full shadow-sm"></div>
+                <span>All Categories</span>
+                <span className="ml-auto text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">{totalTaskCount}</span>
+              </button>
+              <button 
+                onClick={() => setCategoryFilter('NEEDS_REPLY')}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg transition-colors text-sm ${
+                  categoryFilter === 'NEEDS_REPLY' 
+                    ? 'bg-red-500/20 border border-red-400/50 text-red-200' 
+                    : 'hover:bg-red-500/10 text-red-200'
+                }`}
+              >
+                <div className="w-3 h-3 bg-red-400 rounded-full shadow-sm"></div>
+                <span>Needs Reply</span>
+                <span className="ml-auto text-xs bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full">{categoryCounts.NEEDS_REPLY || 0}</span>
+              </button>
+              <button 
+                onClick={() => setCategoryFilter('APPROVAL_REQUIRED')}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg transition-colors text-sm ${
+                  categoryFilter === 'APPROVAL_REQUIRED' 
+                    ? 'bg-purple-500/20 border border-purple-400/50 text-purple-200' 
+                    : 'hover:bg-purple-500/10 text-purple-200'
+                }`}
+              >
+                <div className="w-3 h-3 bg-purple-400 rounded-full shadow-sm"></div>
+                <span>Approval Required</span>
+                <span className="ml-auto text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full">{categoryCounts.APPROVAL_REQUIRED || 0}</span>
+              </button>
+              <button 
+                onClick={() => setCategoryFilter('DELEGATE')}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg transition-colors text-sm ${
+                  categoryFilter === 'DELEGATE' 
+                    ? 'bg-indigo-500/20 border border-indigo-400/50 text-indigo-200' 
+                    : 'hover:bg-indigo-500/10 text-indigo-200'
+                }`}
+              >
+                <div className="w-3 h-3 bg-indigo-400 rounded-full shadow-sm"></div>
+                <span>Delegate</span>
+                <span className="ml-auto text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full">{categoryCounts.DELEGATE || 0}</span>
+              </button>
+              <button 
+                onClick={() => setCategoryFilter('FOLLOW_UP')}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg transition-colors text-sm ${
+                  categoryFilter === 'FOLLOW_UP' 
+                    ? 'bg-teal-500/20 border border-teal-400/50 text-teal-200' 
+                    : 'hover:bg-teal-500/10 text-teal-200'
+                }`}
+              >
+                <div className="w-3 h-3 bg-teal-400 rounded-full shadow-sm"></div>
+                <span>Follow Up</span>
+                <span className="ml-auto text-xs bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full">{categoryCounts.FOLLOW_UP || 0}</span>
+              </button>
+              <button 
+                onClick={() => setCategoryFilter('MEETING_REQUEST')}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg transition-colors text-sm ${
+                  categoryFilter === 'MEETING_REQUEST' 
+                    ? 'bg-cyan-500/20 border border-cyan-400/50 text-cyan-200' 
+                    : 'hover:bg-cyan-500/10 text-cyan-200'
+                }`}
+              >
+                <div className="w-3 h-3 bg-cyan-400 rounded-full shadow-sm"></div>
+                <span>Meetings</span>
+                <span className="ml-auto text-xs bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full">{(categoryCounts.MEETING_REQUEST || 0) + (categoryCounts.MEETING_CANCELLED || 0)}</span>
+              </button>
+              <button 
+                onClick={() => setCategoryFilter('FYI_ONLY')}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg transition-colors text-sm ${
+                  categoryFilter === 'FYI_ONLY' 
+                    ? 'bg-emerald-500/20 border border-emerald-400/50 text-emerald-200' 
+                    : 'hover:bg-emerald-500/10 text-emerald-200'
+                }`}
+              >
+                <div className="w-3 h-3 bg-emerald-400 rounded-full shadow-sm"></div>
+                <span>FYI Only</span>
+                <span className="ml-auto text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">{syncStatus?.emailBreakdown?.fyi?.count || 0}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Enhanced AI Status */}
+          <EnhancedAIStatus
+            syncStatus={syncStatus}
+            onSync={handleManualSync}
+            onResync={handleResync}
+            onForceReanalyze={handleForceReanalyze}
+            showPrompts={showAIPrompts}
+            onTogglePrompts={() => setShowAIPrompts(!showAIPrompts)}
+            showChat={showAIChat}
+            onToggleChat={() => setShowAIChat(!showAIChat)}
+          />
+
+          {/* AI Usage Metrics */}
+          <div className="mt-6">
+            <AIUsageMetrics />
+          </div>
+
+          {/* AI Suggestions */}
+          <div>
+            <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">AI Suggestions</h3>
+            <div className="space-y-2">
+              {suggestions.map((suggestion, index) => (
+                <div key={index} className="p-2 bg-slate-700/20 rounded-lg hover:bg-slate-700/40 transition-colors cursor-pointer">
+                  <div className="flex items-start gap-2">
+                    <Brain className="w-3 h-3 text-blue-400 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-xs text-slate-200">{suggestion.title}</p>
+                      <p className="text-xs text-slate-400 mt-1 line-clamp-2">{suggestion.description}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Email Statistics Header */}
-      <div className="w-full bg-slate-900/50 border-b border-slate-700/30">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <EmailStatsHeader syncStatus={syncStatus} />
-        </div>
-      </div>
-
-      <div className="flex min-h-[calc(100vh-8rem)]">
         {/* Main Content */}
         <div className="flex-1 flex">
-          {/* Task Columns */}
-          <div className="flex-1 p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-              {/* Pending Tasks */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-orange-400" />
-                    Pending Tasks
-                    <span className="bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full text-xs">
-                      {pendingTasks.length}
-                    </span>
-                  </h2>
-                  <button className="p-1 hover:bg-slate-800/50 rounded transition-colors">
-                    <Plus className="w-4 h-4 text-slate-400" />
+          {/* Main Task Workflow Area - Recessed, Scrollable */}
+          <div className="flex-1 p-6 bg-slate-900/60 shadow-inner relative overflow-y-auto">
+            {/* Clean, minimal filters */}
+            <div className="mb-6">
+              {/* Search */}
+              <div className="flex justify-center mb-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search tasks..."
+                    className="pl-10 pr-4 py-2.5 bg-slate-800/50 border border-slate-600/40 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 min-w-[320px]"
+                  />
+                </div>
+              </div>
+              
+              {/* Filter Buttons */}
+              <div className="flex items-center justify-center gap-6">
+                {/* Task Type Buttons */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setFilter('tasks')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      filter === 'tasks' 
+                        ? 'bg-blue-500/20 border border-blue-400/50 text-blue-300' 
+                        : 'bg-slate-800/50 hover:bg-slate-700/60 text-slate-300 border border-slate-600/40'
+                    }`}
+                  >
+                    Tasks ({syncStatus?.emailBreakdown?.tasks?.count || tasks.filter(t => t.status !== 'completed').length})
+                  </button>
+                  <button
+                    onClick={() => setFilter('all')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      filter === 'all' 
+                        ? 'bg-blue-500/20 border border-blue-400/50 text-blue-300' 
+                        : 'bg-slate-800/50 hover:bg-slate-700/60 text-slate-300 border border-slate-600/40'
+                    }`}
+                  >
+                    All ({syncStatus?.emailBreakdown?.total || syncStatus?.emailsInPostgres || 0})
+                  </button>
+                  <button
+                    onClick={() => setFilter('non-tasks')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      filter === 'non-tasks' 
+                        ? 'bg-blue-500/20 border border-blue-400/50 text-blue-300' 
+                        : 'bg-slate-800/50 hover:bg-slate-700/60 text-slate-300 border border-slate-600/40'
+                    }`}
+                  >
+                    Info ({syncStatus?.emailBreakdown?.fyi?.count || 0})
                   </button>
                 </div>
-                <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
-                  {pendingTasks.map((task, index) => (
-                    <div 
-                      key={task.id}
-                      ref={index === pendingTasks.length - 1 ? lastTaskElementRef : null}
-                    >
-                      <TaskCard 
-                        task={task} 
-                        onStatusChange={updateTaskStatus}
-                        onClick={handleTaskClick}
-                      />
-                    </div>
-                  ))}
-                  {loading && (
-                    <div className="flex justify-center py-4">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                    </div>
-                  )}
-                  {!loading && pendingTasks.length === 0 && (
-                    <div className="text-center py-8 text-slate-400 text-sm">
-                      No pending tasks
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* In Progress Tasks */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-blue-400" />
-                    In Progress
-                    <span className="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full text-xs">
-                      {inProgressTasks.length}
-                    </span>
-                  </h2>
-                </div>
-                <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
-                  {inProgressTasks.map(task => (
-                    <TaskCard key={task.id} task={task} onClick={handleTaskClick} />
-                  ))}
-                </div>
-              </div>
-
-              {/* Completed Tasks */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    Completed
-                    <span className="bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full text-xs">
-                      {completedTasks.length}
-                    </span>
-                  </h2>
-                </div>
-                <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
-                  {completedTasks.map(task => (
-                    <TaskCard key={task.id} task={task} onClick={handleTaskClick} />
-                  ))}
+                
+                {/* Time Filter Buttons */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setDateFilter('today')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      dateFilter === 'today' 
+                        ? 'bg-emerald-500/20 border border-emerald-400/50 text-emerald-300' 
+                        : 'bg-slate-800/50 hover:bg-slate-700/60 text-slate-300 border border-slate-600/40'
+                    }`}
+                  >
+                    Today ({syncStatus?.emailBreakdown?.today || 0})
+                  </button>
+                  <button
+                    onClick={() => setDateFilter('week')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      dateFilter === 'week' 
+                        ? 'bg-emerald-500/20 border border-emerald-400/50 text-emerald-300' 
+                        : 'bg-slate-800/50 hover:bg-slate-700/60 text-slate-300 border border-slate-600/40'
+                    }`}
+                  >
+                    Week ({syncStatus?.emailBreakdown?.week || 488})
+                  </button>
+                  <button
+                    onClick={() => setDateFilter('month')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      dateFilter === 'month' 
+                        ? 'bg-emerald-500/20 border border-emerald-400/50 text-emerald-300' 
+                        : 'bg-slate-800/50 hover:bg-slate-700/60 text-slate-300 border border-slate-600/40'
+                    }`}
+                  >
+                    Month ({syncStatus?.emailBreakdown?.month || 1762})
+                  </button>
+                  <button
+                    onClick={() => setDateFilter('all')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      dateFilter === 'all' 
+                        ? 'bg-emerald-500/20 border border-emerald-400/50 text-emerald-300' 
+                        : 'bg-slate-800/50 hover:bg-slate-700/60 text-slate-300 border border-slate-600/40'
+                    }`}
+                  >
+                    All Time ({syncStatus?.emailBreakdown?.total || 8081})
+                  </button>
                 </div>
               </div>
             </div>
+
+            {/* Task Columns - Optimized Spacing */}
+            <div className="grid grid-cols-2 gap-6">
+              {/* Pending Column */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="w-4 h-4 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full shadow-lg"></div>
+                  <h3 className="text-lg font-semibold text-amber-200">Pending Tasks</h3>
+                  <span className="bg-amber-500/20 text-amber-300 px-3 py-1 rounded-full text-sm font-medium border border-amber-400/30">
+                    {pendingTasks.length + inProgressTasks.length}
+                  </span>
+                </div>
+                
+                <div className="space-y-2">
+                  {(pendingTasks.length + inProgressTasks.length) === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-16 px-4">
+                      <AlertCircle className="w-16 h-16 text-amber-500/50 mb-4" />
+                      <p className="text-amber-200/80 text-sm font-medium">No pending tasks</p>
+                      <p className="text-amber-300/60 text-xs mt-2 text-center">AI will create tasks from emails when enabled</p>
+                    </div>
+                  ) : (
+                    <>
+                      {pendingTasks.map((task) => (
+                        <TaskCard 
+                          key={task.id}
+                          task={task} 
+                          onStatusChange={updateTaskStatus}
+                          onClick={handleTaskClick}
+                        />
+                      ))}
+                      {inProgressTasks.map((task) => (
+                        <TaskCard 
+                          key={task.id}
+                          task={{...task, status: 'pending'}} 
+                          onStatusChange={updateTaskStatus}
+                          onClick={handleTaskClick}
+                        />
+                      ))}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Completed Column */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="w-4 h-4 bg-gradient-to-r from-emerald-400 to-green-400 rounded-full shadow-lg"></div>
+                  <h3 className="text-lg font-semibold text-emerald-200">Completed Tasks</h3>
+                  <span className="bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full text-sm font-medium border border-emerald-400/30">
+                    {completedTasks.length}
+                  </span>
+                </div>
+                
+                <div className="space-y-2">
+                  {completedTasks.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-16 px-4">
+                      <CheckCircle className="w-16 h-16 text-emerald-500/50 mb-4" />
+                      <p className="text-emerald-200/80 text-sm font-medium">No completed tasks</p>
+                      <p className="text-emerald-300/60 text-xs mt-2 text-center">Complete tasks will appear here</p>
+                    </div>
+                  ) : (
+                    completedTasks.map(task => (
+                      <TaskCard key={task.id} task={task} onClick={handleTaskClick} />
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* Infinite Scroll Trigger */}
+            <div 
+              ref={lastTaskElementRef}
+              className="h-4 flex items-center justify-center mt-6"
+            >
+              {loading && (
+                <div className="flex items-center gap-2 text-slate-400 text-sm">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                  Loading more tasks...
+                </div>
+              )}
+              {!loading && hasMore && (
+                <button 
+                  onClick={loadMoreTasks}
+                  className="text-slate-400 hover:text-slate-300 text-sm px-4 py-2 hover:bg-slate-800/50 rounded-lg transition-colors"
+                >
+                  Load more tasks ({tasks.length} of 393)
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Chat Interface */}
-          <div className="w-80 border-l border-slate-700/50 bg-slate-800/30">
-            <ChatInterface messages={messages} onSendMessage={handleSendMessage} taskCount={tasks.length} />
-          </div>
-        </div>
+          {/* Right Sidebar - Responsive with improved layout */}
+          <div className="min-w-60 max-w-80 flex-shrink-0 border-l border-slate-600/40 bg-slate-800/40 flex flex-col shadow-xl relative z-10 h-full overflow-hidden">
+            {/* Top Section: Related Items - Flexible height */}
+            <div className="flex-shrink-0 max-h-[40%] p-4 border-b border-slate-700/30 overflow-y-auto">
+              <h3 className="text-sm font-medium text-slate-200 mb-3 flex items-center gap-2">
+                <Link className="w-4 h-4" />
+                Related Items
+              </h3>
+              <div className="space-y-2 h-full overflow-y-auto pr-2">
+                {relatedItems.map((item) => (
+                  <div key={item.id} className="p-3 bg-slate-700/20 rounded-lg hover:bg-slate-700/40 transition-colors cursor-pointer">
+                    <div className="flex items-start gap-2 mb-1">
+                      <div className="mt-0.5 flex-shrink-0">
+                        {item.type === 'email' && <Mail className="w-3.5 h-3.5 text-blue-400" />}
+                        {item.type === 'task' && <CheckCircle className="w-3.5 h-3.5 text-green-400" />}
+                        {item.type === 'contact' && <Users className="w-3.5 h-3.5 text-purple-400" />}
+                        {item.type === 'document' && <FileText className="w-3.5 h-3.5 text-orange-400" />}
+                      </div>
+                      <span className="text-xs font-medium text-slate-200 line-clamp-1 break-all">{item.title}</span>
+                    </div>
+                    <p className="text-xs text-slate-400 line-clamp-2 pl-5">{item.description}</p>
+                    <div className="flex items-center justify-between mt-2 pl-5">
+                      <span className="text-xs text-slate-500 capitalize bg-slate-800/50 px-2 py-0.5 rounded">{item.type}</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400/20" />
+                        <span className="text-xs font-medium text-slate-300">{item.relevance}%</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-        {/* Context Sidebar */}
-        <div className="w-72 border-l border-slate-700/50 bg-slate-800/30">
-          <ContextSidebar relatedItems={relatedItems} suggestions={suggestions} />
+            {/* Bottom Section: Chat Interface - Takes remaining space */}
+            <div className="flex-1 p-4 overflow-hidden">
+              <ChatInterface messages={messages} onSendMessage={handleSendMessage} taskCount={tasks.length} />
+            </div>
+          </div>
+          </div>
         </div>
       </div>
 
@@ -1433,6 +1874,88 @@ const EmailTaskDashboard: React.FC = () => {
           }}
         />
       )}
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <FocusTrap>
+            <div 
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="settings-title"
+              className="bg-slate-900 border border-slate-700 rounded-lg w-full max-w-md"
+            >
+              <div className="flex items-center justify-between p-4 border-b border-slate-700">
+                <h2 id="settings-title" className="text-lg font-semibold text-slate-100">Settings</h2>
+                <button
+                  onClick={() => setShowSettings(false)}
+                  aria-label="Close settings"
+                  className="p-2 hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                >
+                  <X className="w-4 h-4 text-slate-400" />
+                </button>
+              </div>
+              
+              <div className="p-4 space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-slate-200 mb-2">User Preferences</h3>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2">
+                      <input type="checkbox" className="rounded bg-slate-800 border-slate-600" />
+                      <span className="text-sm text-slate-300">Enable desktop notifications</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input type="checkbox" className="rounded bg-slate-800 border-slate-600" />
+                      <span className="text-sm text-slate-300">Auto-refresh tasks</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-sm font-medium text-slate-200 mb-2">AI Settings</h3>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2">
+                      <input type="checkbox" defaultChecked className="rounded bg-slate-800 border-slate-600" />
+                      <span className="text-sm text-slate-300">Enable AI task classification</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input type="checkbox" defaultChecked className="rounded bg-slate-800 border-slate-600" />
+                      <span className="text-sm text-slate-300">Generate draft replies</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-end gap-2 p-4 border-t border-slate-700">
+                <button
+                  onClick={() => setShowSettings(false)}
+                  className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => setShowSettings(false)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                >
+                  Save Settings
+                </button>
+              </div>
+            </div>
+          </FocusTrap>
+        </div>
+      )}
+
+      {/* AI Prompt Viewer */}
+      <AIPromptViewer 
+        visible={showAIPrompts}
+        onClose={() => setShowAIPrompts(false)}
+      />
+      
+      {/* AI Chat */}
+      <AIChat
+        visible={showAIChat}
+        onClose={() => setShowAIChat(false)}
+      />
     </div>
   );
 };

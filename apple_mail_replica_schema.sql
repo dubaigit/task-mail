@@ -56,7 +56,7 @@ CREATE TABLE messages (
     ROWID BIGINT PRIMARY KEY,
     message_id BIGINT NOT NULL DEFAULT 0,
     global_message_id BIGINT NOT NULL,
-    remote_id BIGINT,
+    remote_id TEXT,
     document_id TEXT,
     sender INTEGER REFERENCES addresses(ROWID),
     subject_prefix TEXT,

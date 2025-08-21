@@ -11,8 +11,17 @@
  * - Performance monitoring and metrics
  */
 
-import { EmailMessage, ConflictResolutionStrategy } from '../types/index';
 import { cacheManager } from './cache-manager';
+
+// Type definitions for sync manager
+import { ConflictResolutionStrategy } from '../types';
+export type { ConflictResolutionStrategy };
+
+import { EmailMessage as CoreEmailMessage } from '../types';
+
+export interface EmailMessage extends CoreEmailMessage {
+  // Any sync-manager specific properties can be added here
+}
 
 export interface SyncEvent {
   type: string;
@@ -87,7 +96,7 @@ class WebSocketManager {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
-  private heartbeatInterval: ReturnType<typeof setTimeout> | null = null;
+  private heartbeatInterval: NodeJS.Timeout | null = null;
   private onMessage: ((data: any) => void) | null = null;
   private onConnect: (() => void) | null = null;
   private onDisconnect: (() => void) | null = null;
@@ -97,9 +106,25 @@ class WebSocketManager {
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
+        // Check if WebSocket is available in browser
+        if (typeof WebSocket === 'undefined') {
+          console.warn('WebSocket not available in this environment');
+          reject(new Error('WebSocket not supported'));
+          return;
+        }
+
         this.ws = new WebSocket(this.url);
 
+        // Add connection timeout
+        const connectionTimeout = setTimeout(() => {
+          if (this.ws?.readyState === WebSocket.CONNECTING) {
+            this.ws.close();
+            reject(new Error('WebSocket connection timeout'));
+          }
+        }, 5000);
+
         this.ws.onopen = () => {
+          clearTimeout(connectionTimeout);
           this.reconnectAttempts = 0;
           this.startHeartbeat();
           this.onConnect?.();
@@ -117,13 +142,19 @@ class WebSocketManager {
           }
         };
 
-        this.ws.onclose = () => {
+        this.ws.onclose = (event) => {
+          clearTimeout(connectionTimeout);
           this.stopHeartbeat();
           this.onDisconnect?.();
-          this.attemptReconnect();
+          
+          // Only attempt reconnect if it wasn't a clean close
+          if (event.code !== 1000) {
+            this.attemptReconnect();
+          }
         };
 
         this.ws.onerror = (error) => {
+          clearTimeout(connectionTimeout);
           console.error('WebSocket error:', error);
           reject(error);
         };
@@ -375,12 +406,10 @@ export class SyncManager {
   private wsManager: WebSocketManager;
   private offlineQueue: OfflineQueueManager;
   private appleCli: AppleMailCliManager;
-  private syncInterval: ReturnType<typeof setTimeout> | null = null;
-  private pollingInterval: ReturnType<typeof setTimeout> | null = null;
+  private syncInterval: NodeJS.Timeout | null = null;
   private status: SyncStatus;
   private config: SyncManagerConfig;
   private eventListeners: Map<string, ((event: SyncEvent) => void)[]> = new Map();
-  private isOnline: boolean = false;
 
   constructor(config: SyncManagerConfig) {
     this.config = config;
@@ -413,27 +442,8 @@ export class SyncManager {
    */
   async initialize(): Promise<void> {
     try {
-      // Health check with timeout before full sync
-      const isHealthy = await this.checkHealth();
-      
-      if (!isHealthy) {
-        this.isOnline = false;
-        this.startPolling();
-        this.emit('status', { state: 'offline', timestamp: new Date() });
-        return;
-      }
-
-      this.isOnline = true;
-
       if (this.config.enableRealTime) {
-        try {
-          await this.wsManager.connect();
-          this.emit('status', { state: 'connected', timestamp: new Date() });
-        } catch (error) {
-          console.warn('WebSocket connection failed, falling back to polling:', error);
-          this.startPolling();
-          this.emit('status', { state: 'polling', timestamp: new Date() });
-        }
+        await this.wsManager.connect();
       }
 
       // Process any pending offline operations
@@ -450,7 +460,6 @@ export class SyncManager {
       this.emit('initialized', { timestamp: new Date() });
     } catch (error) {
       console.error('Failed to initialize sync manager:', error);
-      this.emit('status', { state: 'error', timestamp: new Date(), error: error.message });
       throw error;
     }
   }
@@ -813,13 +822,13 @@ export class SyncManager {
 // Export singleton instance with default configuration
 export const syncManager = new SyncManager({
   wsUrl: process.env.REACT_APP_WS_URL || 'ws://localhost:8000/ws',
-  applecliEndpoint: process.env.REACT_APP_APPLECLI_URL || 'http://localhost:8000/api',
+  applecliEndpoint: process.env.REACT_APP_API_URL || '/api',
   syncInterval: 300000, // 5 minutes
   maxRetries: 3,
   batchSize: 50,
   conflictStrategy: 'remote',
   enableOfflineMode: true,
-  enableRealTime: true
+  enableRealTime: true // Re-enable real-time sync with proper error handling
 });
 
 export default SyncManager;

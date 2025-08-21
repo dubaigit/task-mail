@@ -1,5 +1,5 @@
 
 > email-intelligence-dashboard@1.0.0 start
-> craco start
+> BROWSER=none craco start
 
-Something is already running on port 3000.
+Something is already running on port 8000.

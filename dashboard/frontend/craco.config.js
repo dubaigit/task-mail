@@ -243,7 +243,7 @@ module.exports = {
   // Babel configuration
   babel: {
     plugins: [
-      // Add plugins for better code splitting
+      // Add plugins for better code splitting in production only
       ...(process.env.NODE_ENV === 'production' ? [
         ['@babel/plugin-transform-react-constant-elements'],
         ['@babel/plugin-transform-react-inline-elements'],

@@ -137,7 +137,7 @@ const MagicMCPManager: React.FC = () => {
   // WebSocket connection management
   const connectWebSocket = useCallback(() => {
     try {
-      wsRef.current = new WebSocket('ws://localhost:8002/ws');
+      wsRef.current = new WebSocket('ws://localhost:8000/ws');
       
       wsRef.current.onopen = () => {
         console.log('Magic MCP WebSocket connected');
@@ -231,7 +231,7 @@ const MagicMCPManager: React.FC = () => {
   // API calls
   const fetchServiceStatus = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:8002/status');
+      const response = await fetch('http://localhost:8000/status');
       if (response.ok) {
         const status = await response.json();
         setServiceStatus(status);
@@ -249,7 +249,7 @@ const MagicMCPManager: React.FC = () => {
     setError(null);
     
     try {
-      const response = await fetch('http://localhost:8002/ui/generate', {
+      const response = await fetch('http://localhost:8000/ui/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(uiRequest)
@@ -284,7 +284,7 @@ const MagicMCPManager: React.FC = () => {
     setError(null);
     
     try {
-      const response = await fetch('http://localhost:8002/content/analyze', {
+      const response = await fetch('http://localhost:8000/content/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -313,7 +313,7 @@ const MagicMCPManager: React.FC = () => {
     setError(null);
     
     try {
-      const response = await fetch('http://localhost:8002/search/advanced', {
+      const response = await fetch('http://localhost:8000/search/advanced', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(searchRequest)
@@ -339,7 +339,7 @@ const MagicMCPManager: React.FC = () => {
     setError(null);
     
     try {
-      const response = await fetch('http://localhost:8002/templates/generate', {
+      const response = await fetch('http://localhost:8000/templates/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(templateRequest)
@@ -365,7 +365,7 @@ const MagicMCPManager: React.FC = () => {
     setError(null);
     
     try {
-      const response = await fetch('http://localhost:8002/problems/solve', {
+      const response = await fetch('http://localhost:8000/problems/solve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(problemRequest)
@@ -389,7 +389,7 @@ const MagicMCPManager: React.FC = () => {
   // Cleanup cache
   const cleanupCache = async () => {
     try {
-      const response = await fetch('http://localhost:8002/cache/cleanup', {
+      const response = await fetch('http://localhost:8000/cache/cleanup', {
         method: 'POST'
       });
       

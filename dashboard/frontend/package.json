@@ -54,8 +54,8 @@
     "zustand": "^5.0.7"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "GENERATE_SOURCEMAP=false craco build",
+    "start": "BROWSER=none craco start",
+    "build": "FAST_REFRESH=false GENERATE_SOURCEMAP=false craco build",
     "build:analyze": "ANALYZE=true npm run build",
     "build:production": "npm run build && npm run performance:audit",
     "build:cache-check": "node -e \"require('./craco.config.js').validateCacheConfig()\"",
