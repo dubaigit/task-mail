@@ -6,6 +6,7 @@ import TaskList from './components/Tasks/TaskListUpdated';
 import DraftList from './components/Drafts/DraftList';
 import Analytics from './components/Analytics/Analytics';
 import TaskDashboard from './components/TaskCentric/TaskDashboard';
+import EmailManagement2025 from './components/EmailManagement2025';
 import Login from './components/Auth/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -61,7 +62,7 @@ function App() {
     }
   }, [isDark]);
 
-  // Cache-busting and deployment confirmation
+  // Cache-busting, deployment confirmation, and 2025 design system
   useEffect(() => {
     const timestamp = new Date().toISOString();
     
@@ -72,11 +73,17 @@ function App() {
     // Add deployment timestamp to document for debugging
     document.documentElement.setAttribute('data-deployment-timestamp', timestamp);
     document.documentElement.setAttribute('data-modern-interface', 'true');
+    document.documentElement.setAttribute('data-design-system', '2025');
+    
+    // Add 2025 design system classes
+    document.body.classList.add('design-system-2025', 'gpu-accelerated');
     
     return () => {
       // Cleanup on unmount
       document.documentElement.removeAttribute('data-deployment-timestamp');
       document.documentElement.removeAttribute('data-modern-interface');
+      document.documentElement.removeAttribute('data-design-system');
+      document.body.classList.remove('design-system-2025', 'gpu-accelerated');
     };
   }, []);
 
@@ -90,11 +97,13 @@ function App() {
       >
         <ThemeContext.Provider value={{ isDark, toggleTheme }}>
           <DarkModeSystem enableAnimations={true}>
-            <div className="app-container" style={{ 
+            <div className="app-container dm-surface-0 stagger-children" style={{ 
               minHeight: '100vh',
               overflow: 'hidden',
-              position: 'relative'
-            }} data-testid="task-centric-app">
+              position: 'relative',
+              backgroundColor: 'var(--dm-base)',
+              color: 'var(--dm-text-high)'
+            }} data-testid="task-centric-app" data-scroll-animation="fadeInUp">
               <Router>
                 <Routes>
                   {/* Public Routes */}
@@ -102,8 +111,9 @@ function App() {
                   
                   {/* Protected Routes */}
                   <Route element={<ProtectedRoute />}>
-                    <Route path="/" element={<TaskDashboard />} />
-                    <Route path="/taskmail" element={<TaskDashboard />} />
+                    <Route path="/" element={<EmailManagement2025 />} />
+                    <Route path="/taskmail" element={<EmailManagement2025 />} />
+                    <Route path="/original" element={<TaskDashboard />} />
                     <Route path="/dashboard" element={<DashboardLayout />}>
                       <Route index element={<Navigate to="/" replace />} />
                       <Route path="tasks" element={<TaskList />} />
