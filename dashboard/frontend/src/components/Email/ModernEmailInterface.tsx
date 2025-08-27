@@ -597,11 +597,12 @@ const ModernEmailInterface: React.FC = () => {
     
     setIsGeneratingTasks(true);
     try {
-      const response = await fetch(`/tasks/?email_id=${selectedEmail.id}`, {
-        method: 'GET',
+      const response = await fetch('/api/ai/generate-tasks', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ email: selectedEmail }),
       });
 
       if (!response.ok) {
@@ -639,18 +640,20 @@ const ModernEmailInterface: React.FC = () => {
     
     setIsGeneratingDraft(true);
     try {
-      const response = await fetch('/drafts/generate', {
+      const response = await fetch('/api/ai/generate-draft', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email_id: targetEmail.id,
-          tone: options?.tone || aiDraftOptions.tone,
-          length: options?.length || aiDraftOptions.length,
-          include_signature: options?.includeSignature ?? aiDraftOptions.includeSignature,
-          urgency_level: options?.urgencyLevel || aiDraftOptions.urgencyLevel,
-          custom_instructions: options?.customInstructions || aiDraftOptions.customInstructions
+          email: targetEmail,
+          context: {
+            tone: options?.tone || aiDraftOptions.tone,
+            length: options?.length || aiDraftOptions.length,
+            include_signature: options?.includeSignature ?? aiDraftOptions.includeSignature,
+            urgency_level: options?.urgencyLevel || aiDraftOptions.urgencyLevel,
+            custom_instructions: options?.customInstructions || aiDraftOptions.customInstructions
+          }
         }),
       });
 
