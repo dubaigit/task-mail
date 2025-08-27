@@ -430,6 +430,32 @@ class WebSocketManager extends EventEmitter {
     return sentCount;
   }
 
+  broadcastPerformanceUpdate(performanceData) {
+    const message = {
+      type: 'performance_updated',
+      data: performanceData,
+      timestamp: new Date().toISOString()
+    };
+
+    const sentCount = this.broadcastToSubscribers('performance_updates', performanceData);
+    logger.info('Performance update broadcast', { sentCount });
+    
+    return sentCount;
+  }
+
+  broadcastAdminUpdate(adminData) {
+    const message = {
+      type: 'admin_updated',
+      data: adminData,
+      timestamp: new Date().toISOString()
+    };
+
+    const sentCount = this.broadcastToSubscribers('admin_updates', adminData);
+    logger.info('Admin update broadcast', { sentCount });
+    
+    return sentCount;
+  }
+
   broadcastDashboardUpdate(dashboardData) {
     const message = {
       type: 'dashboard_updated',

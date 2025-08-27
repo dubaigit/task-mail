@@ -15,6 +15,13 @@
  * - Data export and reporting
  */
 
+interface WebSocketMessage {
+  type: string;
+  eventType?: string;
+  data: any;
+  timestamp: string;
+}
+
 // Performance metric types
 export interface PerformanceMetric {
   name: string;
@@ -206,8 +213,51 @@ export class PerformanceMetricsCollector {
     this.isCollecting = true;
     this.setupPerformanceObservers();
     this.startCollectionTimer();
+    this.setupWebSocketSubscription();
     
     this.recordMetric('collector_started', 1, 'count', MetricCategory.QUALITY);
+  }
+
+  private setupWebSocketSubscription(): void {
+    const wsUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:8000/ws';
+    
+    try {
+      const ws = new WebSocket(wsUrl);
+      
+      ws.onopen = () => {
+        ws.send(JSON.stringify({
+          type: 'subscribe',
+          payload: { events: ['performance_updates'] }
+        }));
+      };
+      
+      ws.onmessage = (event) => {
+        try {
+          const message: WebSocketMessage = JSON.parse(event.data);
+          
+          if (message.type === 'event' && message.eventType === 'performance_updates') {
+            this.handlePerformanceUpdate(message.data);
+          }
+        } catch (error) {
+          console.error('Failed to parse WebSocket message:', error);
+        }
+      };
+    } catch (error) {
+      console.error('Failed to setup WebSocket subscription:', error);
+    }
+  }
+
+  private handlePerformanceUpdate(data: any): void {
+    if (data.metrics) {
+      Object.entries(data.metrics).forEach(([name, value]) => {
+        this.recordMetric(
+          name,
+          value as number,
+          data.unit || 'count',
+          MetricCategory.RESOURCE
+        );
+      });
+    }
   }
 
   /**
@@ -660,58 +710,13 @@ export class PerformanceMetricsCollector {
   private setupResourceTimingMonitoring(): void {
     if (!this.config.enableResourceMonitoring) return;
 
-    setInterval(() => {
-      const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
-      const newResources = resources.slice(this.resourceTimings.length);
-      
-      for (const resource of newResources) {
-        this.recordMetric(
-          'resource_load_time',
-          resource.duration,
-          'ms',
-          MetricCategory.RESOURCE,
-          { 
-            resource_type: this.getResourceType(resource.name),
-            size: resource.transferSize?.toString() || '0'
-          }
-        );
-      }
-      
-      this.resourceTimings = resources;
-    }, this.config.collectionInterval);
+    // REMOVED: Client-side polling for resource timing
   }
 
   private setupMemoryMonitoring(): void {
     if (!this.config.enableResourceMonitoring) return;
 
-    setInterval(() => {
-      if ('memory' in performance) {
-        const memory = (performance as any).memory;
-        
-        this.recordMetric(
-          'js_heap_used',
-          memory.usedJSHeapSize / (1024 * 1024),
-          'MB',
-          MetricCategory.RESOURCE,
-          {},
-          { warning: 40, critical: this.config.memoryTargetMb }
-        );
-
-        this.recordMetric(
-          'js_heap_total',
-          memory.totalJSHeapSize / (1024 * 1024),
-          'MB',
-          MetricCategory.RESOURCE
-        );
-
-        this.recordMetric(
-          'js_heap_limit',
-          memory.jsHeapSizeLimit / (1024 * 1024),
-          'MB',
-          MetricCategory.RESOURCE
-        );
-      }
-    }, this.config.collectionInterval);
+    // REMOVED: Client-side polling for memory monitoring  
   }
 
   private setupUserExperienceMonitoring(): void {
@@ -757,11 +762,7 @@ export class PerformanceMetricsCollector {
   }
 
   private startCollectionTimer(): void {
-    this.collectionTimer = setInterval(() => {
-      this.collectMetrics();
-      this.analyzeMetrics();
-      this.cleanupOldData();
-    }, this.config.collectionInterval);
+    // Collection timer removed - now handled by server-side scheduled jobs
   }
 
   private collectMetrics(): void {
