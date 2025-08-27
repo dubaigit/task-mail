@@ -1,24 +1,48 @@
 module.exports = {
+  root: true,
+  env: {
+    browser: true,
+    es2020: true,
+    node: true,
+    jest: true,
+  },
   extends: [
-    'react-app',
-    'react-app/jest'
+    'eslint:recommended',
+    '@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+    'plugin:react/jsx-runtime',
+  ],
+  ignorePatterns: ['dist', '.eslintrc.js', 'craco.config.js', 'build/'],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
+  plugins: [
+    'react-refresh',
+    '@typescript-eslint',
+    'react',
+    'react-hooks'
   ],
   rules: {
-    // TypeScript specific rules
+    'react-refresh/only-export-components': [
+      'warn',
+      { allowConstantExport: true },
+    ],
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    'react/prop-types': 'off', // We use TypeScript for prop validation
+    'react/react-in-jsx-scope': 'off', // Not needed with React 17+
     '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/no-non-null-assertion': 'warn',
-    '@typescript-eslint/no-var-requires': 'error',
-    
-    // React rules
-    'react/react-in-jsx-scope': 'off',
-    'react/prop-types': 'off',
-    
-    // General rules
-    'no-console': 'warn',
     'prefer-const': 'error',
     'no-var': 'error',
+  },
+  settings: {
+    react: {
+      version: 'detect',
+    },
   },
 };
