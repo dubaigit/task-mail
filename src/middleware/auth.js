@@ -70,15 +70,15 @@ const blacklistedTokens = new Set();
 
 // Enhanced authentication middleware with token blacklist support
 const authenticateToken = (req, res, next) => {
-  // BYPASS AUTHENTICATION FOR DEVELOPMENT - NO LOGIN REQUIRED
-  req.user = {
-    id: 'default-user',
-    email: 'admin@taskmail.com',
-    role: 'admin'
-  };
-  return next();
+  if (process.env.NODE_ENV === 'development' && process.env.BYPASS_AUTH === 'true') {
+    req.user = {
+      id: 'default-user',
+      email: 'admin@taskmail.com',
+      role: 'admin'
+    };
+    return next();
+  }
   
-  /* ORIGINAL AUTH CODE - DISABLED FOR DEVELOPMENT
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
@@ -120,7 +120,6 @@ const authenticateToken = (req, res, next) => {
     req.user = { ...user, token };
     next();
   });
-  */ // END OF DISABLED AUTH CODE
 };
 
 // Token blacklist management
@@ -134,17 +133,24 @@ const clearBlacklistedTokens = () => {
 };
 
 // Clean expired tokens from blacklist every hour
-const tokenCleanupInterval = setInterval(() => {
-  // In a real implementation, you'd check token expiration times
-  // For now, we'll periodically clear the blacklist to prevent memory leaks
-  if (blacklistedTokens.size > 1000) {
-    clearBlacklistedTokens();
+let tokenCleanupInterval = null;
+
+const initializeTokenCleanup = () => {
+  if (!tokenCleanupInterval) {
+    tokenCleanupInterval = setInterval(() => {
+      // In a real implementation, you'd check token expiration times
+      // For now, we'll periodically clear the blacklist to prevent memory leaks
+      if (blacklistedTokens.size > 1000) {
+        clearBlacklistedTokens();
+      }
+    }, 60 * 60 * 1000);
   }
-}, 60 * 60 * 1000);
+};
 
 const cleanup = () => {
   if (tokenCleanupInterval) {
     clearInterval(tokenCleanupInterval);
+    tokenCleanupInterval = null;
     console.log('🧹 Token cleanup interval cleared');
   }
 };
@@ -167,14 +173,23 @@ const createRateLimiter = (windowMs, max, message) => {
 };
 
 // Different rate limits for different endpoint types
-// Rate limiting disabled for local development
-const generalLimiter = (req, res, next) => next();
+const generalLimiter = createRateLimiter(
+  15 * 60 * 1000, // 15 minutes
+  100, // 100 requests per window
+  'Too many requests from this IP, please try again later'
+);
 
-// Rate limiting disabled for local development
-const authLimiter = (req, res, next) => next();
+const authLimiter = createRateLimiter(
+  15 * 60 * 1000, // 15 minutes
+  5, // 5 login attempts per window
+  'Too many authentication attempts, please try again later'
+);
 
-// Rate limiting disabled for local development
-const aiLimiter = (req, res, next) => next();
+const aiLimiter = createRateLimiter(
+  60 * 1000, // 1 minute
+  10, // 10 AI requests per minute
+  'Too many AI requests, please try again later'
+);
 
 // Input validation schemas
 const taskQueryValidation = [
@@ -746,5 +761,6 @@ module.exports = {
   clearBlacklistedTokens,
   refreshTokens,
   blacklistedTokens,
-  loginAttempts
+  loginAttempts,
+  initializeTokenCleanup
 };
