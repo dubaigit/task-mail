@@ -366,12 +366,10 @@ const AttachmentManager: React.FC = () => {
 
   const handleFileUpload = () => {
     // Handle file upload logic
-    console.log('File upload triggered');
   };
 
   const handleBulkAction = (action: string) => {
     // Handle bulk actions
-    console.log('Bulk action:', action);
   };
 
   return (

@@ -245,7 +245,6 @@ export const MobileDashboard: React.FC = optimizeComponent.memo(() => {
         break;
       case 'emails':
         // Handle email composition
-        console.log('Compose email');
         break;
       default:
         setIsSidebarOpen(true);
@@ -272,9 +271,7 @@ export const MobileDashboard: React.FC = optimizeComponent.memo(() => {
     
     return () => {
       const renderTime = renderTimer.end();
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`MobileDashboard render time: ${renderTime}ms`);
-      }
+      // Performance logging removed for production
     };
   }, []);
 

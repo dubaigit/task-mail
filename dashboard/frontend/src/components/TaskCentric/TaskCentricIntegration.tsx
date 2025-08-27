@@ -149,7 +149,6 @@ const TaskCentricIntegration: React.FC<TaskCentricIntegrationProps> = ({
     ));
     
     // Here you would typically make an API call to update the task
-    console.log('Task updated:', updatedTask);
   }, []);
 
   const handleTaskComplete = useCallback(async (taskId: string) => {
@@ -165,14 +164,12 @@ const TaskCentricIntegration: React.FC<TaskCentricIntegrationProps> = ({
     ));
     
     // Here you would typically make an API call to complete the task
-    console.log('Task completed:', taskId);
   }, []);
 
   const handleTaskDelete = useCallback(async (taskId: string) => {
     setTasks(prev => prev.filter(task => task.id !== taskId));
     
     // Here you would typically make an API call to delete the task
-    console.log('Task deleted:', taskId);
   }, []);
 
   // Draft management handlers
@@ -205,7 +202,6 @@ const TaskCentricIntegration: React.FC<TaskCentricIntegrationProps> = ({
       };
       
       setDrafts(prev => [...prev, newDraft]);
-      console.log('Draft created:', newDraft);
     } catch (error) {
       console.error('Failed to create draft:', error);
     } finally {
@@ -219,12 +215,10 @@ const TaskCentricIntegration: React.FC<TaskCentricIntegrationProps> = ({
     ));
     
     // Here you would typically make an API call to update the draft
-    console.log('Draft updated:', updatedDraft);
   }, []);
 
   const handleDraftSend = useCallback(async (draft: TaskCentricDraft) => {
     // Here you would typically make an API call to send the email
-    console.log('Sending draft:', draft);
     
     // Update draft status
     const sentDraft = {
@@ -333,7 +327,7 @@ const TaskCentricIntegration: React.FC<TaskCentricIntegrationProps> = ({
           <button onClick={() => setDrafts(generateMockDrafts())}>
             Reset Drafts
           </button>
-          <button onClick={() => console.log({ tasks, drafts, emails: taskCentricEmails })}>
+          <button onClick={() => alert('State logged to console')}>
             Log State
           </button>
         </div>

@@ -21,9 +21,6 @@ export const setupDesignSystem = (config?: Partial<ThemeConfig>) => {
   // Add design system classes to body for easier targeting
   document.body.classList.add('design-system-initialized');
   
-  // Log successful initialization
-  console.log('✅ Design System initialized successfully');
-  console.log('Current theme:', themeManager.getTheme());
   
   return themeManager;
 };
@@ -142,15 +139,6 @@ export const logDesignTokens = () => {
     components: Object.keys(tokens).filter(key => key.includes('task-card') || key.includes('button') || key.includes('input')),
   };
   
-  Object.entries(categories).forEach(([category, keys]) => {
-    if (keys.length > 0) {
-      console.group(`📝 ${category.charAt(0).toUpperCase() + category.slice(1)} Tokens`);
-      keys.forEach(key => {
-        console.log(`${key}: ${tokens[key]}`);
-      });
-      console.groupEnd();
-    }
-  });
   
   console.groupEnd();
 };
@@ -168,14 +156,6 @@ export const monitorDesignSystemPerformance = () => {
       entry.name.includes('.css') || (entry as PerformanceResourceTiming).initiatorType === 'css'
     );
     
-    if (cssEntries.length > 0) {
-      console.group('⚡ Design System Performance');
-      cssEntries.forEach(entry => {
-        const duration = (entry as PerformanceResourceTiming).duration || 0;
-        console.log(`${entry.name}: ${duration.toFixed(2)}ms`);
-      });
-      console.groupEnd();
-    }
   });
   
   observer.observe({ entryTypes: ['resource', 'navigation'] });
@@ -190,22 +170,18 @@ export const validateThemeConfig = (config: Partial<ThemeConfig>): boolean => {
   const validBorderRadius = ['none', 'sm', 'md', 'lg', 'xl'];
   
   if (config.mode && !validModes.includes(config.mode)) {
-    console.warn(`Invalid theme mode: ${config.mode}. Valid options: ${validModes.join(', ')}`);
     return false;
   }
   
   if (config.density && !validDensities.includes(config.density)) {
-    console.warn(`Invalid density: ${config.density}. Valid options: ${validDensities.join(', ')}`);
     return false;
   }
   
   if (config.borderRadius && !validBorderRadius.includes(config.borderRadius)) {
-    console.warn(`Invalid border radius: ${config.borderRadius}. Valid options: ${validBorderRadius.join(', ')}`);
     return false;
   }
   
   if (config.primaryColor && !isValidColor(config.primaryColor)) {
-    console.warn(`Invalid primary color: ${config.primaryColor}`);
     return false;
   }
   

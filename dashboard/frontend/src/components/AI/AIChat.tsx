@@ -77,7 +77,6 @@ export const AIChat: React.FC<AIChatProps> = ({ visible, onClose }) => {
         setSystemPrompt(data.systemPrompt);
       }
     } catch (error) {
-      console.error('Failed to load system prompt:', error);
       setSystemPrompt(`You are an AI assistant with access to the user's email database. You can:
 1. Search and analyze emails using natural language queries
 2. Create drafts and responses based on email context
@@ -166,7 +165,6 @@ What would you like to do first?`,
         throw new Error('Failed to get AI response');
       }
     } catch (error) {
-      console.error('Chat error:', error);
       const errorMessage: ChatMessage = {
         id: Date.now().toString() + '_error',
         type: 'ai',
@@ -205,7 +203,6 @@ What would you like to do first?`,
         setEditingPrompt(false);
       }
     } catch (error) {
-      console.error('Failed to update system prompt:', error);
     }
   };
 

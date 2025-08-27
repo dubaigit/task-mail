@@ -147,7 +147,6 @@ export const setupInterceptors = (authContext: {
           return api(originalRequest);
         } catch (refreshError) {
           // If refresh fails, the refresh token is invalid. Logout the user.
-          console.error("Token refresh failed:", refreshError);
           authContext.logout();
           return Promise.reject(refreshError);
         }

@@ -86,19 +86,16 @@ export const TaskCardDemo: React.FC = () => {
   };
 
   const handleUpdate = async (task: Task) => {
-    console.log('Task updated:', task);
     // Simulate async update
     await new Promise(resolve => setTimeout(resolve, 1000));
   };
 
   const handleComplete = async (taskId: string) => {
-    console.log('Task completed:', taskId);
     setTaskStatuses(prev => ({ ...prev, [taskId]: TaskStatus.COMPLETED }));
     await new Promise(resolve => setTimeout(resolve, 500));
   };
 
   const handleDelete = async (taskId: string) => {
-    console.log('Task deleted:', taskId);
     if (confirm('Are you sure you want to delete this task?')) {
       // In a real app, you would remove the task from state
       await new Promise(resolve => setTimeout(resolve, 500));

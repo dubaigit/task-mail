@@ -285,11 +285,9 @@ const ValidationSuiteContent: React.FC<AdminValidationSuiteProps> = ({
             <AdminSecurityValidator
               onSecurityEvent={(event) => {
                 // Handle security events if needed
-                console.log('Security event:', event);
               }}
               onValidationComplete={(result) => {
                 // Handle validation completion
-                console.log('Security validation complete:', result);
               }}
             />
           )}
@@ -297,10 +295,10 @@ const ValidationSuiteContent: React.FC<AdminValidationSuiteProps> = ({
           {activeTab === 'health' && (
             <AdminSystemHealthValidator
               onHealthStatusChange={(status) => {
-                console.log('System health status changed:', status);
+                // Handle health status changes
               }}
               onAlert={(alert) => {
-                console.log('System alert:', alert);
+                // Handle system alerts
               }}
             />
           )}

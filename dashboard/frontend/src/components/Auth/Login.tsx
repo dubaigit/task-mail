@@ -38,7 +38,6 @@ const Login: React.FC<LoginProps> = ({ onLogin, onError, isDark: propIsDark }) =
         navigate(from, { replace: true });
       }
     } catch (error: any) {
-      console.error('Login error:', error);
       const errorMessage = error.response?.data?.message || 'Authentication failed. Please check your credentials.';
       setError(errorMessage);
       onError?.(errorMessage);

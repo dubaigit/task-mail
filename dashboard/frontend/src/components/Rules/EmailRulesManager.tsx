@@ -239,7 +239,7 @@ const EmailRulesManager: React.FC = () => {
         setStatistics(statsData);
       }
     } catch (err) {
-      console.error('Failed to load statistics:', err);
+      setError('Failed to load statistics');
     }
   }, []);
 
@@ -250,7 +250,6 @@ const EmailRulesManager: React.FC = () => {
       const ws = new WebSocket(`${protocol}//${window.location.host}/api/v1/email-rules/ws`);
       
       ws.onopen = () => {
-        console.log('Rules WebSocket connected');
         setWsConnection(ws);
       };
       
@@ -264,18 +263,17 @@ const EmailRulesManager: React.FC = () => {
       };
       
       ws.onclose = () => {
-        console.log('Rules WebSocket disconnected');
         setWsConnection(null);
         // Attempt to reconnect after 5 seconds
         setTimeout(initializeWebSocket, 5000);
       };
       
       ws.onerror = (error) => {
-        console.error('Rules WebSocket error:', error);
+        setError('WebSocket connection error');
       };
       
     } catch (err) {
-      console.error('Failed to initialize WebSocket:', err);
+      setError('Failed to initialize WebSocket');
     }
   }, [loadRules, loadStatistics]);
 

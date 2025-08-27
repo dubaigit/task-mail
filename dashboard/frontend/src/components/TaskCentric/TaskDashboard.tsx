@@ -282,13 +282,11 @@ const TaskDashboard: React.FC = () => {
         }
       } else {
         // Handle degraded state - API returned fallback data
-        console.log('API returned fallback data, showing empty state');
         setTasks([]);
         setHasMore(false);
       }
     } catch (error) {
       // Network or other errors - graceful fallback
-      console.log('Network error, using fallback state:', error);
       setTasks([]);
       setHasMore(false);
     } finally {
@@ -319,7 +317,6 @@ const TaskDashboard: React.FC = () => {
       setSyncStatus(data);
     } catch (error) {
       // Network error - set minimal fallback
-      console.log('Network error fetching sync status, using fallback:', error);
       setSyncStatus({
         emailsInPostgres: 0,
         emailsInAppleMail: 0,
@@ -358,7 +355,6 @@ const TaskDashboard: React.FC = () => {
         setCategoryCounts(data);
       } else {
         // Handle API error with fallback data
-        console.log('Category counts API error, using fallback data');
         setCategoryCounts({
           urgent: 0,
           today: 0,
@@ -367,7 +363,7 @@ const TaskDashboard: React.FC = () => {
         });
       }
     } catch (error) {
-      console.log('Category counts network error, using fallback data');
+      // Category counts network error, using fallback data
       // Provide fallback data for network errors
       setCategoryCounts({
         urgent: 0,
@@ -387,7 +383,6 @@ const TaskDashboard: React.FC = () => {
         setUserProfile(data);
       } else {
         // Handle API error with fallback data
-        console.log('User profile API error, using fallback data');
         setUserProfile({
           name: 'Guest User',
           email: 'user@example.com',
@@ -395,7 +390,7 @@ const TaskDashboard: React.FC = () => {
         });
       }
     } catch (error) {
-      console.log('User profile network error, using fallback data');
+      // User profile network error, using fallback data
       // Provide fallback data for network errors
       setUserProfile({
         name: 'Guest User',
@@ -509,7 +504,6 @@ const TaskDashboard: React.FC = () => {
       });
       if (response.ok) {
         await fetchSyncStatus();
-        console.log('Manual sync initiated');
       }
     } catch (error) {
       console.error('Error initiating sync:', error);
@@ -524,7 +518,6 @@ const TaskDashboard: React.FC = () => {
       });
       if (response.ok) {
         await fetchSyncStatus();
-        console.log('Resync initiated');
       }
     } catch (error) {
       console.error('Error initiating resync:', error);
@@ -539,7 +532,6 @@ const TaskDashboard: React.FC = () => {
       });
       if (response.ok) {
         await fetchSyncStatus();
-        console.log('Force reanalyze initiated');
       }
     } catch (error) {
       console.error('Error initiating force reanalyze:', error);
@@ -1203,7 +1195,6 @@ const TaskDashboard: React.FC = () => {
           messages={[]}
           onSendMessage={(message) => {
             // Handle AI message processing here
-            console.log('AI modal message:', message);
           }}
           onClose={() => setShowAIChat(false)}
           isConnected={true}

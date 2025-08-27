@@ -128,19 +128,15 @@ const BeforeExamples = () => {
 // AFTER: Unified design system examples
 const AfterExamples = () => {
   const handleTaskSelect = (task: Task) => {
-    console.log('Task selected:', task.title);
   };
 
   const handleStatusChange = (taskId: string, status: Task['status']) => {
-    console.log('Status changed:', taskId, status);
   };
 
   const handleEdit = (task: Task) => {
-    console.log('Edit task:', task.title);
   };
 
   const handleDelete = (taskId: string) => {
-    console.log('Delete task:', taskId);
   };
 
   return (

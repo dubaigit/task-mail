@@ -73,7 +73,6 @@ const MobileTaskInterface: React.FC<MobileTaskInterfaceProps> = ({
       await onRefresh();
       setLastRefresh(new Date());
     } catch (error) {
-      console.error('Refresh failed:', error);
     } finally {
       setIsRefreshing(false);
     }

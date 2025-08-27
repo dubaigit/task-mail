@@ -118,7 +118,6 @@ const MobileIntegrationExample: React.FC<MobileIntegrationExampleProps> = ({
 
   const handleTaskEdit = async (task: any) => {
     // In real implementation, this would open a task editing modal
-    console.log('Edit task:', task);
   };
 
   const handleTaskCreate = async (emailId: number) => {
@@ -147,7 +146,6 @@ const MobileIntegrationExample: React.FC<MobileIntegrationExampleProps> = ({
 
   const handleDraftEdit = async (draft: any) => {
     // In real implementation, this would open a draft editing interface
-    console.log('Edit draft:', draft);
   };
 
   const handleRefresh = async () => {
@@ -157,8 +155,6 @@ const MobileIntegrationExample: React.FC<MobileIntegrationExampleProps> = ({
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     // In real implementation, this would fetch fresh data from the API
-    console.log('Refreshing data...');
-    
     setLoading(false);
   };
 

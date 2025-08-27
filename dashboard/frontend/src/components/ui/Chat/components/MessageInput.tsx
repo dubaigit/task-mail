@@ -84,7 +84,6 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         });
         setIsRecording(true);
       } catch (error) {
-        console.error('Failed to start recording:', error);
         setIsRecording(false);
       }
     }

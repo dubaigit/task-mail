@@ -173,7 +173,6 @@ export const AdminSecurityValidator: React.FC<AdminSecurityValidatorProps> = ({
       onValidationComplete?.(result);
       
     } catch (error) {
-      console.error('Security validation failed:', error);
     } finally {
       setIsValidating(false);
     }

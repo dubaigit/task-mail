@@ -182,7 +182,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       //   body: JSON.stringify(errorReport),
       // });
 
-      console.log('Error reported:', errorReport);
     } catch (reportingError) {
       console.error('Failed to report error:', reportingError);
     }

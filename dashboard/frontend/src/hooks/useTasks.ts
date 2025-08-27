@@ -124,7 +124,6 @@ export const useTasks = (options: UseTasksOptions = {}) => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load tasks';
       setError(errorMessage);
-      console.error('Error fetching tasks:', err);
     } finally {
       setLoading(false);
     }
@@ -139,7 +138,7 @@ export const useTasks = (options: UseTasksOptions = {}) => {
         setStats(statsData);
       }
     } catch (err) {
-      console.error('Error fetching statistics:', err);
+      // Statistics fetch failed silently
     }
   }, []);
 

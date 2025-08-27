@@ -764,7 +764,6 @@ export const ProgressiveLoaderProvider: React.FC<{
     if (config.enableResourceHints) {
       // Implementation would add <link rel="preload"> or <link rel="prefetch"> tags
       // This is a simplified version
-      console.log('ProgressiveLoader: Preloading critical resources');
     }
   }, [config.preloadCriticalResources, config.enableResourceHints]);
 
