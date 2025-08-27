@@ -2,6 +2,8 @@
 
 # Apple Mail Task-Centric Email Manager
 
+<!-- Verification comment: Repository access confirmed by Devin -->
+
 > 🍎 **Task Mail** - A Production-Ready Email Intelligence System  
 >   A sophisticated email task management system that integrates with Apple Mail to automatically classify, prioritize, and organize emails using AI-powered analysis. Built with React, Node.js, Supabase, and Redis.
 
