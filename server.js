@@ -21,7 +21,9 @@ const {
   aiCommandValidation,
   emailClassificationValidation,
   handleValidationErrors,
-  cleanup: authCleanup
+  cleanup: authCleanup,
+  validateEnvironment,
+  initializeTokenCleanup
 } = require('./src/middleware/auth');
 
 const bcrypt = require('bcrypt');
@@ -89,8 +91,15 @@ const optimizedDatabaseAgent = require('./src/database/OptimizedDatabaseAgent');
 // No need to call initialize() - it's handled in the constructor
 console.log('✅ Optimized Database Agent loaded');
 
-// Import performance optimization modules (simplified)
-// WebSocket will be initialized after server starts
+// Validate environment and initialize security features
+validateEnvironment();
+initializeTokenCleanup();
+console.log('✅ Environment validated and token cleanup initialized');
+
+// Import performance optimization modules
+const { WebSocketManager } = require('./src/websocket/WebSocketManager');
+const { BatchOperationManager } = require('./src/services/AppleMailSyncEngine');
+const { AsyncAIProcessor } = require('./src/ai/AsyncAIProcessor');
 
 // Optimized database agent is now initialized in its constructor
 
@@ -194,7 +203,7 @@ async function initializeOptimizations() {
 }
 
 // Initialize optimizations after database connection
-// setTimeout(initializeOptimizations, 2000); // DISABLED - modules not available
+setTimeout(initializeOptimizations, 2000);
 
 // Initialize database health monitoring
 async function initializeDatabaseHealth() {

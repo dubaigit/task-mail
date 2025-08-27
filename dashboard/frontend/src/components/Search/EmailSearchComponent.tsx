@@ -127,7 +127,6 @@ export const EmailSearchComponent: React.FC<EmailSearchProps> = ({
       
       onSearchResults(result);
     } catch (error) {
-      console.error('Search failed:', error);
       onSearchResults({
         items: [],
         totalCount: 0,
@@ -145,7 +144,6 @@ export const EmailSearchComponent: React.FC<EmailSearchProps> = ({
       const suggestions = await searchEngine.getSuggestions(searchState.query, emails, 8);
       setSearchState(prev => ({ ...prev, suggestions }));
     } catch (error) {
-      console.error('Failed to get suggestions:', error);
     }
   }, [searchState.query, emails]);
 

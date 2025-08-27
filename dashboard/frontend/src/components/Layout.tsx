@@ -32,15 +32,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   ];
 
   const quickActions = [
-    { name: 'Filter High Priority', icon: Icons.filter, action: () => console.log('Filter high priority') },
-    { name: 'Schedule Review', icon: Icons.calendar, action: () => console.log('Schedule review') },
-    { name: 'Recent Activity', icon: Icons.clock, action: () => console.log('Recent activity') },
+    { name: 'Filter High Priority', icon: Icons.filter, action: () => {} },
+    { name: 'Schedule Review', icon: Icons.calendar, action: () => {} },
+    { name: 'Recent Activity', icon: Icons.clock, action: () => {} },
   ];
 
   const userMenuItems = [
-    { name: 'Profile Settings', icon: Icons.user, action: () => console.log('Profile') },
-    { name: 'App Preferences', icon: Icons.settings, action: () => console.log('Settings') },
-    { name: 'Sign Out', icon: Icons.external, action: () => console.log('Sign out') },
+    { name: 'Profile Settings', icon: Icons.user, action: () => {} },
+    { name: 'App Preferences', icon: Icons.settings, action: () => {} },
+    { name: 'Sign Out', icon: Icons.external, action: () => {} },
   ];
 
   // Close menus when clicking outside
@@ -62,7 +62,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      console.log('Searching for:', searchQuery);
       // Implement search functionality
     }
   };

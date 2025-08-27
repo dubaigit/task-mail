@@ -62,7 +62,6 @@ const TaskList: React.FC = () => {
       setTasks(data);
       setError(null);
     } catch (err) {
-      console.error('Failed to fetch tasks:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch tasks');
     } finally {
       setLoading(false);
@@ -86,7 +85,6 @@ const TaskList: React.FC = () => {
         fetchTasks();
       }
     } catch (err) {
-      console.error('Failed to update task:', err);
     }
   };
 

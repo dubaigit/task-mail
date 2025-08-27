@@ -65,17 +65,14 @@ export const CacheBustingProvider: React.FC<CacheBustingProviderProps> = ({
           
           // Set up service worker event listeners
           serviceWorkerManager.on('updateavailable', () => {
-            console.log('🔄 App update available');
             setIsUpdateAvailable(true);
           });
 
           serviceWorkerManager.on('controllerchange', () => {
-            console.log('🔄 Service worker controller changed');
             // Optionally reload the page or show notification
           });
 
           serviceWorkerManager.on('cacheCleared', () => {
-            console.log('🧹 Cache cleared');
             updateCacheStats();
           });
         }
@@ -96,12 +93,11 @@ export const CacheBustingProvider: React.FC<CacheBustingProviderProps> = ({
                 setBuildInfo(cacheBustingManager.getBuildInfo());
               }
             } catch (error) {
-              console.warn('Update check failed:', error);
+              // Update check failed silently
             }
           }, updateCheckInterval);
         }
 
-        console.log('✅ Cache busting system initialized');
       } catch (error) {
         console.error('❌ Cache busting initialization failed:', error);
       }
@@ -125,7 +121,6 @@ export const CacheBustingProvider: React.FC<CacheBustingProviderProps> = ({
         setCacheStats(stats);
       }
     } catch (error) {
-      console.warn('Failed to get cache stats:', error);
     }
   };
 
@@ -154,7 +149,6 @@ export const CacheBustingProvider: React.FC<CacheBustingProviderProps> = ({
         const { advancedCache } = await import('../utils/advancedCache');
         await advancedCache.clear();
         updateCacheStats();
-        console.log('✅ All caches cleared');
       } catch (error) {
         console.error('Cache clear failed:', error);
       }
@@ -175,7 +169,6 @@ export const CacheBustingProvider: React.FC<CacheBustingProviderProps> = ({
         if (enableServiceWorker) {
           await serviceWorkerManager.invalidateAssets(paths);
         }
-        console.log('✅ Assets invalidated:', paths);
       } catch (error) {
         console.error('Asset invalidation failed:', error);
       }

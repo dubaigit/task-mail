@@ -149,7 +149,6 @@ export const RefinementPanelExample = () => {
   };
 
   const handleRefinementInstruction = async (instruction: string) => {
-    console.log('Refining with instruction:', instruction);
     // Simulate refinement processing
     return new Promise<void>((resolve) => {
       setTimeout(() => {

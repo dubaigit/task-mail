@@ -363,7 +363,6 @@ export const IconColors = {
 export const getIcon = (iconName: IconName, _className?: string) => {
   const IconComponent = Icons[iconName];
   if (!IconComponent) {
-    console.warn(`Icon "${iconName}" not found. Available icons:`, Object.keys(Icons));
     return null;
   }
   return IconComponent;

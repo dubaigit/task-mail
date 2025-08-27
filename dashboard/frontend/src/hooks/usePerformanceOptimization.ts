@@ -96,7 +96,6 @@ export const usePerformanceOptimization = () => {
           totalSize += parseInt(size, 10);
         }
       } catch (error) {
-        console.warn('Could not fetch script size:', error);
       }
     });
 

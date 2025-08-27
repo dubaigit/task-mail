@@ -284,7 +284,7 @@ export class CacheManager {
       const blob = new Blob([workerScript], { type: 'application/javascript' });
       this.compressionWorker = new Worker(URL.createObjectURL(blob));
     } catch (error) {
-      console.warn('CacheManager: Compression worker initialization failed:', error);
+      // Compression worker initialization failed - continue without compression
     }
   }
 
@@ -357,7 +357,7 @@ export class CacheManager {
         finalData = await this.compress(data);
         compressed = true;
       } catch (error) {
-        console.warn('CacheManager: Compression failed for key:', key, error);
+        // Compression failed - store uncompressed
       }
     }
 
@@ -734,7 +734,6 @@ export class CacheManager {
           item.originalSize = item.metadata.size;
           item.metadata.size = new Blob([JSON.stringify(compressedData)]).size;
         } catch (error) {
-          console.warn('CacheManager: Failed to compress item:', key, error);
         }
       }
     }
@@ -759,7 +758,6 @@ export class CacheManager {
         }
       }
     } catch (error) {
-      console.warn('CacheManager: Failed to load from persistent storage:', error);
     }
   }
 
@@ -771,7 +769,6 @@ export class CacheManager {
       currentData[key] = item;
       localStorage.setItem('cacheManager_data', JSON.stringify(currentData));
     } catch (error) {
-      console.warn('CacheManager: Failed to save to persistent storage:', error);
     }
   }
 
@@ -783,7 +780,7 @@ export class CacheManager {
       delete currentData[key];
       localStorage.setItem('cacheManager_data', JSON.stringify(currentData));
     } catch (error) {
-      console.warn('CacheManager: Failed to remove from persistent storage:', error);
+      // Failed to remove from persistent storage - item removed from memory cache
     }
   }
 
@@ -793,7 +790,6 @@ export class CacheManager {
     try {
       localStorage.removeItem('cacheManager_data');
     } catch (error) {
-      console.warn('CacheManager: Failed to clear persistent storage:', error);
     }
   }
 

@@ -27,8 +27,6 @@ export class AdminDashboardErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('AdminDashboard Error Boundary caught an error:', error, errorInfo);
-    
     // Log to monitoring service in production
     if (process.env.NODE_ENV === 'production') {
       // Send to error tracking service (Sentry, LogRocket, etc.)

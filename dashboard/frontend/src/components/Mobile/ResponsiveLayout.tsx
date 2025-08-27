@@ -490,7 +490,6 @@ const ResponsiveLayoutContent: React.FC<ResponsiveLayoutProps> = ({
 const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = (props) => {
   const handleSync = async (pendingActions: any[]) => {
     // Implement sync logic here
-    console.log('Syncing pending actions:', pendingActions);
     // Process each pending action
     for (const action of pendingActions) {
       switch (action.type) {

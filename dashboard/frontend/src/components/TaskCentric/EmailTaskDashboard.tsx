@@ -298,13 +298,11 @@ const EmailTaskDashboard: React.FC = () => {
         }
       } else {
         // Handle degraded state - API returned fallback data
-        console.log('API returned fallback data, showing empty state');
         setTasks([]);
         setHasMore(false);
       }
     } catch (error) {
       // Network or other errors - graceful fallback
-      console.log('Network error, using fallback state:', error);
       setTasks([]);
       setHasMore(false);
     } finally {
@@ -321,7 +319,6 @@ const EmailTaskDashboard: React.FC = () => {
         setStats(data);
       }
     } catch (error) {
-      console.error('Error fetching statistics:', error);
     }
   };
 
@@ -335,7 +332,6 @@ const EmailTaskDashboard: React.FC = () => {
       setSyncStatus(data);
     } catch (error) {
       // Network error - set minimal fallback
-      console.log('Network error fetching sync status, using fallback:', error);
       setSyncStatus({
         emailsInPostgres: 0,
         emailsInAppleMail: 0,
@@ -374,7 +370,6 @@ const EmailTaskDashboard: React.FC = () => {
         setCategoryCounts(data);
       } else {
         // Handle API error with fallback data
-        console.log('Category counts API error, using fallback data');
         setCategoryCounts({
           urgent: 0,
           today: 0,
@@ -383,7 +378,6 @@ const EmailTaskDashboard: React.FC = () => {
         });
       }
     } catch (error) {
-      console.log('Category counts network error, using fallback data');
       // Provide fallback data for network errors
       setCategoryCounts({
         urgent: 0,
@@ -403,7 +397,6 @@ const EmailTaskDashboard: React.FC = () => {
         setUserProfile(data);
       } else {
         // Handle API error with fallback data
-        console.log('User profile API error, using fallback data');
         setUserProfile({
           name: 'Guest User',
           email: 'user@example.com',
@@ -411,7 +404,6 @@ const EmailTaskDashboard: React.FC = () => {
         });
       }
     } catch (error) {
-      console.log('User profile network error, using fallback data');
       // Provide fallback data for network errors
       setUserProfile({
         name: 'Guest User',
@@ -511,7 +503,6 @@ const EmailTaskDashboard: React.FC = () => {
         ));
       }
     } catch (error) {
-      console.error('Error updating task status:', error);
     }
   };
 
@@ -524,7 +515,6 @@ const EmailTaskDashboard: React.FC = () => {
       });
       if (response.ok) {
         await fetchSyncStatus();
-        console.log('Manual sync initiated');
       }
     } catch (error) {
       console.error('Error initiating sync:', error);
@@ -539,7 +529,6 @@ const EmailTaskDashboard: React.FC = () => {
       });
       if (response.ok) {
         await fetchSyncStatus();
-        console.log('Resync initiated');
       }
     } catch (error) {
       console.error('Error initiating resync:', error);

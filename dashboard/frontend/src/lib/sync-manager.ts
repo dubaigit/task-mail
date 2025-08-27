@@ -108,7 +108,6 @@ class WebSocketManager {
       try {
         // Check if WebSocket is available in browser
         if (typeof WebSocket === 'undefined') {
-          console.warn('WebSocket not available in this environment');
           reject(new Error('WebSocket not supported'));
           return;
         }
@@ -215,7 +214,6 @@ class WebSocketManager {
       const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
       
       setTimeout(() => {
-        console.log(`Attempting WebSocket reconnection (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
         this.connect().catch(console.error);
       }, delay);
     }
@@ -271,7 +269,6 @@ class OfflineQueueManager {
         }));
       }
     } catch (error) {
-      console.warn('Failed to load offline queue:', error);
       this.queue = [];
     }
   }
@@ -280,7 +277,6 @@ class OfflineQueueManager {
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(this.queue));
     } catch (error) {
-      console.warn('Failed to save offline queue:', error);
     }
   }
 }
@@ -643,7 +639,6 @@ export class SyncManager {
         this.performFullSync().catch(console.error);
         break;
       default:
-        console.log('Unknown WebSocket message type:', data.type);
     }
   }
 
@@ -734,7 +729,6 @@ export class SyncManager {
         try {
           await cacheManager.setEmail(email);
         } catch (error) {
-          console.warn(`Failed to cache email ${email.id}:`, error);
         }
       }));
 
@@ -748,7 +742,6 @@ export class SyncManager {
       try {
         await cacheManager.invalidateEmailCache(emailId);
       } catch (error) {
-        console.warn(`Failed to delete cached email ${emailId}:`, error);
       }
     }));
   }
@@ -800,7 +793,7 @@ export class SyncManager {
   private startPeriodicSync(): void {
     this.syncInterval = setInterval(() => {
       this.performFullSync().catch(error => {
-        console.error('Periodic sync failed:', error);
+        this.addError('periodic_sync', error as Error);
       });
     }, this.config.syncInterval);
   }

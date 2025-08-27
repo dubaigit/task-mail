@@ -94,7 +94,6 @@ const Analytics: React.FC = () => {
       const result = await response.json();
       setData(result);
     } catch (err) {
-      console.error('Failed to fetch analytics:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch analytics');
     } finally {
       setLoading(false);

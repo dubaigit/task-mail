@@ -116,8 +116,6 @@ export class PerformanceValidationSuite {
     this.testResults = [];
 
     try {
-      console.log('🚀 Starting Performance Validation Suite...');
-
       // Backend performance tests
       await this.validateEmailClassificationPerformance();
       await this.validateTaskCategorizationPerformance();
@@ -144,8 +142,6 @@ export class PerformanceValidationSuite {
    * Validate email classification performance (target: <100ms)
    */
   private async validateEmailClassificationPerformance(): Promise<void> {
-    console.log('📧 Testing email classification performance...');
-
     const emails = generateMockEmails(100);
     const times: number[] = [];
 
@@ -189,8 +185,6 @@ export class PerformanceValidationSuite {
    * Validate task categorization performance (target: <2ms)
    */
   private async validateTaskCategorizationPerformance(): Promise<void> {
-    console.log('📋 Testing task categorization performance...');
-
     const tasks = generateMockTasks(200);
     const times: number[] = [];
 
@@ -234,8 +228,6 @@ export class PerformanceValidationSuite {
    * Validate UI interaction performance (target: <500ms)
    */
   private async validateUIInteractionPerformance(): Promise<void> {
-    console.log('🖱️ Testing UI interaction performance...');
-
     const interactions = [
       'task-filter-change',
       'task-status-update',
@@ -284,8 +276,6 @@ export class PerformanceValidationSuite {
    * Validate virtual scrolling performance with large datasets
    */
   private async validateVirtualScrollingPerformance(): Promise<void> {
-    console.log('📜 Testing virtual scrolling performance...');
-
     const largeTasks = generateMockTasks(10000);
     const startTime = performance.now();
 
@@ -316,8 +306,6 @@ export class PerformanceValidationSuite {
    * Validate memory usage with 1000+ tasks (target: <50MB)
    */
   private async validateMemoryUsage(): Promise<void> {
-    console.log('🧠 Testing memory usage...');
-
     // Check if memory API is available
     if (!('memory' in performance)) {
       this.testResults.push({
@@ -372,8 +360,6 @@ export class PerformanceValidationSuite {
    * Validate animation performance (target: 60fps)
    */
   private async validateAnimationPerformance(): Promise<void> {
-    console.log('🎬 Testing animation performance...');
-
     const frameRates: number[] = [];
     const testDuration = 3000; // 3 seconds
     let frameCount = 0;
@@ -436,8 +422,6 @@ export class PerformanceValidationSuite {
    * Run comprehensive stress tests
    */
   private async runStressTests(): Promise<void> {
-    console.log('💪 Running stress tests...');
-
     const stressConfigs: StressTestConfig[] = [
       { emailCount: 1000, taskCount: 1000, duration: 5000, concurrent: false },
       { emailCount: 500, taskCount: 500, duration: 3000, concurrent: true },

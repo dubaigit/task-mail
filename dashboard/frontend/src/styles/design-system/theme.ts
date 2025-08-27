@@ -186,7 +186,6 @@ export class ThemeManager {
       const stored = localStorage.getItem(THEME_STORAGE_KEY);
       return stored ? JSON.parse(stored) : {};
     } catch (error) {
-      console.warn('Failed to load theme from storage:', error);
       return {};
     }
   }
@@ -200,7 +199,6 @@ export class ThemeManager {
     try {
       localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(this.currentTheme));
     } catch (error) {
-      console.warn('Failed to save theme to storage:', error);
     }
   }
 
@@ -326,7 +324,6 @@ export class ThemeManager {
       try {
         listener(this.currentTheme);
       } catch (error) {
-        console.warn('Theme listener error:', error);
       }
     });
   }
@@ -356,8 +353,6 @@ export class ThemeManager {
     const preset = themePresets.find((p) => p.name === presetName);
     if (preset) {
       this.setTheme(preset.config);
-    } else {
-      console.warn(`Theme preset "${presetName}" not found`);
     }
   }
 

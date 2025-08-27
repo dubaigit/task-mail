@@ -223,8 +223,7 @@ export const MainDashboard: React.FC = optimizeComponent.memo(() => {
     }
 
     return () => {
-      const renderTime = renderTimer.end();
-      console.log(`MainDashboard render time: ${renderTime}ms`);
+      renderTimer.end();
     };
   }, []);
 

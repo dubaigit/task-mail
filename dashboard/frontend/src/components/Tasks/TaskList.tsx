@@ -63,7 +63,6 @@ const TaskList: React.FC = () => {
       }
       setTasks(data);
     } catch (err) {
-      console.error('Failed to fetch tasks:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch tasks');
       setTasks([]);
     } finally {
@@ -100,7 +99,6 @@ const TaskList: React.FC = () => {
   };
 
   const handleTaskAction = (taskId: string, action: string) => {
-    console.log(`Action ${action} on task ${taskId}`);
     // Implement task actions
   };
 
@@ -442,7 +440,7 @@ const TaskList: React.FC = () => {
                   <Button
                     variant="secondary"
                     className="w-full border-2 border-dashed border-border hover:border-primary/50"
-                    onClick={() => console.log(`Add task to ${column.status}`)}
+                    onClick={() => {/* TODO: Implement add task */}}
                   >
                     <Icons.plus className="w-4 h-4 mr-2" />
                     Add Task

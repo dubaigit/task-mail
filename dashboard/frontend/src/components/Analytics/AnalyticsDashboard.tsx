@@ -144,7 +144,6 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = memo(({
     const minInterval = 15000; // 15 seconds minimum
     
     if (!forceRefresh && timeSinceLastFetch < minInterval) {
-      console.log(`Analytics API throttled: ${Math.ceil((minInterval - timeSinceLastFetch) / 1000)}s remaining`);
       return;
     }
     
@@ -197,7 +196,6 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = memo(({
       }
     } catch (error) {
       if (isComponentMountedRef.current) {
-        console.error('Error fetching detailed stats:', error);
         setError('Failed to fetch analytics data');
         setRetryCount(prev => Math.min(prev + 1, 5)); // Max 5 retries
       }
@@ -242,8 +240,6 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = memo(({
       const backoffMultiplier = Math.pow(2, retryCount); // 2^retryCount
       const maxInterval = 600000; // 10 minutes max
       const actualInterval = Math.min(baseInterval * backoffMultiplier, maxInterval);
-      
-      console.log(`Next analytics fetch in ${actualInterval / 1000}s (retry count: ${retryCount})`);
       
       fetchTimeoutRef.current = setTimeout(() => {
         fetchDetailedStats();

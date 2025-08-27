@@ -45,19 +45,11 @@ export const usePerformanceTracking = () => {
   }, []);
 
   const trackUserInteraction = useCallback((action: string) => {
-    // Minimal interaction tracking
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`User interaction: ${action}`);
-    }
+    // Minimal interaction tracking - logging removed for production readiness
   }, []);
 
   const trackComponentMount = useCallback((componentName: string) => {
     const mountTime = Date.now() - startTimeRef.current;
-    
-    // Track component mount performance
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Component ${componentName} mounted in ${mountTime}ms`);
-    }
     
     // Warn if mounting took too long
     if (mountTime > 1000) {
@@ -66,10 +58,7 @@ export const usePerformanceTracking = () => {
   }, []);
 
   const trackUserAction = useCallback((action: string, metadata?: Record<string, any>) => {
-    // Enhanced user action tracking with metadata
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`User action: ${action}`, metadata || '');
-    }
+    // Enhanced user action tracking with metadata - logging removed for production readiness
   }, []);
 
   return {

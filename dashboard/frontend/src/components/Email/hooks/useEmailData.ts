@@ -54,7 +54,6 @@ export const useEmailData = (): UseEmailDataReturn => {
       const data = await response.json();
       
       if (!Array.isArray(data)) {
-        console.error('API response is not an array:', data);
         throw new Error('Invalid API response format');
       }
       
@@ -77,7 +76,6 @@ export const useEmailData = (): UseEmailDataReturn => {
       
       setEmails(processedEmails);
     } catch (error) {
-      console.error('Error fetching emails:', error);
       setError(handleError(error, 'fetchEmails'));
     } finally {
       setLoading(false);
