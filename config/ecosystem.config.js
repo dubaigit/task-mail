@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-    name: 'apple-mcp',
+    name: 'task-mail-backend',
     script: 'server.js',
     instances: 1, // Single instance for Apple Mail access
     autorestart: true,

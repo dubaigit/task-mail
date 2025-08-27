@@ -103,7 +103,7 @@ export const themePresets: ThemePreset[] = [
 ];
 
 // Theme storage key
-const THEME_STORAGE_KEY = 'apple-mcp-theme';
+const THEME_STORAGE_KEY = 'task-mail-theme';
 
 // System preference detection
 const getSystemThemePreference = (): 'light' | 'dark' => {

@@ -1,8 +1,8 @@
-# 📧 Apple MCP - Email Intelligence Dashboard
+# 📧 Task Mail - Email Intelligence Dashboard
 
 # Apple Mail Task-Centric Email Manager
 
-> 🍎 **Apple Mail Task Manager** - A Production-Ready Email Intelligence System  
+> 🍎 **Task Mail** - A Production-Ready Email Intelligence System  
 >   A sophisticated email task management system that integrates with Apple Mail to automatically classify, prioritize, and organize emails using AI-powered analysis. Built with React, Node.js, Supabase, and Redis.
 
 ## 🚀 Quick Start
@@ -26,7 +26,7 @@ cd dashboard/frontend && npm start
 ## 📁 Project Structure
 
 ```
-apple-mcp/
+task-mail/
 ├── 📄 Core Application Files
 │   ├── server.js                     # Main backend server (Node.js/Express)
 │   ├── ai_service.js                 # AI integration service (GPT-5)
@@ -223,7 +223,7 @@ apple-mcp/
 ### 1. Clone the Repository
 ```bash
 git clone <repository-url>
-cd apple-mcp
+cd task-mail
 ```
 
 ### 2. Install Dependencies

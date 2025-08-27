@@ -1,12 +1,12 @@
-# 🏗️ Apple MCP - Technical Architecture Documentation
+# 🏗️ Task Mail - Technical Architecture Documentation
 
-**A comprehensive technical analysis of the Apple Mail Control Panel (MCP) - Email Intelligence Dashboard**
+**A comprehensive technical analysis of the Task Mail - Email Intelligence Dashboard**
 
 ---
 
 ## 📋 Executive Summary
 
-Apple MCP is a sophisticated **email intelligence system** that transforms Apple Mail into a task-centric productivity platform. The system leverages **AI-powered email classification** using GPT-5 models to automatically convert emails into actionable tasks, providing real-time collaboration tracking and intelligent draft generation.
+Task Mail is a sophisticated **email intelligence system** that transforms Apple Mail into a task-centric productivity platform. The system leverages **AI-powered email classification** using GPT-5 models to automatically convert emails into actionable tasks, providing real-time collaboration tracking and intelligent draft generation.
 
 ### Core Technology Stack
 - **Backend**: Node.js/Express with PostgreSQL + Redis
@@ -21,7 +21,7 @@ Apple MCP is a sophisticated **email intelligence system** that transforms Apple
 
 ### 📁 Root Level (2.65 MiB total)
 ```
-apple-mcp/
+task-mail/
 ├── 📜 server.js (46.69 KiB)          # Main backend server - Express app with security
 ├── 📜 ai_service.js (16.07 KiB)      # AI processing service - GPT-5 integration
 ├── 📋 docker-compose.yml (5.61 KiB) # Infrastructure services (Supabase + Redis)
