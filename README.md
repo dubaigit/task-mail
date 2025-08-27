@@ -269,6 +269,60 @@ node server.js
 cd dashboard/frontend && npm start
 ```
 
+## 🐧 Ubuntu Testing Setup (Alternative to Docker)
+
+For testing and development on Ubuntu without Docker, we provide comprehensive documentation for setting up local PostgreSQL and all required services.
+
+### Quick Start - Ubuntu Testing
+```bash
+# Complete setup in one go
+git clone https://github.com/dubaigit/task-mail.git
+cd task-mail
+npm install && npm run install:frontend
+
+# Install PostgreSQL and setup database
+sudo apt update && sudo apt install -y postgresql postgresql-contrib sqlite3
+sudo systemctl start postgresql
+sudo -u postgres createdb taskmail
+sudo -u postgres psql -c "CREATE USER taskmail_user WITH PASSWORD 'apple_secure_2024';"
+
+# Initialize database schema
+PGPASSWORD=apple_secure_2024 psql -h localhost -U taskmail_user -d taskmail -f database/init/001_init_schema.sql
+
+# Install and start PostgREST (REST API for PostgreSQL)
+wget https://github.com/PostgREST/postgrest/releases/download/v12.0.1/postgrest-v12.0.1-linux-static-x64.tar.xz
+tar -xf postgrest-v12.0.1-linux-static-x64.tar.xz && sudo mv postgrest /usr/local/bin/
+echo 'db-uri = "postgresql://taskmail_user:apple_secure_2024@localhost:5432/taskmail"
+db-schemas = "public"
+db-anon-role = "taskmail_user"
+server-host = "127.0.0.1"
+server-port = 3001' > postgrest.conf
+postgrest postgrest.conf &
+
+# Create fake Apple Mail database for testing
+npm run fake:db
+
+# Set OpenAI API key and start server
+export OPENAI_API_KEY="your_openai_api_key_here"
+node server.js
+```
+
+### 📚 Detailed Ubuntu Setup Documentation
+
+- **[Complete Ubuntu Testing Setup Guide](./docs/UBUNTU_TESTING_SETUP.md)** - Comprehensive step-by-step instructions
+- **[Quick Start Ubuntu Guide](./docs/QUICK_START_UBUNTU.md)** - Condensed setup commands
+- **Architecture**: Uses local PostgreSQL + PostgREST instead of Supabase Docker
+- **Testing Database**: Includes fake Apple Mail SQLite database with sample data
+- **Security**: OpenAI API key stored as environment variable (not in files)
+
+### Ubuntu Testing Features
+- ✅ **Local PostgreSQL** database with full schema
+- ✅ **PostgREST** providing REST API (replaces Supabase)
+- ✅ **Fake Apple Mail Database** with 23 test messages
+- ✅ **Complete Environment** setup without Docker
+- ✅ **Security Best Practices** for API key management
+- ✅ **Troubleshooting Guide** for common issues
+
 ## 🎮 Usage
 
 ### API Endpoints
