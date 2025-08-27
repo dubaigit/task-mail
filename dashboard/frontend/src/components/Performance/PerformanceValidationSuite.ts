@@ -584,36 +584,7 @@ export function createPerformanceValidationSuite(): PerformanceValidationSuite {
 export async function runPerformanceValidation(): Promise<ValidationSuiteResult> {
   const validationSuite = createPerformanceValidationSuite();
   
-  console.log('🔬 Performance Validation Suite Starting...');
-  console.log('📊 Testing against targets:');
-  console.log(`  • Email Classification: <${PERFORMANCE_TARGETS.CLASSIFICATION_MAX_MS}ms`);
-  console.log(`  • Task Categorization: <${PERFORMANCE_TARGETS.TASK_CATEGORIZATION_MAX_MS}ms`);
-  console.log(`  • UI Interactions: <${PERFORMANCE_TARGETS.UI_INTERACTION_MAX_MS}ms`);
-  console.log(`  • Memory Usage: <${PERFORMANCE_TARGETS.MEMORY_LIMIT_MB}MB for ${PERFORMANCE_TARGETS.MEMORY_TEST_TASK_COUNT}+ tasks`);
-  console.log(`  • Animation Performance: ${PERFORMANCE_TARGETS.TARGET_FPS}fps`);
-  console.log('');
-
   const results = await validationSuite.runFullValidation();
-
-  console.log('📈 Performance Validation Results:');
-  console.log(results.summary);
-  console.log('');
-
-  // Log detailed results
-  results.results.forEach(result => {
-    const status = result.passed ? '✅' : '❌';
-    console.log(`${status} ${result.testName}: ${result.actual}${result.unit} (target: <${result.target}${result.unit})`);
-    
-    if (result.details) {
-      console.log(`    Details: ${result.details}`);
-    }
-    
-    if (result.recommendations) {
-      console.log('    Recommendations:');
-      result.recommendations.forEach(rec => console.log(`      • ${rec}`));
-    }
-    console.log('');
-  });
 
   return results;
 }

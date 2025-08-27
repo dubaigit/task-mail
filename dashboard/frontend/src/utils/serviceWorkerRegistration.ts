@@ -306,7 +306,6 @@ export class ServiceWorkerManager {
     // Listen for messages from service worker
     navigator.serviceWorker.addEventListener('message', (event) => {
       const { data } = event;
-      console.log('[SW] Message from service worker:', data);
       this.emit('message', data);
     });
   }
@@ -319,16 +318,13 @@ export class ServiceWorkerManager {
 
     // Listen for updates
     this.registration.addEventListener('updatefound', () => {
-      console.log('[SW] Update found');
       this.emit('updatefound');
 
       const newWorker = this.registration!.installing;
       if (newWorker) {
         newWorker.addEventListener('statechange', () => {
-          console.log('[SW] New worker state:', newWorker.state);
           
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            console.log('[SW] New content available');
             this.emit('updateavailable', newWorker);
             
             if (this.config.enableUpdateNotifications) {
@@ -352,7 +348,6 @@ export class ServiceWorkerManager {
       this.checkForUpdates();
     }, this.config.updateInterval);
 
-    console.log('[SW] Started update checks every', this.config.updateInterval, 'ms');
   }
 
   /**
@@ -362,7 +357,6 @@ export class ServiceWorkerManager {
     if (this.updateCheckInterval) {
       clearInterval(this.updateCheckInterval);
       this.updateCheckInterval = undefined;
-      console.log('[SW] Stopped update checks');
     }
   }
 

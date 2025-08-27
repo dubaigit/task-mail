@@ -25,8 +25,6 @@ export const useWebSocketSubscription = (options: UseWebSocketSubscriptionOption
     wsRef.current = ws;
 
     ws.onopen = () => {
-      console.log('WebSocket connected');
-      
       ws.send(JSON.stringify({
         type: 'subscribe',
         payload: { events }
@@ -41,8 +39,6 @@ export const useWebSocketSubscription = (options: UseWebSocketSubscriptionOption
         
         if (message.type === 'event' && message.eventType && events.includes(message.eventType)) {
           onMessage?.(message);
-        } else if (message.type === 'subscription_ack') {
-          console.log('Subscribed to events:', message.data);
         }
       } catch (error) {
         console.error('Failed to parse WebSocket message:', error);
@@ -55,7 +51,6 @@ export const useWebSocketSubscription = (options: UseWebSocketSubscriptionOption
     };
 
     ws.onclose = () => {
-      console.log('WebSocket disconnected');
       onDisconnect?.();
     };
 

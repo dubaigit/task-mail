@@ -1172,7 +1172,7 @@ const TaskDashboard: React.FC = () => {
       {/* AI Chat Modal Trigger - Floating button */}
       <button
         onClick={() => setShowAIChat(true)}
-        className="fixed bottom-6 right-6 bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-full shadow-lg transition-all duration-200 hover:scale-105 z-40"
+        className="fixed bottom-6 right-6 bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-full shadow-lg transition-all duration-200 hover:scale-105 z-30"
         aria-label="Open AI Chat"
       >
         <OptimizedIcon name="brain" size={24} />
