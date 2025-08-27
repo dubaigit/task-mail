@@ -11,17 +11,17 @@ const emailSyncService = new EmailSyncService();
 const draftSyncService = new DraftSyncService();
 const aiChatBotService = new AIChatBotService();
 
-// Initialize services on startup
-(async () => {
-  try {
-    await emailSyncService.initialize();
-    await draftSyncService.initialize();
-    await aiChatBotService.initialize();
-    logger.info('Email API services initialized successfully');
-  } catch (error) {
-    logger.error('Failed to initialize email API services:', error);
-  }
-})();
+// Initialize services on startup - COMMENTED OUT TO PREVENT BLOCKING
+// (async () => {
+//   try {
+//     await emailSyncService.initialize();
+//     await draftSyncService.initialize();
+//     await aiChatBotService.initialize();
+//     logger.info('Email API services initialized successfully');
+//   } catch (error) {
+//     logger.error('Failed to initialize email API services:', error);
+//   }
+// })();
 
 // ============================================================================
 // EMAIL ROUTES
