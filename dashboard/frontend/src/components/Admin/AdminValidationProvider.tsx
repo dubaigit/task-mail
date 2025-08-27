@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { AdminSecurityValidator } from './AdminSecurityValidator';
 import { AdminSystemHealthValidator } from './AdminSystemHealthValidator';
 import { AdminDashboardErrorBoundary } from './AdminDashboardErrorBoundary';
+import { useWebSocketSubscription } from '../../hooks/useWebSocketSubscription';
 
 interface ValidationState {
   security: {
@@ -168,6 +169,15 @@ export const AdminValidationProvider: React.FC<AdminValidationProviderProps> = (
     acknowledgeRisk
   };
 
+  useWebSocketSubscription({
+    events: ['admin_updates'],
+    onMessage: (message) => {
+      if (message.eventType === 'admin_updates') {
+        runFullValidation();
+      }
+    }
+  });
+
   // Auto-validation
   useEffect(() => {
     if (!autoValidate) return;
@@ -175,11 +185,7 @@ export const AdminValidationProvider: React.FC<AdminValidationProviderProps> = (
     // Run initial validation
     runFullValidation();
     
-    // Set up periodic validation
-    const interval = setInterval(runFullValidation, validationInterval);
-    
-    return () => clearInterval(interval);
-  }, [autoValidate, validationInterval]);
+  }, [autoValidate]);
 
   return (
     <ValidationContext.Provider value={{ state, actions }}>

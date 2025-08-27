@@ -697,11 +697,7 @@ export class CacheManager {
   }
 
   private startCleanupTimer(): void {
-    if (!this.config.cleanupInterval) return;
-
-    this.cleanupTimer = setInterval(() => {
-      this.cleanup();
-    }, this.config.cleanupInterval);
+    // Cache cleanup now handled by server-side scheduled jobs
   }
 
   private async cleanup(): Promise<void> {

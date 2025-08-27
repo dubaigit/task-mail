@@ -543,7 +543,6 @@ const EmailTaskDashboard: React.FC = () => {
       });
       if (response.ok) {
         await fetchSyncStatus();
-        console.log('Force reanalyze initiated');
       }
     } catch (error) {
       console.error('Error initiating force reanalyze:', error);
@@ -1009,7 +1008,6 @@ const EmailTaskDashboard: React.FC = () => {
                   messages={[]}
                   onSendMessage={(message) => {
                     // Handle AI message processing here
-                    console.log('AI message:', message);
                   }}
                   isConnected={true}
                   maxMessages={100}
@@ -1138,7 +1136,6 @@ const EmailTaskDashboard: React.FC = () => {
           messages={[]}
           onSendMessage={(message) => {
             // Handle AI message processing here
-            console.log('AI modal message:', message);
           }}
           onClose={() => setShowAIChat(false)}
           isConnected={true}

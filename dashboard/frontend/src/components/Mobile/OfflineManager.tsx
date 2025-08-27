@@ -5,6 +5,7 @@ import {
   CheckCircle as CheckCircleIcon,
   CloudUpload as CloudArrowUpIcon
 } from 'lucide-react';
+import { useWebSocketSubscription } from '../../hooks/useWebSocketSubscription';
 
 interface OfflineData {
   tasks: any[];
@@ -129,16 +130,20 @@ const OfflineManager: React.FC<OfflineManagerProps> = ({
     };
   }, [isOfflineMode, pendingActions.length]);
 
+  useWebSocketSubscription({
+    events: ['sync_updates'],
+    onMessage: (message) => {
+      if (message.eventType === 'sync_updates' && isOnline && pendingActions.length > 0) {
+        syncWhenOnline();
+      }
+    }
+  });
+
   // Auto-sync interval
   useEffect(() => {
     if (!isOfflineMode || !isOnline || pendingActions.length === 0) return;
 
-    const interval = setInterval(() => {
-      syncWhenOnline();
-    }, syncInterval * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [isOfflineMode, isOnline, pendingActions.length, syncInterval]);
+  }, [isOfflineMode, isOnline, pendingActions.length]);
 
   // Save pending actions to storage
   useEffect(() => {

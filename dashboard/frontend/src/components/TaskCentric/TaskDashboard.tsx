@@ -161,7 +161,6 @@ const TaskDashboard: React.FC = () => {
   const [relatedItems, setRelatedItems] = useState<RelatedItem[]>([]);
   const [suggestions, setSuggestions] = useState<Array<{ title: string; description: string }>>([]);
   const [showAIPrompts, setShowAIPrompts] = useState(false);
-  const [showAIChat, setShowAIChat] = useState(false);
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
   const [userProfile, setUserProfile] = useState<{email: string; name: string; displayName: string} | null>(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -624,8 +623,10 @@ const TaskDashboard: React.FC = () => {
 
 
   return (
-    <React.Fragment>
-    <div className="min-h-screen w-full bg-slate-900 relative overflow-hidden">
+    <div className="grid h-full bg-gray-50" style={{ gridTemplateColumns: '1fr 320px' }}>
+      {/* Main Content */}
+      <div className="flex flex-col">
+        <div className="min-h-screen w-full bg-slate-900 relative overflow-hidden">
       <BGPattern variant="grid" mask="fade-edges" size={32} fill="rgba(59, 130, 246, 0.1)" />
 
       {/* Full Width Content - No Header */}
@@ -1030,7 +1031,7 @@ const TaskDashboard: React.FC = () => {
                 <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">Quick Actions</h3>
                 <div className="space-y-2">
                   <button 
-                    onClick={() => setShowAIChat(true)}
+                    onClick={() => {}}
                     className="w-full p-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 rounded-lg text-left transition-colors">
                     <div className="flex items-center gap-2">
                       <OptimizedIcon name="brain" size={12} className="text-blue-400" />
@@ -1075,6 +1076,8 @@ const TaskDashboard: React.FC = () => {
             </AccessibleCard>
           </div>
 
+            </div>
+          </div>
         </div>
       </div>
       
@@ -1168,42 +1171,26 @@ const TaskDashboard: React.FC = () => {
         onClose={() => setShowAIPrompts(false)}
       />
       
-      {/* AI Chat Modal - Floating trigger for modal chat */}
-      {/* AI Chat Modal Trigger - Floating button */}
-      <button
-        onClick={() => setShowAIChat(true)}
-        className="fixed bottom-6 right-6 bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-full shadow-lg transition-all duration-200 hover:scale-105 z-40"
-        aria-label="Open AI Chat"
-      >
-        <OptimizedIcon name="brain" size={24} />
-      </button>
-
-      {/* AI Chat Modal */}
-      {showAIChat && (
-        <UnifiedChat
-          variant="modal"
-          features={{
-            ai: true,
-            database: true,
-            systemPrompt: true,
-            metadata: true,
-            typing: true
-          }}
-          theme={{ variant: 'dark' }}
-          title="AI Email Assistant"
-          placeholder="Ask me about your emails, request drafts, or create automation rules..."
-          messages={[]}
-          onSendMessage={(_message) => {
-            // Handle AI message processing here
-          }}
-          onClose={() => setShowAIChat(false)}
-          isConnected={true}
-          maxMessages={100}
-        />
-      )}
-      
+      {/* AI Chat Sidebar */}
+      <div className="bg-white border-l border-gray-200 flex flex-col">
+        <div className="p-4 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900">AI Assistant</h3>
+          <p className="text-sm text-gray-600 mt-1">Get help with your tasks</p>
+        </div>
+        
+        <div className="flex-1 overflow-hidden">
+          <UnifiedChat
+            messages={[]}
+            onSendMessage={(_message) => {
+              // Handle AI message processing here
+            }}
+            isConnected={true}
+            maxMessages={100}
+            className="h-full"
+          />
+        </div>
+      </div>
     </div>
-    </React.Fragment>
   );
 };
 

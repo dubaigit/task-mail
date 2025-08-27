@@ -26,7 +26,8 @@ router.get('/', authenticateToken, async (req, res) => {
       tags, 
       dueDateFrom, 
       dueDateTo,
-      search 
+      search,
+      dateRange = 'all'
     } = req.query;
     
     const offset = (page - 1) * limit;
@@ -50,6 +51,27 @@ router.get('/', authenticateToken, async (req, res) => {
         )
       `)
       .order('created_at', { ascending: false });
+
+    if (dateRange && dateRange !== 'all') {
+      const now = new Date();
+      let startDate;
+      
+      switch (dateRange) {
+        case 'today':
+          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          break;
+        case 'week':
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case 'month':
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+          break;
+      }
+      
+      if (startDate) {
+        query = query.gte('created_at', startDate.toISOString());
+      }
+    }
 
     // Apply filters
     if (status) query = query.eq('status', status);
