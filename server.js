@@ -99,6 +99,7 @@ console.log('✅ Environment validated and token cleanup initialized');
 // Import performance optimization modules
 const { WebSocketManager } = require('./src/websocket/WebSocketManager');
 const { BatchOperationManager } = require('./src/services/AppleMailSyncEngine');
+const { AsyncAIProcessor } = require('./src/ai/AsyncAIProcessor');
 
 // Optimized database agent is now initialized in its constructor
 
