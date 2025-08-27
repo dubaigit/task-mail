@@ -41,7 +41,7 @@ export const useWebSocketSubscription = (options: UseWebSocketSubscriptionOption
           onMessage?.(message);
         }
       } catch (error) {
-        console.error('Failed to parse WebSocket message:', error);
+        
       }
     };
 
