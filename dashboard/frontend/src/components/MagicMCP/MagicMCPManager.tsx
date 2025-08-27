@@ -1,3 +1,4 @@
+import { TaskStatus, TaskPriority, TaskCategory } from '../../types';
 /**
  * Magic MCP Framework Manager Component
  * 
@@ -71,7 +72,7 @@ interface ProblemSolvingRequest {
 interface MCPOperation {
   id: string;
   type: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  status: 'pending' | 'in_progress' | TaskStatus.COMPLETED | 'failed';
   start_time: string;
   end_time?: string;
   result?: any;
@@ -201,7 +202,7 @@ const MagicMCPManager: React.FC = () => {
       case 'problem_solving_completed':
         setOperations(prev => prev.map(op => 
           op.type === message.type.replace('_completed', '_started') && op.status === 'in_progress'
-            ? { ...op, status: 'completed', end_time: message.timestamp, progress: 100 }
+            ? { ...op, status: TaskStatus.COMPLETED, end_time: message.timestamp, progress: 100 }
             : op
         ));
         break;
@@ -810,7 +811,7 @@ const MagicMCPManager: React.FC = () => {
                   Active: {operations.filter(op => op.status === 'in_progress').length}
                 </span>
                 <span className="stat-item">
-                  Completed: {operations.filter(op => op.status === 'completed').length}
+                  Completed: {operations.filter(op => op.status === TaskStatus.COMPLETED).length}
                 </span>
               </div>
               <button

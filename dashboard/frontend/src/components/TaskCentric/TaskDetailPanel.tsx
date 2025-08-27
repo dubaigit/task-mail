@@ -4,32 +4,23 @@ import {
   TaskItem,
   TaskCentricEmail,
   TaskCentricDraft,
-  TaskStatus,
   TaskUrgencyLevel
 } from './types';
+import { TaskStatus } from '../../types/core';
+import { Icons } from '../ui/icons';
 import {
-  ClockIcon,
-  UserIcon,
-  CalendarDaysIcon,
-  CheckCircleIcon,
-  XMarkIcon,
-  PencilIcon,
-  PaperAirplaneIcon,
-  ArrowPathIcon,
-  TagIcon,
-  ChatBubbleLeftRightIcon,
-  DocumentTextIcon,
-  ExclamationTriangleIcon,
-  InformationCircleIcon,
-  SparklesIcon,
-  AdjustmentsHorizontalIcon,
-  EyeIcon,
-  ShareIcon
-} from '@heroicons/react/24/outline';
-import {
-  BookmarkIcon as BookmarkSolidIcon,
-  StarIcon as StarSolidIcon
-} from '@heroicons/react/24/solid';
+  AlertTriangle as ExclamationTriangleIcon,
+  X as XMarkIcon,
+  Edit3 as PencilIcon,
+  Bookmark as BookmarkIcon,
+  Share as ShareIcon,
+  CalendarDays as CalendarDaysIcon,
+  User as UserIcon,
+  MessageSquare as ChatBubbleLeftRightIcon,
+  RefreshCw as ArrowPathIcon,
+  Send as PaperAirplaneIcon,
+  Bookmark as BookmarkSolidIcon
+} from 'lucide-react';
 
 /**
  * TaskDetailPanel - Right panel for detailed task information and draft composition
@@ -86,7 +77,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
       ...task,
       status: newStatus,
       updatedAt: new Date().toISOString(),
-      ...(newStatus === 'COMPLETED' && { 
+      ...(newStatus === TaskStatus.COMPLETED && { 
         completedAt: new Date().toISOString(),
         progress: 100
       })
@@ -103,7 +94,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
       progress: Math.min(100, Math.max(0, progress)),
       updatedAt: new Date().toISOString(),
       ...(progress === 100 && { 
-        status: 'COMPLETED' as TaskStatus,
+        status: TaskStatus.COMPLETED,
         completedAt: new Date().toISOString()
       })
     };
@@ -160,6 +151,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
   const renderUrgencyIndicator = (urgency: TaskUrgencyLevel) => {
     const configs = {
       CRITICAL: { color: '#DC2626', label: 'Critical', pulse: true },
+      URGENT: { color: '#DC2626', label: 'Urgent', pulse: true },
       HIGH: { color: '#EA580C', label: 'High', pulse: false },
       MEDIUM: { color: '#2563EB', label: 'Medium', pulse: false },
       LOW: { color: '#6B7280', label: 'Low', pulse: false }
@@ -202,11 +194,11 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
             <div className="task-meta">
               {renderUrgencyIndicator(task.urgency)}
               <div className="task-category">
-                <TagIcon className="w-4 h-4" />
-                <span>{task.category.replace('_', ' ')}</span>
+                <Icons.tag className="w-4 h-4" />
+                <span>{task.category?.replace('_', ' ')}</span>
               </div>
               <div className="task-created">
-                <ClockIcon className="w-4 h-4" />
+                <Icons.clock className="w-4 h-4" />
                 <span>Created {new Date(task.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
@@ -216,7 +208,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
             {isEditing ? (
               <>
                 <button onClick={handleSaveEdit} className="save-button">
-                  <CheckCircleIcon className="w-4 h-4" />
+                  <Icons.checkCircle className="w-4 h-4" />
                   Save
                 </button>
                 <button onClick={handleCancelEdit} className="cancel-button">
@@ -251,11 +243,14 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
               className="status-select"
               disabled={isEditing}
             >
-              <option value="PENDING">Pending</option>
+              <option value="TODO">To Do</option>
               <option value="IN_PROGRESS">In Progress</option>
-              <option value="WAITING">Waiting</option>
+              <option value="WAITING_FOR_REPLY">Waiting for Reply</option>
+              <option value="REVIEW">Review</option>
               <option value="COMPLETED">Completed</option>
+              <option value="DONE">Done</option>
               <option value="CANCELLED">Cancelled</option>
+              <option value="BLOCKED">Blocked</option>
             </select>
           </div>
 
@@ -315,7 +310,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
             
             {task.estimatedDuration && (
               <div className="metadata-item">
-                <ClockIcon className="w-4 h-4" />
+                <Icons.clock className="w-4 h-4" />
                 <span className="metadata-label">Estimated</span>
                 <span className="metadata-value">{task.estimatedDuration} min</span>
               </div>
@@ -323,7 +318,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
             
             {task.tags && task.tags.length > 0 && (
               <div className="metadata-item">
-                <TagIcon className="w-4 h-4" />
+                <Icons.tag className="w-4 h-4" />
                 <span className="metadata-label">Tags</span>
                 <div className="task-tags">
                   {task.tags.map((tag, index) => (
@@ -340,7 +335,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
           <div className="ai-insights-section">
             <div className="section-header">
               <div className="section-title">
-                <SparklesIcon className="w-5 h-5" />
+                <Icons.sparkles className="w-5 h-5" />
                 <span>AI Insights</span>
               </div>
               <button 
@@ -354,7 +349,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
             <div className="ai-insights-content">
               <div className="confidence-indicator">
                 <span className="confidence-label">Confidence:</span>
-                <span className="confidence-value">{Math.round(task.aiConfidence * 100)}%</span>
+                <span className="confidence-value">{Math.round((task.aiConfidence || 0) * 100)}%</span>
               </div>
               
               <div className="ai-reasoning">
@@ -429,7 +424,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
         {/* Email Actions */}
         <div className="email-actions">
           <button className="email-action-button">
-            <EyeIcon className="w-4 h-4" />
+            <Icons.eye className="w-4 h-4" />
             View Full Thread
           </button>
           <button className="email-action-button">
@@ -549,7 +544,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                 disabled={!draftInstructions.trim() || isGeneratingDraft}
                 className="refine-button"
               >
-                <SparklesIcon className="w-4 h-4" />
+                <Icons.sparkles className="w-4 h-4" />
                 Refine Draft
               </button>
             </div>
@@ -564,7 +559,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
     return (
       <div className={`task-detail-panel empty ${className}`}>
         <div className="empty-state">
-          <DocumentTextIcon className="w-16 h-16 text-muted-foreground" />
+          <Icons.document className="w-16 h-16 text-muted-foreground" />
           <h2>Select a task</h2>
           <p>Choose a task from the list to view details and manage drafts</p>
         </div>
@@ -580,7 +575,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
           onClick={() => setActiveTab('details')}
           className={`tab-button ${activeTab === 'details' ? 'active' : ''}`}
         >
-          <DocumentTextIcon className="w-4 h-4" />
+          <Icons.document className="w-4 h-4" />
           Details
         </button>
         <button

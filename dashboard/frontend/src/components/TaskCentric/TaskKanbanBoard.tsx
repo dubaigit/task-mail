@@ -1,19 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  CalendarDaysIcon,
-  ClockIcon,
-  ExclamationTriangleIcon,
-  CheckCircleIcon,
-  UserIcon,
-  EnvelopeIcon,
-  UsersIcon,
-  ChatBubbleLeftRightIcon,
-  BellIcon
-} from '@heroicons/react/24/outline';
-import { 
-  CheckCircleIcon as CheckCircleSolid,
-  ExclamationTriangleIcon as ExclamationTriangleSolid
-} from '@heroicons/react/24/solid';
+import { Icons } from '../ui/icons';
 import { 
   TaskCentricEmail, 
   TaskUrgencyLevel, 
@@ -21,6 +7,18 @@ import {
   KanbanTaskItem, 
   KanbanTaskStatus
 } from './types';
+import { TaskPriority } from '../../types/core';
+import {
+  AlertTriangle as ExclamationTriangleIcon,
+  CheckCircle as CheckCircleIcon,
+  Bell as BellIcon,
+  Users as UsersIcon,
+  MessageSquare as ChatBubbleLeftRightIcon,
+  CalendarDays as CalendarDaysIcon,
+  User as UserIcon,
+  CheckCircle as CheckCircleSolid,
+  AlertTriangle as ExclamationTriangleSolid
+} from 'lucide-react';
 
 
 interface ColleagueInfo {
@@ -103,11 +101,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onTaskUpdate, onEmailView }) 
   const isOverdue = isTaskOverdue(task.dueDate);
   
   const getPriorityColor = (priority: TaskUrgencyLevel) => {
-    const baseColors = {
-      'CRITICAL': 'border-red-500 bg-red-50 dark:bg-red-950/30',
-      'HIGH': 'border-orange-500 bg-orange-50 dark:bg-orange-950/30',
-      'MEDIUM': 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/30',
-      'LOW': 'border-green-500 bg-green-50 dark:bg-green-950/30'
+    const baseColors: Record<TaskPriority, string> = {
+      [TaskPriority.CRITICAL]: 'border-red-500 bg-red-50 dark:bg-red-950/30',
+      [TaskPriority.URGENT]: 'border-red-500 bg-red-50 dark:bg-red-950/30',
+      [TaskPriority.HIGH]: 'border-orange-500 bg-orange-50 dark:bg-orange-950/30',
+      [TaskPriority.MEDIUM]: 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/30',
+      [TaskPriority.LOW]: 'border-green-500 bg-green-50 dark:bg-green-950/30'
     };
     
     // Add overdue styling overlay
@@ -120,16 +119,17 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onTaskUpdate, onEmailView }) 
 
   const getPriorityIcon = (priority: TaskUrgencyLevel) => {
     switch (priority) {
-      case 'CRITICAL':
+      case TaskPriority.CRITICAL:
+      case 'URGENT':
         return <ExclamationTriangleIcon className="w-4 h-4 text-red-600" />;
       case 'HIGH':
         return <ExclamationTriangleIcon className="w-4 h-4 text-orange-600" />;
       case 'MEDIUM':
-        return <ClockIcon className="w-4 h-4 text-yellow-600" />;
+        return <Icons.clock className="w-4 h-4 text-yellow-600" />;
       case 'LOW':
-        return <CheckCircleIcon className="w-4 h-4 text-green-600" />;
+        return <Icons.checkCircle className="w-4 h-4 text-green-600" />;
       default:
-        return <ClockIcon className="w-4 h-4 text-gray-600" />;
+        return <Icons.clock className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -138,11 +138,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onTaskUpdate, onEmailView }) 
       case 'replied':
         return <CheckCircleSolid className="w-3 h-3 text-green-600" aria-label="Replied" />;
       case 'pending':
-        return <ClockIcon className="w-3 h-3 text-yellow-600" aria-label="Pending response" />;
+        return <Icons.clock className="w-3 h-3 text-yellow-600" aria-label="Pending response" />;
       case 'overdue':
         return <ExclamationTriangleSolid className="w-3 h-3 text-red-600" aria-label="Overdue" />;
       default:
-        return <ClockIcon className="w-3 h-3 text-gray-600" aria-label="Unknown status" />;
+        return <Icons.clock className="w-3 h-3 text-gray-600" aria-label="Unknown status" />;
     }
   };
 
@@ -199,7 +199,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onTaskUpdate, onEmailView }) 
           </span>
           {isOverdue && (
             <div className="flex items-center gap-1 text-xs text-red-600 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-full">
-              <ClockIcon className="w-3 h-3" aria-label="Overdue task" />
+              <Icons.clock className="w-3 h-3" aria-label="Overdue task" />
               <span>Overdue</span>
             </div>
           )}
@@ -230,7 +230,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onTaskUpdate, onEmailView }) 
       {/* Email Context */}
       <div className="bg-background/50 rounded-md p-2 mb-3 border">
         <div className="flex items-center gap-2 mb-1">
-          <EnvelopeIcon className="w-3 h-3 text-muted-foreground" />
+          <Icons.mail className="w-3 h-3 text-muted-foreground" />
           <span className="text-xs font-medium text-foreground">From: {task.email.sender}</span>
         </div>
         <p className="text-xs text-muted-foreground line-clamp-1">
@@ -282,7 +282,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onTaskUpdate, onEmailView }) 
             )}
             {colleagues.some(c => c.status === 'pending') && (
               <div className="flex items-center gap-1 text-yellow-600">
-                <ClockIcon className="w-3 h-3" />
+                <Icons.clock className="w-3 h-3" />
                 <span>{colleagues.filter(c => c.status === 'pending').length} pending</span>
               </div>
             )}
@@ -505,7 +505,7 @@ export const TaskKanbanBoard: React.FC<TaskKanbanBoardProps> = ({
   const handleTaskUpdate = useCallback((taskId: string, updates: Partial<KanbanTaskItem>) => {
     setTasks(prevTasks => 
       prevTasks.map(task => 
-        task.id === taskId ? { ...task, ...updates } : task
+        task.id === String(taskId) ? { ...task, ...updates } : task
       )
     );
   }, []);

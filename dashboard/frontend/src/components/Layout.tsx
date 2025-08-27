@@ -1,26 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../App';
-import { 
-  EnvelopeIcon, 
-  ClipboardDocumentListIcon,
-  DocumentTextIcon,
-  ChartBarIcon,
-  SunIcon,
-  MoonIcon,
-  MagnifyingGlassIcon,
-  BellIcon,
-  UserCircleIcon,
-  Cog6ToothIcon,
-  ArrowRightOnRectangleIcon,
-  Bars3Icon,
-  XMarkIcon,
-  HomeIcon,
-  FunnelIcon,
-  CalendarDaysIcon,
-  ClockIcon,
-  ChevronDownIcon
-} from '@heroicons/react/24/outline';
+import { Icons } from './ui/icons';
 import { Badge, Button, Input, Tooltip } from './ui';
 
 interface LayoutProps {
@@ -43,23 +24,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const notificationRef = useRef<HTMLDivElement>(null);
   
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: HomeIcon, count: null },
-    { name: 'Emails', href: '/emails', icon: EnvelopeIcon, count: 24 },
-    { name: 'Tasks', href: '/tasks', icon: ClipboardDocumentListIcon, count: 8 },
-    { name: 'Drafts', href: '/drafts', icon: DocumentTextIcon, count: 3 },
-    { name: 'Analytics', href: '/analytics', icon: ChartBarIcon, count: null },
+    { name: 'Dashboard', href: '/', icon: Icons.home, count: null },
+    { name: 'Emails', href: '/emails', icon: Icons.mail, count: 24 },
+    { name: 'Tasks', href: '/tasks', icon: Icons.list, count: 8 },
+    { name: 'Drafts', href: '/drafts', icon: Icons.document, count: 3 },
+    { name: 'Analytics', href: '/analytics', icon: Icons.barChart, count: null },
   ];
 
   const quickActions = [
-    { name: 'Filter High Priority', icon: FunnelIcon, action: () => console.log('Filter high priority') },
-    { name: 'Schedule Review', icon: CalendarDaysIcon, action: () => console.log('Schedule review') },
-    { name: 'Recent Activity', icon: ClockIcon, action: () => console.log('Recent activity') },
+    { name: 'Filter High Priority', icon: Icons.filter, action: () => console.log('Filter high priority') },
+    { name: 'Schedule Review', icon: Icons.calendar, action: () => console.log('Schedule review') },
+    { name: 'Recent Activity', icon: Icons.clock, action: () => console.log('Recent activity') },
   ];
 
   const userMenuItems = [
-    { name: 'Profile Settings', icon: UserCircleIcon, action: () => console.log('Profile') },
-    { name: 'App Preferences', icon: Cog6ToothIcon, action: () => console.log('Settings') },
-    { name: 'Sign Out', icon: ArrowRightOnRectangleIcon, action: () => console.log('Sign out') },
+    { name: 'Profile Settings', icon: Icons.user, action: () => console.log('Profile') },
+    { name: 'App Preferences', icon: Icons.settings, action: () => console.log('Settings') },
+    { name: 'Sign Out', icon: Icons.external, action: () => console.log('Sign out') },
   ];
 
   // Close menus when clicking outside
@@ -89,14 +70,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const unreadNotifications = notifications.filter(n => n.unread).length;
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="layout-container layout-grid">
       {/* Mobile menu overlay */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-overlay bg-black/50 lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
       )}
 
       {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-sidebar w-72 bg-card border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 lg:translate-x-0 -translate-x-full data-[state=open]:translate-x-0">
+      <aside className="sidebar layout-sidebar">
         {/* Sidebar Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="flex items-center gap-3">
@@ -112,7 +93,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             onClick={() => setIsMobileMenuOpen(false)}
             className="lg:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
           >
-            <XMarkIcon className="w-5 h-5" />
+            <Icons.close className="w-5 h-5" />
           </button>
         </div>
 
@@ -135,7 +116,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 {item.count && (
                   <Badge
                     variant={isActive ? 'secondary' : 'default'}
-                    size="sm"
+                    
                     className="ml-auto"
                   >
                     {item.count}
@@ -148,7 +129,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="main-content" style={{
+        overflow: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        minWidth: 0
+      }}>
         {/* Top Navigation */}
         <header className="bg-card border-b border-border shadow-sm sticky top-0 z-sticky">
           <div className="flex items-center justify-between px-4 lg:px-6 py-4">
@@ -157,18 +143,34 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onClick={() => setIsMobileMenuOpen(true)}
                 className="lg:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
               >
-                <Bars3Icon className="w-5 h-5" />
+                <Icons.menu className="w-5 h-5" />
               </button>
 
-              <form onSubmit={handleSearchSubmit} className="hidden sm:block">
-                <Input
-                  type="search"
-                  placeholder="Search emails, tasks, drafts..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-80"
-                  leftIcon={<MagnifyingGlassIcon className="w-4 h-4" />}
-                />
+              <form onSubmit={handleSearchSubmit} className="hidden sm:block" role="search">
+                <div className="relative">
+                  <Input
+                    id="main-search-input"
+                    type="search"
+                    placeholder="Search emails, tasks, drafts..."
+                    aria-label="Search emails, tasks, and drafts"
+                    aria-describedby="search-description"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-80"
+                    leftIcon={<Icons.search className="w-4 h-4" aria-hidden="true" />}
+                    autoComplete="off"
+                    role="searchbox"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        setSearchQuery('');
+                        e.currentTarget.blur();
+                      }
+                    }}
+                  />
+                  <div id="search-description" className="sr-only">
+                    Use this search box to find emails, tasks, and drafts. Press Enter to search or Escape to clear.
+                  </div>
+                </div>
               </form>
             </div>
 
@@ -178,7 +180,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   onClick={toggleTheme}
                   className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors duration-200"
                 >
-                  {isDark ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
+                  {isDark ? <Icons.lightbulb className="w-5 h-5" /> : <Icons.moon className="w-5 h-5" />}
                 </button>
               </Tooltip>
 
@@ -188,11 +190,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     onClick={() => setIsNotificationOpen(!isNotificationOpen)}
                     className="relative p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors duration-200"
                   >
-                    <BellIcon className="w-5 h-5" />
+                    <Icons.bell className="w-5 h-5" />
                     {unreadNotifications > 0 && (
                       <Badge
                         variant="danger"
-                        size="sm"
+                        
                         className="absolute -top-1 -right-1 px-1.5 min-w-[1.25rem] h-5 text-xs flex items-center justify-center"
                       >
                         {unreadNotifications}
@@ -210,14 +212,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white text-sm font-medium">
                     JD
                   </div>
-                  <ChevronDownIcon className="w-4 h-4" />
+                  <Icons.chevronDown className="w-4 h-4" />
                 </button>
               </div>
             </div>
           </div>
         </header>
 
-        <main className="flex-1 container-adaptive py-6">
+        <main className="flex-1 overflow-auto py-6" style={{
+          maxWidth: '100%',
+          overflow: 'auto'
+        }}>
           <div className="animate-fade-in">
             {children}
           </div>

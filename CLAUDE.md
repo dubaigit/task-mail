@@ -1,272 +1,178 @@
-# Claude Code Configuration - SPARC Development Environment
+# CLAUDE.md
 
-## 🚨 CRITICAL: CONCURRENT EXECUTION & FILE MANAGEMENT
+Purpose: Development guidance for working on this repo with Claude Code (claude.ai/code).
+This project uses Supabase as the single database and integrates directly with Apple Mail’s local SQLite (Envelope Index).
+Drafts are synced back into Apple Mail via AppleScript automation (Mac-only).
+The dashboard also includes a chat bot assistant with retrieval, drafting, and automation capabilities.
 
-**ABSOLUTE RULES**:
-1. ALL operations MUST be concurrent/parallel in a single message
-2. **NEVER save working files, text/mds and tests to the root folder**
-3. ALWAYS organize files in appropriate subdirectories
+⸻
 
-### ⚡ GOLDEN RULE: "1 MESSAGE = ALL RELATED OPERATIONS"
+Quick start
 
-**MANDATORY PATTERNS:**
-- **TodoWrite**: ALWAYS batch ALL todos in ONE call (5-10+ todos minimum)
-- **Task tool**: ALWAYS spawn ALL agents in ONE message with full instructions
-- **File operations**: ALWAYS batch ALL reads/writes/edits in ONE message
-- **Bash commands**: ALWAYS batch ALL terminal operations in ONE message
-- **Memory operations**: ALWAYS batch ALL memory store/retrieve in ONE message
+# Development setup
+npm install && npm run install:frontend && npm run build:frontend
 
-### 📁 File Organization Rules
+# Start full stack
+pm2 start ecosystem.config.js
 
-**NEVER save to root folder. Use these directories:**
-- `/src` - Source code files
-- `/tests` - Test files
-- `/docs` - Documentation and markdown files
-- `/config` - Configuration files
-- `/scripts` - Utility scripts
-- `/examples` - Example code
+# Development mode
+node server.js                         # Backend API (port 8000)
+cd dashboard/frontend && npm start     # Frontend React (port 3000)
 
-## Project Overview
+# Infrastructure
+docker-compose up -d                   # Supabase + Redis containers
 
-This project uses SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) methodology with Claude-Flow orchestration for systematic Test-Driven Development.
+# Testing
+npm test                               # Backend Jest tests
+npm run test:database                  # DB integration
+cd dashboard/frontend && npm test      # Frontend React tests
+npm run test:e2e                       # Playwright end-to-end
 
-## SPARC Commands
+# Database
+npm run db:init                        # Initialize schema in Supabase
 
-### Core Commands
-- `npx claude-flow sparc modes` - List available modes
-- `npx claude-flow sparc run <mode> "<task>"` - Execute specific mode
-- `npx claude-flow sparc tdd "<feature>"` - Run complete TDD workflow
-- `npx claude-flow sparc info <mode>` - Get mode details
+# Production
+pm2 start ecosystem.config.js --env production
 
-### Batchtools Commands
-- `npx claude-flow sparc batch <modes> "<task>"` - Parallel execution
-- `npx claude-flow sparc pipeline "<task>"` - Full pipeline processing
-- `npx claude-flow sparc concurrent <mode> "<tasks-file>"` - Multi-task processing
 
-### Build Commands
-- `npm run build` - Build project
-- `npm run test` - Run tests
-- `npm run lint` - Linting
-- `npm run typecheck` - Type checking
+⸻
 
-## SPARC Workflow Phases
+Architecture overview
+	•	Apple Mail SQLite (Envelope Index)
+	•	Backend reads metadata directly: sender, subject, message_id, date, folder.
+	•	Strictly read-only.
+	•	API Backend (server.js)
+	•	Express.js app (auth, validation, routes).
+	•	Reads Apple Mail SQLite.
+	•	Writes all state into Supabase.
+	•	Exposes REST APIs + WebSocket for frontend.
+	•	Supabase (single DB)
+	•	Source of truth for emails, tasks, users, tags, drafts, rules.
+	•	Managed with migrations in database/migrations/.
+	•	Frontend Dashboard
+	•	React 18 + TypeScript + Zustand.
+	•	Reads/writes via backend APIs.
+	•	Includes task/email centric UI and a chat bot panel.
+	•	Agent GPT-5
+	•	Reads from Supabase.
+	•	Classifies emails, generates tasks, creates drafts, answers user questions.
+	•	Writes results back to Supabase.
+	•	Draft Mail
+	•	Stored in Supabase.
+	•	Synced back into Apple Mail’s Drafts folder via AppleScript.
+	•	Automation Engine
+	•	Executes user-defined rules (auto-reply, delegate, tag, forward).
+	•	Rules defined conversationally or via UI.
+	•	Stored declaratively in Supabase.
 
-1. **Specification** - Requirements analysis (`sparc run spec-pseudocode`)
-2. **Pseudocode** - Algorithm design (`sparc run spec-pseudocode`)
-3. **Architecture** - System design (`sparc run architect`)
-4. **Refinement** - TDD implementation (`sparc tdd`)
-5. **Completion** - Integration (`sparc run integration`)
+⸻
 
-## Code Style & Best Practices
+Data flow
+	1.	Backend → Apple Mail SQLite: direct read of metadata.
+	2.	Backend ↔ Supabase: all persistence.
+	3.	Frontend ↔ Backend: API calls and realtime updates.
+	4.	Agent GPT-5 ↔ Supabase: classification, answering queries, draft generation.
+	5.	Drafts in Supabase → Apple Mail Drafts folder via AppleScript automation.
+	6.	Automation rules in Supabase → Backend execution on incoming mail.
 
-- **Modular Design**: Files under 500 lines
-- **Environment Safety**: Never hardcode secrets
-- **Test-First**: Write tests before implementation
-- **Clean Architecture**: Separate concerns
-- **Documentation**: Keep updated
+⸻
 
-## 🚀 Available Agents (54 Total)
+Draft sync (Mac-only)
 
-### Core Development
-`coder`, `reviewer`, `tester`, `planner`, `researcher`
+Apple Mail SQLite cannot be written safely. Drafts are synced back using AppleScript automation:
 
-### Swarm Coordination
-`hierarchical-coordinator`, `mesh-coordinator`, `adaptive-coordinator`, `collective-intelligence-coordinator`, `swarm-memory-manager`
+AppleScript example
 
-### Consensus & Distributed
-`byzantine-coordinator`, `raft-manager`, `gossip-coordinator`, `consensus-builder`, `crdt-synchronizer`, `quorum-manager`, `security-manager`
+tell application "Mail"
+    set newMessage to make new outgoing message with properties {subject:"Draft from Supabase", content:"This is the synced draft body."}
+    tell newMessage
+        make new to recipient at end of to recipients with properties {address:"user@example.com"}
+    end tell
+    save newMessage
+end tell
 
-### Performance & Optimization
-`perf-analyzer`, `performance-benchmarker`, `task-orchestrator`, `memory-coordinator`, `smart-agent`
+Node.js integration
 
-### GitHub & Repository
-`github-modes`, `pr-manager`, `code-review-swarm`, `issue-tracker`, `release-manager`, `workflow-automation`, `project-board-sync`, `repo-architect`, `multi-repo-swarm`
+import { exec } from "child_process";
 
-### SPARC Methodology
-`sparc-coord`, `sparc-coder`, `specification`, `pseudocode`, `architecture`, `refinement`
+function createDraft(subject, body, recipient) {
+  const script = `
+    tell application "Mail"
+      set newMessage to make new outgoing message with properties {subject:"${subject}", content:"${body}"}
+      tell newMessage
+        make new to recipient at end of to recipients with properties {address:"${recipient}"}
+      end tell
+      save newMessage
+    end tell
+  `;
+  exec(`osascript -e '${script}'`, (err) => {
+    if (err) console.error("AppleScript error:", err);
+  });
+}
 
-### Specialized Development
-`backend-dev`, `mobile-dev`, `ml-developer`, `cicd-engineer`, `api-docs`, `system-architect`, `code-analyzer`, `base-template-generator`
+Flow
+	1.	GPT-5 / frontend creates draft → stored in Supabase.
+	2.	Backend worker queries unsynced drafts.
+	3.	Runs AppleScript to create draft in Mail.app.
+	4.	Marks draft as “synced” in Supabase.
 
-### Testing & Validation
-`tdd-london-swarm`, `production-validator`
+⸻
 
-### Migration & Planning
-`migration-planner`, `swarm-init`
+Conversational AI (Chat Bot)
 
-## 🎯 Claude Code vs MCP Tools
+The interface includes a chat bot panel where users can interact naturally.
+The chat bot is GPT-5 powered and has access to tools:
+	•	RAG (Retrieval-Augmented Generation)
+	•	Retrieves emails + context from Supabase.
+	•	Supports natural queries (“what did John promise last week?”, “show all finance updates”).
+	•	Drafting tool
+	•	Generate new outgoing emails.
+	•	Stored in Supabase → synced to Apple Mail Drafts.
+	•	Automation tool
+	•	Define rules via chat, e.g.:
+	•	“Auto-reply to invoices with template A”
+	•	“Forward HR emails to Alice”
+	•	“Tag newsletters as low priority”
+	•	Stored in Supabase; executed in backend.
 
-### Claude Code Handles ALL:
-- File operations (Read, Write, Edit, MultiEdit, Glob, Grep)
-- Code generation and programming
-- Bash commands and system operations
-- Implementation work
-- Project navigation and analysis
-- TodoWrite and task management
-- Git operations
-- Package management
-- Testing and debugging
+⸻
 
-### MCP Tools ONLY:
-- Coordination and planning
-- Memory management
-- Neural features
-- Performance tracking
-- Swarm orchestration
-- GitHub integration
+Guardrails
+	•	DB access: use OptimizedDatabaseAgent for Supabase queries. No raw SQL in routes.
+	•	Apple Mail: SQLite is read-only. All writes must go through AppleScript.
+	•	Chat bot tools: all actions (drafts, automations) must persist in Supabase before execution.
+	•	API: validate inputs; return proper JSON + status codes; require JWT.
+	•	Frontend: follow DDD folder conventions; keep components accessible.
+	•	Security: SQL sanitization, CORS, JWT auth, rate limiting, logging.
 
-**KEY**: MCP coordinates, Claude Code executes.
+⸻
 
-## 🚀 Quick Setup
+Environment
 
-```bash
-# Add Claude Flow MCP server
-claude mcp add claude-flow npx claude-flow@alpha mcp start
-```
+.env (required):
 
-## MCP Tool Categories
+OPENAI_API_KEY=sk-...
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_KEY=...
+JWT_SECRET=your-32+char-secret
+PORT=8000
+CORS_ORIGIN=http://localhost:3000
 
-### Coordination
-`swarm_init`, `agent_spawn`, `task_orchestrate`
 
-### Monitoring
-`swarm_status`, `agent_list`, `agent_metrics`, `task_status`, `task_results`
+⸻
 
-### Memory & Neural
-`memory_usage`, `neural_status`, `neural_train`, `neural_patterns`
+Testing
+	•	Backend: Jest + supertest.
+	•	Frontend: React Testing Library.
+	•	Database: Supabase integration tests.
+	•	E2E: Playwright workflows.
+	•	Bot tools: integration tests for RAG + draft sync + automation execution.
 
-### GitHub Integration
-`github_swarm`, `repo_analyze`, `pr_enhance`, `issue_triage`, `code_review`
+⸻
 
-### System
-`benchmark_run`, `features_detect`, `swarm_monitor`
+⚠️ Reminders:
+	•	Supabase = only DB.
+	•	Apple Mail SQLite = read-only source.
+	•	Draft sync = AppleScript automation (Mac-only).
+	•	Chat bot = first-class interface, with tools for retrieval, drafting, and automation.
 
-## 📋 Agent Coordination Protocol
-
-### Every Agent MUST:
-
-**1️⃣ BEFORE Work:**
-```bash
-npx claude-flow@alpha hooks pre-task --description "[task]"
-npx claude-flow@alpha hooks session-restore --session-id "swarm-[id]"
-```
-
-**2️⃣ DURING Work:**
-```bash
-npx claude-flow@alpha hooks post-edit --file "[file]" --memory-key "swarm/[agent]/[step]"
-npx claude-flow@alpha hooks notify --message "[what was done]"
-```
-
-**3️⃣ AFTER Work:**
-```bash
-npx claude-flow@alpha hooks post-task --task-id "[task]"
-npx claude-flow@alpha hooks session-end --export-metrics true
-```
-
-## 🎯 Concurrent Execution Examples
-
-### ✅ CORRECT (Single Message):
-```javascript
-[BatchTool]:
-  // Initialize swarm
-  mcp__claude-flow__swarm_init { topology: "mesh", maxAgents: 6 }
-  mcp__claude-flow__agent_spawn { type: "researcher" }
-  mcp__claude-flow__agent_spawn { type: "coder" }
-  mcp__claude-flow__agent_spawn { type: "tester" }
-  
-  // Spawn agents with Task tool
-  Task("Research agent: Analyze requirements...")
-  Task("Coder agent: Implement features...")
-  Task("Tester agent: Create test suite...")
-  
-  // Batch todos
-  TodoWrite { todos: [
-    {id: "1", content: "Research", status: "in_progress", priority: "high"},
-    {id: "2", content: "Design", status: "pending", priority: "high"},
-    {id: "3", content: "Implement", status: "pending", priority: "high"},
-    {id: "4", content: "Test", status: "pending", priority: "medium"},
-    {id: "5", content: "Document", status: "pending", priority: "low"}
-  ]}
-  
-  // File operations
-  Bash "mkdir -p app/{src,tests,docs}"
-  Write "app/src/index.js"
-  Write "app/tests/index.test.js"
-  Write "app/docs/README.md"
-```
-
-### ❌ WRONG (Multiple Messages):
-```javascript
-Message 1: mcp__claude-flow__swarm_init
-Message 2: Task("agent 1")
-Message 3: TodoWrite { todos: [single todo] }
-Message 4: Write "file.js"
-// This breaks parallel coordination!
-```
-
-## Performance Benefits
-
-- **84.8% SWE-Bench solve rate**
-- **32.3% token reduction**
-- **2.8-4.4x speed improvement**
-- **27+ neural models**
-
-## Hooks Integration
-
-### Pre-Operation
-- Auto-assign agents by file type
-- Validate commands for safety
-- Prepare resources automatically
-- Optimize topology by complexity
-- Cache searches
-
-### Post-Operation
-- Auto-format code
-- Train neural patterns
-- Update memory
-- Analyze performance
-- Track token usage
-
-### Session Management
-- Generate summaries
-- Persist state
-- Track metrics
-- Restore context
-- Export workflows
-
-## Advanced Features (v2.0.0)
-
-- 🚀 Automatic Topology Selection
-- ⚡ Parallel Execution (2.8-4.4x speed)
-- 🧠 Neural Training
-- 📊 Bottleneck Analysis
-- 🤖 Smart Auto-Spawning
-- 🛡️ Self-Healing Workflows
-- 💾 Cross-Session Memory
-- 🔗 GitHub Integration
-
-## Integration Tips
-
-1. Start with basic swarm init
-2. Scale agents gradually
-3. Use memory for context
-4. Monitor progress regularly
-5. Train patterns from success
-6. Enable hooks automation
-7. Use GitHub tools first
-
-## Support
-
-- Documentation: https://github.com/ruvnet/claude-flow
-- Issues: https://github.com/ruvnet/claude-flow/issues
-
----
-
-Remember: **Claude Flow coordinates, Claude Code creates!**
-
-# important-instruction-reminders
-Do what has been asked; nothing more, nothing less.
-NEVER create files unless they're absolutely necessary for achieving your goal.
-ALWAYS prefer editing an existing file to creating a new one.
-NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
-Never save working files, text/mds and tests to the root folder.

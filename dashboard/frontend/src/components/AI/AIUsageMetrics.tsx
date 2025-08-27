@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './AIUsageMetrics.css';
 
 interface UsageStats {
@@ -21,29 +21,104 @@ const AIUsageMetrics: React.FC<Props> = ({ refreshTrigger = 0 }) => {
   const [stats, setStats] = useState<UsageStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastFetchRef = useRef<number>(0);
+  const isComponentMountedRef = useRef<boolean>(true);
 
-  const fetchStats = async () => {
+  // PERFORMANCE: Throttled fetch with exponential backoff - STABLE REFERENCE
+  const fetchStats = useCallback(async (forceRefresh = false) => {
+    // THROTTLING: Prevent requests more frequent than 30 seconds
+    const now = Date.now();
+    const timeSinceLastFetch = now - lastFetchRef.current;
+    const minInterval = 30000; // 30 seconds minimum (increased from 10 seconds)
+    
+    if (!forceRefresh && timeSinceLastFetch < minInterval) {
+      console.log(`API throttled: ${Math.ceil((minInterval - timeSinceLastFetch) / 1000)}s remaining`);
+      return;
+    }
+    
+    if (!isComponentMountedRef.current) return;
+    
     try {
-      const response = await fetch('/api/ai/usage-stats');
+      setLoading(true);
+      lastFetchRef.current = now;
+      
+      // Add cache headers to reduce server load
+      const response = await fetch('/api/ai/usage-stats', {
+        headers: {
+          'Cache-Control': 'public, max-age=30',
+          'If-None-Match': '*'
+        }
+      });
+      
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
+      
       const data = await response.json();
-      setStats(data);
-      setError(null);
+      
+      if (isComponentMountedRef.current) {
+        setStats(data);
+        setError(null);
+        setRetryCount(0); // Reset retry count on success
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch usage stats');
-      console.error('Error fetching AI usage stats:', err);
+      if (isComponentMountedRef.current) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch usage stats';
+        setError(errorMessage);
+        console.error('Error fetching AI usage stats:', err);
+        
+        // EXPONENTIAL BACKOFF: Increase retry count for failed requests
+        setRetryCount(prev => Math.min(prev + 1, 6)); // Max 6 retries
+      }
     } finally {
-      setLoading(false);
+      if (isComponentMountedRef.current) {
+        setLoading(false);
+      }
     }
-  };
+  }, []); // STABLE - no dependencies to prevent cascade
 
+  // PERFORMANCE: Smart polling with exponential backoff and cleanup
   useEffect(() => {
-    fetchStats();
-    const interval = setInterval(fetchStats, 30000); // Refresh every 30 seconds
-    return () => clearInterval(interval);
-  }, [refreshTrigger]);
+    isComponentMountedRef.current = true;
+    
+    // Initial fetch
+    fetchStats(true);
+    
+    const scheduleNextFetch = () => {
+      if (!isComponentMountedRef.current) return;
+      
+      // Clear any existing timeout
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
+      
+      // SMART INTERVALS: Base interval of 5 minutes, increased on errors
+      const baseInterval = 300000; // 5 minutes base (increased from 2 minutes)
+      const backoffMultiplier = Math.pow(2, retryCount); // 2^retryCount
+      const maxInterval = 1800000; // 30 minutes max (increased from 10 minutes)
+      const actualInterval = Math.min(baseInterval * backoffMultiplier, maxInterval);
+      
+      console.log(`Next AI usage fetch in ${actualInterval / 1000}s (retry count: ${retryCount})`);
+      
+      fetchTimeoutRef.current = setTimeout(() => {
+        fetchStats();
+        scheduleNextFetch();
+      }, actualInterval);
+    };
+    
+    // Start the polling cycle
+    scheduleNextFetch();
+    
+    return () => {
+      isComponentMountedRef.current = false;
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+        fetchTimeoutRef.current = null;
+      }
+    };
+  }, [fetchStats, refreshTrigger]); // CRITICAL FIX: Removed retryCount dependency to prevent recursive useEffect calls
 
   if (loading) {
     return (
@@ -63,7 +138,7 @@ const AIUsageMetrics: React.FC<Props> = ({ refreshTrigger = 0 }) => {
           <br />
           {error}
         </div>
-        <button onClick={fetchStats} className="retry-button">
+        <button onClick={() => fetchStats(true)} className="retry-button">
           Retry
         </button>
       </div>
@@ -208,7 +283,7 @@ const AIUsageMetrics: React.FC<Props> = ({ refreshTrigger = 0 }) => {
         <div className="last-updated">
           Last updated: {new Date().toLocaleTimeString()}
         </div>
-        <button onClick={fetchStats} className="refresh-button">
+        <button onClick={() => fetchStats(true)} className="refresh-button">
           🔄 Refresh
         </button>
       </div>

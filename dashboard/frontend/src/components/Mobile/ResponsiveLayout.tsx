@@ -1,3 +1,4 @@
+import { TaskStatus, TaskPriority, TaskCategory } from '../../types';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../../App';
 import MobileTaskInterface from './MobileTaskInterface';
@@ -8,8 +9,8 @@ interface ResponsiveLayoutProps {
   emails: any[];
   tasks: any[];
   drafts: any[];
-  onTaskComplete: (taskId: number) => void;
-  onTaskDelegate: (taskId: number, assignee: string) => void;
+  onTaskComplete: (taskId: string) => void;
+  onTaskDelegate: (taskId: string, assignee: string) => void;
   onTaskEdit: (task: any) => void;
   onTaskCreate: (emailId: number) => void;
   onEmailSelect: (email: any) => void;
@@ -454,11 +455,11 @@ const ResponsiveLayoutContent: React.FC<ResponsiveLayoutProps> = ({
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 bg-background rounded border">
                       <h3 className="font-semibold mb-2">Active Tasks</h3>
-                      <p className="text-2xl font-bold">{tasks.filter(t => t.status !== 'completed').length}</p>
+                      <p className="text-2xl font-bold">{tasks.filter(t => t.status !== TaskStatus.COMPLETED).length}</p>
                     </div>
                     <div className="p-4 bg-background rounded border">
                       <h3 className="font-semibold mb-2">Completed</h3>
-                      <p className="text-2xl font-bold">{tasks.filter(t => t.status === 'completed').length}</p>
+                      <p className="text-2xl font-bold">{tasks.filter(t => t.status === TaskStatus.COMPLETED).length}</p>
                     </div>
                   </div>
                 </div>

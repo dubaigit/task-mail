@@ -25,3 +25,12 @@ processor.start().catch(error => {
 
 console.log('✅ AI Email Processor started successfully');
 console.log('📊 Use Ctrl+C to stop gracefully');
+
+// Export the startProcessor function for server.js
+function startProcessor() {
+    processor.start().catch(error => {
+        console.error('💥 Failed to start AI processor:', error);
+    });
+}
+
+module.exports = { startProcessor };

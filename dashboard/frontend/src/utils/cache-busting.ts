@@ -106,10 +106,10 @@ export class CacheBustingManager {
       if (response.ok) {
         const manifest = await response.json();
         this.assetManifest = manifest.files || {};
-        console.log('📦 Asset manifest loaded:', Object.keys(this.assetManifest).length, 'assets');
+        // 📦 Asset manifest loaded: ${Object.keys(this.assetManifest).length} assets
       }
     } catch (error) {
-      console.warn('⚠️ Could not load asset manifest:', error);
+      // ⚠️ Could not load asset manifest: ${error}
       // Fallback to default behavior
       this.generateFallbackManifest();
     }
@@ -327,7 +327,7 @@ export class CacheBustingManager {
       
       return false;
     } catch (error) {
-      console.warn('⚠️ Could not check for updates:', error);
+      // ⚠️ Could not check for updates: ${error}
       return false;
     }
   }
@@ -381,7 +381,7 @@ export class CacheBustingManager {
     }>;
   } {
     // Generate precache manifest
-    const precacheManifest = Object.entries(this.assetManifest).map(([key, url]) => ({
+    const precacheManifest = Object.entries(this.assetManifest).map(([_key, url]) => ({
       url,
       revision: this.extractRevisionFromUrl(url)
     }));

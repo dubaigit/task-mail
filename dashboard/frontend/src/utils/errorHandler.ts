@@ -89,7 +89,7 @@ export class ErrorHandler {
       try {
         listener(standardError);
       } catch (listenerError) {
-        console.error('Error in error listener:', listenerError);
+        // Error in error listener: ${listenerError}
       }
     });
 
@@ -323,16 +323,16 @@ export class ErrorHandler {
 
     switch (error.severity) {
       case 'critical':
-        console.error('🚨 CRITICAL ERROR:', logData);
+        // 🚨 CRITICAL ERROR: ${logData}
         break;
       case 'high':
-        console.error('❌ HIGH SEVERITY ERROR:', logData);
+        // ❌ HIGH SEVERITY ERROR: ${logData}
         break;
       case 'medium':
-        console.warn('⚠️ MEDIUM SEVERITY ERROR:', logData);
+        // ⚠️ MEDIUM SEVERITY ERROR: ${logData}
         break;
       case 'low':
-        console.info('ℹ️ LOW SEVERITY ERROR:', logData);
+        // ℹ️ LOW SEVERITY ERROR: ${logData}
         break;
     }
   }

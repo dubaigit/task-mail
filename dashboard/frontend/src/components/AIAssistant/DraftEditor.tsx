@@ -1,19 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  DocumentTextIcon,
-  ArrowUturnLeftIcon,
-  ArrowUturnRightIcon,
-  ClockIcon,
-  EyeIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  SparklesIcon,
-  BookmarkIcon,
-  ClipboardDocumentIcon,
-  PaperAirplaneIcon,
-  PencilIcon,
-  LightBulbIcon
-} from '@heroicons/react/24/outline';
+import { Icons } from '../ui/icons';
 
 interface Email {
   id: number;
@@ -293,7 +279,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
     return (
       <div className={`flex items-center justify-center h-full text-muted-foreground ${className}`}>
         <div className="text-center">
-          <PencilIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
+          <Icons.pencil className="w-16 h-16 mx-auto mb-4 opacity-50" />
           <p className="text-lg font-medium">No draft to edit</p>
           <p className="text-sm">Generate a draft first to start editing</p>
         </div>
@@ -317,7 +303,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <PencilIcon className="w-4 h-4 inline mr-1" />
+                <Icons.pencil className="w-4 h-4 inline mr-1" />
                 Edit
               </button>
               <button
@@ -328,7 +314,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <EyeIcon className="w-4 h-4 inline mr-1" />
+                <Icons.eye className="w-4 h-4 inline mr-1" />
                 Preview
               </button>
             </div>
@@ -341,7 +327,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
                 onChange={(e) => setIsAISuggestionsEnabled(e.target.checked)}
                 className="rounded border-gray-300"
               />
-              <SparklesIcon className="w-4 h-4" />
+              <Icons.sparkles className="w-4 h-4" />
               <span>AI Suggestions</span>
             </label>
           </div>
@@ -362,7 +348,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
                 className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-50"
                 title="Undo"
               >
-                <ArrowUturnLeftIcon className="w-4 h-4" />
+                <Icons.rotateLeft className="w-4 h-4" />
               </button>
 
               <button
@@ -370,7 +356,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
                 className="p-1.5 text-muted-foreground hover:text-foreground"
                 title="Version History"
               >
-                <ClockIcon className="w-4 h-4" />
+                <Icons.clock className="w-4 h-4" />
               </button>
 
               <button
@@ -378,7 +364,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
                 className="p-1.5 text-muted-foreground hover:text-foreground"
                 title="Copy to Clipboard"
               >
-                <ClipboardDocumentIcon className="w-4 h-4" />
+                <Icons.clipboard className="w-4 h-4" />
               </button>
 
               {editorState.hasUnsavedChanges && (
@@ -403,7 +389,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
               ? 'bg-yellow-50 text-yellow-700 border border-yellow-200'
               : 'bg-red-50 text-red-700 border border-red-200'
           }`}>
-            <CheckCircleIcon className="w-3 h-3" />
+            <Icons.checkCircle className="w-3 h-3" />
             <span>{(draft.confidence * 100).toFixed(0)}%</span>
           </div>
           {editorState.hasUnsavedChanges && (
@@ -469,7 +455,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
           <div className="w-80 border-l border-border bg-muted/30 overflow-y-auto">
             <div className="p-4">
               <h4 className="text-sm font-semibold mb-3 flex items-center">
-                <LightBulbIcon className="w-4 h-4 mr-2" />
+                <Icons.lightbulb className="w-4 h-4 mr-2" />
                 AI Suggestions ({aiHighlights.length})
               </h4>
               <div className="space-y-3">
@@ -518,7 +504,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
           <div className="w-80 border-l border-border bg-muted/30 overflow-y-auto">
             <div className="p-4">
               <h4 className="text-sm font-semibold mb-3 flex items-center">
-                <ClockIcon className="w-4 h-4 mr-2" />
+                <Icons.clock className="w-4 h-4 mr-2" />
                 Version History ({versionHistory.length})
               </h4>
               <div className="space-y-2">

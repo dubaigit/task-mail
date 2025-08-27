@@ -1,3 +1,4 @@
+import { TaskStatus, TaskPriority, TaskCategory } from '../../types';
 import React, { useState, useEffect, useCallback } from 'react';
 import { RefreshCw, Play, Pause, Square, AlertCircle, CheckCircle, Clock, Database } from 'lucide-react';
 import './EmailSyncManager.css';
@@ -195,7 +196,7 @@ const EmailSyncManager: React.FC<EmailSyncManagerProps> = ({ className }) => {
   // Get status icon and color
   const getStatusIndicator = (status: string) => {
     switch (status) {
-      case 'completed':
+      case TaskStatus.COMPLETED:
         return { icon: CheckCircle, color: 'text-green-600', bgColor: 'bg-green-100' };
       case 'running':
         return { icon: RefreshCw, color: 'text-blue-600', bgColor: 'bg-blue-100' };

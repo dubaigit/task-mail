@@ -1,6 +1,16 @@
 // Task-Centric Interface Type Definitions
 // Implementation of whitepaper specifications for three-panel task-centric interface
 
+// Import unified types from core
+import { 
+  TaskPriority, 
+  TaskCategory as CoreTaskCategory, 
+  TaskStatus as CoreTaskStatus 
+} from '../../types/core';
+
+// Import core Task interface and extend it
+import { Task } from '../../types/core';
+
 export interface TaskCentricEmail {
   id: number;
   subject: string;
@@ -29,33 +39,29 @@ export interface TaskCentricEmail {
   relatedTasks?: number[];
 }
 
-export type TaskUrgencyLevel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
-
-export type TaskCategory = 
-  | 'NEEDS_REPLY'
-  | 'APPROVAL_REQUIRED'
-  | 'DELEGATE'
-  | 'DO_MYSELF'
-  | 'ASSIGN'
-  | 'FOLLOW_UP'
-  | 'FYI_ONLY'
-  | 'MEETING_REQUEST'
-  | 'RESEARCH'
-  | 'ADMINISTRATIVE';
-
-export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'WAITING_FOR_REPLY' | 'COMPLETED' | 'CANCELLED';
+// Re-export unified types with aliases for backward compatibility
+export type TaskUrgencyLevel = TaskPriority;
+export type TaskCategory = CoreTaskCategory;
+export type TaskStatus = CoreTaskStatus;
 
 // Kanban-specific types for the task board interface
 export type KanbanTaskStatus = 'TODO' | 'IN_PROGRESS' | 'WAITING_FOR_REPLY' | 'DONE';
 
-export const TaskStatus = {
+// TaskStatus enum re-export for backward compatibility
+export { TaskStatus as TaskStatusEnum } from '../../types/core';
+
+/**
+ * @deprecated Use TaskStatusEnum from core instead
+ * Legacy constant object - will be removed in v3.0
+ */
+export const TaskStatusLegacy = {
   TODO: 'TODO' as const,
   IN_PROGRESS: 'IN_PROGRESS' as const,
   WAITING_FOR_REPLY: 'WAITING_FOR_REPLY' as const,
   DONE: 'DONE' as const,
 } as const;
 
-export type TaskStatusType = typeof TaskStatus[keyof typeof TaskStatus];
+export type TaskStatusType = typeof TaskStatusLegacy[keyof typeof TaskStatusLegacy];
 
 export interface KanbanTask {
   id: string;
@@ -80,50 +86,58 @@ export interface KanbanTaskItem extends KanbanTask {
   // Alias for compatibility
 }
 
-export interface TaskItem {
-  id: number;
-  title: string;
-  description: string;
-  category: TaskCategory;
-  urgency: TaskUrgencyLevel;
-  status: TaskStatus;
-  estimatedDuration?: number; // in minutes
-  actualDuration?: number;
-  dueDate?: string;
-  createdAt: string;
-  updatedAt: string;
-  completedAt?: string;
-  assignedTo?: string;
-  assignedBy?: string;
-  emailId: number;
+/**
+ * Task-centric specific task interface
+ * Extends core Task with additional fields needed for TaskCentric components
+ */
+export interface TaskItem extends Omit<Task, 'id'> {
+  // Override ID to allow number for backward compatibility
+  id: string | number;
+  
+  // Task-centric specific fields
+  emailId?: string; // Reference to source email
   relatedEmailIds?: number[];
-  progress: number; // 0-100
-  tags?: string[];
+  
   // AI-generated insights
-  aiConfidence: number;
-  aiReasoning: string;
-  suggestedActions?: string[];
-  dependencies?: number[];
+  aiReasoning?: string;
+  
+  // Override arrays to be optional for backward compatibility
+  tags: string[];
+  dependencies?: string[];
   blockers?: string[];
 }
 
+// Re-export core ActionItem and Deadline with local overrides for backward compatibility
+export type { 
+  ActionItem as CoreActionItem, 
+  Deadline as CoreDeadline 
+} from '../../types/core';
+
+/**
+ * TaskCentric-specific ActionItem interface
+ * Extends core ActionItem with backward compatibility
+ */
 export interface ActionItem {
-  id: number;
+  id: number | string;
   text: string;
-  type: 'action' | 'decision' | 'follow_up' | 'deadline';
+  type?: 'action' | 'decision' | 'follow_up' | 'deadline';
   assignee?: string;
   dueDate?: string;
   completed: boolean;
-  aiExtracted: boolean;
+  aiExtracted?: boolean;
   confidence: number;
 }
 
+/**
+ * TaskCentric-specific Deadline interface
+ * Extends core Deadline with backward compatibility
+ */
 export interface Deadline {
-  id: number;
+  id: number | string;
   description: string;
   date: string;
   urgency: TaskUrgencyLevel;
-  type: 'hard' | 'soft' | 'preferred';
+  type?: 'hard' | 'soft' | 'preferred';
   source: 'explicit' | 'inferred' | 'ai_predicted';
   confidence: number;
 }
@@ -261,8 +275,8 @@ export interface TaskListPanelProps {
   filter: TaskFilter;
   config: TaskCardConfig;
   onTaskUpdate: (task: TaskItem) => void;
-  onTaskComplete: (taskId: number) => void;
-  onTaskDelete: (taskId: number) => void;
+  onTaskComplete: (taskId: string) => void;
+  onTaskDelete: (taskId: string) => void;
   loading?: boolean;
   error?: string | null;
   className?: string;
@@ -274,8 +288,8 @@ export interface TaskCardProps {
   isSelected: boolean;
   onClick: (task: TaskItem) => void;
   onUpdate: (task: TaskItem) => void;
-  onComplete: (taskId: number) => void;
-  onDelete: (taskId: number) => void;
+  onComplete: (taskId: string) => void;
+  onDelete: (taskId: string) => void;
   config: TaskCardConfig;
   className?: string;
 }

@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  StarIcon,
-  TagIcon,
-  EyeIcon
-} from '@heroicons/react/24/outline';
-import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
+import { Icons } from '../ui/icons';
 import { EmailTemplate } from './types';
 import { getCategoryIcon, getCategoryColor, formatTimeAgo } from './templateUtils';
 
@@ -31,7 +26,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
             <CategoryIcon className="w-4 h-4" />
             <h4 className="font-medium">{template.name}</h4>
             {template.isStarred && (
-              <StarSolidIcon className="w-4 h-4 text-yellow-500" />
+              <Icons.star className="w-4 h-4 text-yellow-500" />
             )}
           </div>
           <p className="text-sm text-muted-foreground mb-2">{template.description}</p>
@@ -43,7 +38,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
                 key={tag}
                 className="inline-flex items-center space-x-1 text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded"
               >
-                <TagIcon className="w-3 h-3" />
+                <Icons.tag className="w-3 h-3" />
                 <span>{tag}</span>
               </span>
             ))}
@@ -71,9 +66,9 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
             title={template.isStarred ? 'Remove from favorites' : 'Add to favorites'}
           >
             {template.isStarred ? (
-              <StarSolidIcon className="w-4 h-4 text-yellow-500" />
+              <Icons.star className="w-4 h-4 text-yellow-500" />
             ) : (
-              <StarIcon className="w-4 h-4" />
+              <Icons.star className="w-4 h-4" />
             )}
           </button>
           
@@ -82,7 +77,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
             className="p-1.5 text-muted-foreground hover:text-foreground"
             title="Preview template"
           >
-            <EyeIcon className="w-4 h-4" />
+            <Icons.eye className="w-4 h-4" />
           </button>
           
           <button

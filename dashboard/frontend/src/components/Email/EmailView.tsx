@@ -1,3 +1,4 @@
+import { TaskStatus, TaskPriority, TaskCategory } from '../../types';
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
@@ -124,7 +125,7 @@ const EmailView: React.FC = () => {
 
     const matchesFilter = filterBy === 'all' || 
       (filterBy === 'needs_reply' && email.classification === 'NEEDS_REPLY') ||
-      (filterBy === 'urgent' && email.urgency === 'CRITICAL') ||
+      (filterBy === 'urgent' && email.urgency === TaskPriority.CRITICAL) ||
       (filterBy === 'approval' && email.classification === 'APPROVAL_REQUIRED');
 
     return matchesSearch && matchesFilter;

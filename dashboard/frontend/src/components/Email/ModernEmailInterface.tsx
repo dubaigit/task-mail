@@ -1,30 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useTheme } from '../../App';
-import { 
-  EnvelopeIcon,
-  InboxIcon,
-  PaperAirplaneIcon,
-  StarIcon,
-  ClockIcon,
-  ArchiveBoxIcon,
-  TrashIcon,
-  MagnifyingGlassIcon,
-  Bars3Icon,
-  SunIcon,
-  MoonIcon,
-  ExclamationTriangleIcon,
-  CheckCircleIcon,
-  CalendarDaysIcon,
-  EyeIcon,
-  ArrowPathIcon,
-  XMarkIcon,
-  PlusIcon,
-  InformationCircleIcon,
-  UsersIcon,
-  ChevronDownIcon
-} from '@heroicons/react/24/outline';
-import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
+import { Icons } from '../ui/icons';
+import { TaskPriority } from '../../types/core';
 
 // AI Assistant Components
 import { DraftGenerationInterface } from '../AIAssistant/DraftGenerationInterface';
@@ -179,7 +157,7 @@ const VirtualEmailList: React.FC<VirtualEmailListProps> = ({
     return (
       <div className="flex-1 overflow-y-auto scrollbar-custom" role="status" aria-live="polite">
         <div className="p-8 text-center">
-          <EnvelopeIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
+          <Icons.mail className="w-12 h-12 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
           <p className="text-muted-foreground">No emails found</p>
         </div>
       </div>
@@ -242,7 +220,7 @@ const VirtualEmailList: React.FC<VirtualEmailListProps> = ({
                     <span className={`font-medium truncate ${!email.isRead ? 'font-semibold' : ''}`}>
                       {email.sender}
                     </span>
-                    {email.isStarred && <StarSolidIcon className="w-4 h-4 text-amber-500 flex-shrink-0" aria-label="Starred email" />}
+                    {email.isStarred && <Icons.star className="w-4 h-4 text-amber-500 flex-shrink-0" aria-label="Starred email" />}
                   </div>
                   <span className="text-xs text-muted-foreground whitespace-nowrap">
                     {formatTime(email.date)}
@@ -354,12 +332,12 @@ const ModernEmailInterface: React.FC = () => {
 
   // Sidebar navigation items
   const sidebarItems = [
-    { id: 'inbox', label: 'Inbox', icon: InboxIcon, count: 24 },
-    { id: 'starred', label: 'Starred', icon: StarIcon, count: 5 },
-    { id: 'sent', label: 'Sent', icon: PaperAirplaneIcon, count: null },
-    { id: 'scheduled', label: 'Scheduled', icon: ClockIcon, count: 2 },
-    { id: 'archive', label: 'Archive', icon: ArchiveBoxIcon, count: null },
-    { id: 'trash', label: 'Trash', icon: TrashIcon, count: 1 },
+    { id: 'inbox', label: 'Inbox', icon: Icons.inbox, count: 24 },
+    { id: 'starred', label: 'Starred', icon: Icons.star, count: 5 },
+    { id: 'sent', label: 'Sent', icon: Icons.send, count: null },
+    { id: 'scheduled', label: 'Scheduled', icon: Icons.clock, count: 2 },
+    { id: 'archive', label: 'Archive', icon: Icons.archive, count: null },
+    { id: 'trash', label: 'Trash', icon: Icons.trash, count: 1 },
   ];
 
   const fetchEmails = useCallback(async () => {
@@ -367,7 +345,7 @@ const ModernEmailInterface: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('http://localhost:8001/emails/');
+      const response = await fetch('http://localhost:8000/emails/');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -484,14 +462,14 @@ const ModernEmailInterface: React.FC = () => {
 
   const getUrgencyIcon = (urgency: string) => {
     switch (urgency) {
-      case 'CRITICAL':
-        return <ExclamationTriangleIcon className="w-4 h-4 text-red-500" aria-label="Critical urgency" />;
+      case TaskPriority.CRITICAL:
+        return <Icons.warning className="w-4 h-4 text-red-500" aria-label="Critical urgency" />;
       case 'HIGH':
-        return <StarIcon className="w-4 h-4 text-amber-500" aria-label="High urgency" />;
+        return <Icons.star className="w-4 h-4 text-amber-500" aria-label="High urgency" />;
       case 'MEDIUM':
-        return <ClockIcon className="w-4 h-4 text-blue-500" aria-label="Medium urgency" />;
+        return <Icons.clock className="w-4 h-4 text-blue-500" aria-label="Medium urgency" />;
       default:
-        return <CheckCircleIcon className="w-4 h-4 text-green-500" aria-label="Low urgency" />;
+        return <Icons.checkCircle className="w-4 h-4 text-green-500" aria-label="Low urgency" />;
     }
   };
 
@@ -503,7 +481,7 @@ const ModernEmailInterface: React.FC = () => {
       switch (filterBy) {
         case 'unread': return !email.isRead;
         case 'starred': return email.isStarred;
-        case 'urgent': return email.urgency === 'CRITICAL' || email.urgency === 'HIGH';
+        case 'urgent': return email.urgency === TaskPriority.CRITICAL || email.urgency === 'HIGH';
         default: return true;
       }
     })();
@@ -540,14 +518,14 @@ const ModernEmailInterface: React.FC = () => {
   const analyzeOptimalViewMode = useCallback((email: Email, tasks: Task[], drafts: Draft[]): ViewModeAnalysis => {
     const taskCount = tasks.filter(task => task.email_id === email.id).length;
     const draftCount = drafts.filter(draft => draft.email_id === email.id).length;
-    const actionableItemCount = email.urgency === 'CRITICAL' || email.urgency === 'HIGH' ? 1 : 0;
+    const actionableItemCount = email.urgency === TaskPriority.CRITICAL || email.urgency === 'HIGH' ? 1 : 0;
     
     let suggestedView: ViewMode = 'email';
     let confidence = 0.7;
     let reasoning = 'Default email view for content reading';
     
     // Task-centric logic
-    if (taskCount >= 3 || (taskCount >= 1 && email.urgency === 'CRITICAL')) {
+    if (taskCount >= 3 || (taskCount >= 1 && email.urgency === TaskPriority.CRITICAL)) {
       suggestedView = 'task';
       confidence = taskCount >= 5 ? 0.95 : 0.85;
       reasoning = `High task density (${taskCount} tasks) suggests task-focused workflow`;
@@ -817,7 +795,7 @@ const ModernEmailInterface: React.FC = () => {
     
     setActionLoading('archive');
     try {
-      const response = await fetch(`http://localhost:8001/emails/${selectedEmail.id}/archive`, {
+      const response = await fetch(`http://localhost:8000/emails/${selectedEmail.id}/archive`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -847,7 +825,7 @@ const ModernEmailInterface: React.FC = () => {
     
     setActionLoading('delete');
     try {
-      const response = await fetch(`http://localhost:8001/emails/${selectedEmail.id}`, {
+      const response = await fetch(`http://localhost:8000/emails/${selectedEmail.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -877,7 +855,7 @@ const ModernEmailInterface: React.FC = () => {
     
     setActionLoading('markRead');
     try {
-      const response = await fetch(`http://localhost:8001/emails/${selectedEmail.id}/mark-read`, {
+      const response = await fetch(`http://localhost:8000/emails/${selectedEmail.id}/mark-read`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -953,7 +931,7 @@ const ModernEmailInterface: React.FC = () => {
           {!sidebarCollapsed && (
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <EnvelopeIcon className="w-5 h-5 text-white" />
+                <Icons.mail className="w-5 h-5 text-white" />
               </div>
               <div>
                 <h1 className="font-semibold text-foreground">Email Intelligence</h1>
@@ -965,14 +943,14 @@ const ModernEmailInterface: React.FC = () => {
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="p-2 hover:bg-secondary rounded-lg transition-colors"
           >
-            <Bars3Icon className="w-5 h-5" />
+            <Icons.menu className="w-5 h-5" />
           </button>
         </div>
 
         {/* Compose Button */}
         <div className="p-4">
           <button className={`${sidebarCollapsed ? 'w-10 h-10' : 'w-full'} compose-button text-primary-foreground rounded-lg flex items-center justify-center gap-2 py-3 font-medium`}>
-            <PlusIcon className="w-5 h-5" />
+            <Icons.plus className="w-5 h-5" />
             {!sidebarCollapsed && <span>Compose</span>}
           </button>
         </div>
@@ -1026,7 +1004,7 @@ const ModernEmailInterface: React.FC = () => {
               onClick={toggleTheme}
               className="p-2 hover:bg-secondary rounded-lg transition-colors"
             >
-              {isDark ? <SunIcon className="w-4 h-4" /> : <MoonIcon className="w-4 h-4" />}
+              {isDark ? <Icons.sun className="w-4 h-4" /> : <Icons.moon className="w-4 h-4" />}
             </button>
           </div>
         </div>
@@ -1073,13 +1051,13 @@ const ModernEmailInterface: React.FC = () => {
                       data-testid="view-toggle"
                       title={`Switch to ${mode} view`}
                     >
-                      {mode === 'email' && <EnvelopeIcon className="w-4 h-4 mr-2 inline" />}
-                      {mode === 'task' && <CalendarDaysIcon className="w-4 h-4 mr-2 inline" />}
-                      {mode === 'draft' && <PaperAirplaneIcon className="w-4 h-4 mr-2 inline" />}
-                      {mode === 'info' && <InformationCircleIcon className="w-4 h-4 mr-2 inline" />}
+                      {mode === 'email' && <Icons.mail className="w-4 h-4 mr-2 inline" />}
+                      {mode === 'task' && <Icons.calendarDays className="w-4 h-4 mr-2 inline" />}
+                      {mode === 'draft' && <Icons.send className="w-4 h-4 mr-2 inline" />}
+                      {mode === 'info' && <Icons.info className="w-4 h-4 mr-2 inline" />}
                       {mode === 'colleagues' && (
                         <>
-                          <UsersIcon className="w-4 h-4 mr-2 inline" />
+                          <Icons.users className="w-4 h-4 mr-2 inline" />
                           {/* Notification badge for pending colleague responses */}
                           <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
                             2
@@ -1122,7 +1100,7 @@ const ModernEmailInterface: React.FC = () => {
           </div>
 
           <div className="relative mb-3">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Icons.search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search emails..."
@@ -1217,9 +1195,9 @@ const ModernEmailInterface: React.FC = () => {
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 transition-colors"
                 >
                   {isGeneratingTasks ? (
-                    <ArrowPathIcon className="w-4 h-4 animate-spin" />
+                    <Icons.refresh className="w-4 h-4 animate-spin" />
                   ) : (
-                    <CalendarDaysIcon className="w-4 h-4" />
+                    <Icons.calendar className="w-4 h-4" />
                   )}
                   {isGeneratingTasks ? 'Generating...' : 'Generate Tasks'}
                 </button>
@@ -1230,9 +1208,9 @@ const ModernEmailInterface: React.FC = () => {
                   className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50 transition-colors"
                 >
                   {isGeneratingDraft ? (
-                    <ArrowPathIcon className="w-4 h-4 animate-spin" />
+                    <Icons.refresh className="w-4 h-4 animate-spin" />
                   ) : (
-                    <PaperAirplaneIcon className="w-4 h-4" />
+                    <Icons.send className="w-4 h-4" />
                   )}
                   {isGeneratingDraft ? 'Generating...' : 'Generate Draft'}
                 </button>
@@ -1242,7 +1220,7 @@ const ModernEmailInterface: React.FC = () => {
                     onClick={() => setShowTaskPanel(false)}
                     className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg hover:bg-secondary transition-colors"
                   >
-                    <XMarkIcon className="w-4 h-4" />
+                    <Icons.x className="w-4 h-4" />
                     Hide Tasks
                   </button>
                 )}
@@ -1252,7 +1230,7 @@ const ModernEmailInterface: React.FC = () => {
                     onClick={() => setShowDraftPanel(false)}
                     className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg hover:bg-secondary transition-colors"
                   >
-                    <XMarkIcon className="w-4 h-4" />
+                    <Icons.x className="w-4 h-4" />
                     Hide Draft
                   </button>
                 )}
@@ -1273,7 +1251,7 @@ const ModernEmailInterface: React.FC = () => {
                 <TaskKanbanBoard
                   emails={filteredEmails.map(email => ({
                     ...email,
-                    urgency: email.urgency as 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW',
+                    urgency: email.urgency as TaskPriority,
                     senderEmail: email.senderEmail || email.sender,
                     to_addresses: [],
                     cc_addresses: [],
@@ -1294,7 +1272,7 @@ const ModernEmailInterface: React.FC = () => {
                 <div className="p-6 space-y-6">
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                      <PaperAirplaneIcon className="w-5 h-5" />
+                      <Icons.send className="w-5 h-5" />
                       AI-Powered Draft Center
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4">
@@ -1442,7 +1420,7 @@ const ModernEmailInterface: React.FC = () => {
                 <div className="p-6">
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                      <InformationCircleIcon className="w-5 h-5" />
+                      <Icons.info className="w-5 h-5" />
                       Information & FYI
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4">
@@ -1494,7 +1472,7 @@ const ModernEmailInterface: React.FC = () => {
                     
                     {filteredEmails.filter(email => email.classification === 'FYI_ONLY').length === 0 && (
                       <div className="text-center py-12">
-                        <InformationCircleIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <Icons.info className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                         <h4 className="font-medium mb-2">No informational emails</h4>
                         <p className="text-sm text-muted-foreground">
                           All emails in your current filter require action or responses.
@@ -1510,14 +1488,14 @@ const ModernEmailInterface: React.FC = () => {
                 <div className="border-t border-border bg-secondary/50 p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold flex items-center gap-2">
-                      <CalendarDaysIcon className="w-5 h-5" />
+                      <Icons.calendar className="w-5 h-5" />
                       Generated Tasks ({tasks.length})
                     </h3>
                     <button
                       onClick={() => setShowTaskPanel(false)}
                       className="p-1 hover:bg-secondary rounded"
                     >
-                      <XMarkIcon className="w-4 h-4" />
+                      <Icons.x className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="space-y-3">
@@ -1562,14 +1540,14 @@ const ModernEmailInterface: React.FC = () => {
                 <div className="border-t border-border bg-secondary/50 p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold flex items-center gap-2">
-                      <PaperAirplaneIcon className="w-5 h-5" />
+                      <Icons.send className="w-5 h-5" />
                       AI Generated Draft
                     </h3>
                     <button
                       onClick={() => setShowDraftPanel(false)}
                       className="p-1 hover:bg-secondary rounded"
                     >
-                      <XMarkIcon className="w-4 h-4" />
+                      <Icons.x className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="bg-background border border-border rounded-lg p-4">
@@ -1622,7 +1600,7 @@ const ModernEmailInterface: React.FC = () => {
         ) : (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <EnvelopeIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <Icons.mail className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Select an email</h3>
               <p className="text-muted-foreground">Choose an email from the list to view its content</p>
             </div>

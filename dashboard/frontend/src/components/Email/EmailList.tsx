@@ -1,25 +1,7 @@
+import { TaskPriority } from '../../types';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { 
-  ExclamationTriangleIcon,
-  StarIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  EyeIcon,
-  PaperAirplaneIcon,
-  ArchiveBoxIcon,
-  TrashIcon,
-  TagIcon,
-  CalendarDaysIcon,
-  UserIcon,
-  FunnelIcon,
-  ChevronDownIcon,
-  MagnifyingGlassIcon,
-  EnvelopeIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ArrowPathIcon
-} from '@heroicons/react/24/outline';
+import { Icons } from '../ui/icons';
 import { Badge, Button, Card, Input, Select, Skeleton, Alert, Tooltip } from '../ui';
 import { DateRangePicker, DateRange } from '../DateRangePicker';
 
@@ -102,7 +84,7 @@ const VirtualizedEmailGrid: React.FC<VirtualizedEmailGridProps> = ({
       <Card padding="xl" className="text-center">
         <div className="space-y-4">
           <div className="w-16 h-16 mx-auto bg-secondary rounded-full flex items-center justify-center">
-            <EnvelopeIcon className="w-8 h-8 text-muted-foreground" />
+            <Icons.mail className="w-8 h-8 text-muted-foreground" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-foreground">No emails found</h3>
@@ -186,7 +168,7 @@ const VirtualizedEmailGrid: React.FC<VirtualizedEmailGridProps> = ({
                               {email.subject}
                             </h3>
                             {email.isStarred && (
-                              <StarIcon className="w-4 h-4 text-amber-500 fill-current" />
+                              <Icons.star className="w-4 h-4 text-amber-500 fill-current" />
                             )}
                           </div>
 
@@ -218,7 +200,7 @@ const VirtualizedEmailGrid: React.FC<VirtualizedEmailGridProps> = ({
                           <div className="flex flex-wrap items-center gap-2">
                             <Badge 
                               variant={getClassificationColor(email.classification)}
-                              size="sm"
+                              
                             >
                               <span className="flex items-center gap-1">
                                 {getClassificationIcon(email.classification)}
@@ -226,26 +208,26 @@ const VirtualizedEmailGrid: React.FC<VirtualizedEmailGridProps> = ({
                               </span>
                             </Badge>
                             
-                            <Badge variant="default" size="sm">
+                            <Badge variant="primary" >
                               {Math.round(email.confidence * 100)}% confidence
                             </Badge>
 
                             {email.has_draft && (
-                              <Badge variant="success" size="sm" dot>
+                              <Badge variant="success"  dot>
                                 Draft Ready
                               </Badge>
                             )}
 
                             {email.estimatedResponseTime && (
-                              <Badge variant="outline" size="sm">
-                                <ClockIcon className="w-3 h-3 mr-1" />
+                              <Badge variant="outline" >
+                                <Icons.clock className="w-3 h-3 mr-1" />
                                 {email.estimatedResponseTime}
                               </Badge>
                             )}
 
                             {email.tags?.map(tag => (
-                              <Badge key={tag} variant="secondary" size="sm">
-                                <TagIcon className="w-3 h-3 mr-1" />
+                              <Badge key={tag} variant="secondary" >
+                                <Icons.tag className="w-3 h-3 mr-1" />
                                 {tag}
                               </Badge>
                             ))}
@@ -267,31 +249,31 @@ const VirtualizedEmailGrid: React.FC<VirtualizedEmailGridProps> = ({
                           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Tooltip content="View email">
                               <Button
-                                variant="ghost"
+                                variant="secondary"
                                 size="xs"
                                 onClick={() => onEmailAction(email.id, 'view')}
                               >
-                                <EyeIcon className="w-4 h-4" />
+                                <Icons.eye className="w-4 h-4" />
                               </Button>
                             </Tooltip>
                             
                             <Tooltip content="Quick reply">
                               <Button
-                                variant="ghost"
+                                variant="secondary"
                                 size="xs"
                                 onClick={() => onEmailAction(email.id, 'reply')}
                               >
-                                <PaperAirplaneIcon className="w-4 h-4" />
+                                <Icons.send className="w-4 h-4" />
                               </Button>
                             </Tooltip>
                             
                             <Tooltip content="Archive">
                               <Button
-                                variant="ghost"
+                                variant="secondary"
                                 size="xs"
                                 onClick={() => onEmailAction(email.id, 'archive')}
                               >
-                                <ArchiveBoxIcon className="w-4 h-4" />
+                                <Icons.archive className="w-4 h-4" />
                               </Button>
                             </Tooltip>
                           </div>
@@ -394,37 +376,37 @@ const EmailList: React.FC = () => {
 
   const getUrgencyIcon = (urgency: string) => {
     switch (urgency) {
-      case 'CRITICAL':
-        return <ExclamationTriangleIcon className="w-5 h-5 text-red-500" />;
+      case TaskPriority.CRITICAL:
+        return <Icons.warning className="w-5 h-5 text-red-500" />;
       case 'HIGH':
-        return <StarIcon className="w-5 h-5 text-amber-500" />;
+        return <Icons.star className="w-5 h-5 text-amber-500" />;
       case 'MEDIUM':
-        return <ClockIcon className="w-5 h-5 text-blue-500" />;
+        return <Icons.clock className="w-5 h-5 text-blue-500" />;
       default:
-        return <CheckCircleIcon className="w-5 h-5 text-green-500" />;
+        return <Icons.checkCircle className="w-5 h-5 text-green-500" />;
     }
   };
 
   const getClassificationIcon = (classification: string) => {
     switch (classification) {
       case 'NEEDS_REPLY':
-        return <PaperAirplaneIcon className="w-4 h-4" />;
+        return <Icons.send className="w-4 h-4" />;
       case 'APPROVAL_REQUIRED':
-        return <ExclamationTriangleIcon className="w-4 h-4" />;
+        return <Icons.warning className="w-4 h-4" />;
       case 'CREATE_TASK':
-        return <CalendarDaysIcon className="w-4 h-4" />;
+        return <Icons.calendar className="w-4 h-4" />;
       case 'DELEGATE':
-        return <UserIcon className="w-4 h-4" />;
+        return <Icons.user className="w-4 h-4" />;
       default:
-        return <EyeIcon className="w-4 h-4" />;
+        return <Icons.eye className="w-4 h-4" />;
     }
   };
 
-  const handleEmailAction = (emailId: number, action: string) => {
+  const handleEmailAction = (_emailId: number, _action: string) => {
     // Implement email actions
   };
 
-  const handleBulkAction = (action: string) => {
+  const handleBulkAction = (_action: string) => {
     // Implement bulk actions
   };
 
@@ -498,7 +480,7 @@ const EmailList: React.FC = () => {
         case 'unread':
           return !email.isRead;
         case 'urgent':
-          return email.urgency === 'CRITICAL' || email.urgency === 'HIGH';
+          return email.urgency === TaskPriority.CRITICAL || email.urgency === 'HIGH';
         case 'needs_reply':
           return email.classification === 'NEEDS_REPLY';
         default:
@@ -555,7 +537,7 @@ const EmailList: React.FC = () => {
     return (
       <Alert variant="danger" title="Error loading emails" dismissible>
         <p className="mb-3">{error}</p>
-        <Button onClick={fetchEmails} variant="danger" size="sm">
+        <Button onClick={fetchEmails} variant="danger" >
           Try Again
         </Button>
       </Alert>
@@ -573,14 +555,14 @@ const EmailList: React.FC = () => {
           </p>
           {dateRange.start && dateRange.end && (
             <div className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
-              <CalendarDaysIcon className="w-4 h-4" />
+              <Icons.calendar className="w-4 h-4" />
               <span>
                 {dateRange.start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - {dateRange.end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </span>
             </div>
           )}
         </div>
-        <Button onClick={fetchEmails} variant="outline" leftIcon={<ArrowPathIcon className="w-4 h-4" />}>
+        <Button onClick={fetchEmails} variant="outline" leftIcon={<Icons.refresh className="w-4 h-4" />}>
           Refresh
         </Button>
       </div>
@@ -590,7 +572,7 @@ const EmailList: React.FC = () => {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center">
-              <CalendarDaysIcon className="w-5 h-5 text-indigo-600" />
+              <Icons.calendar className="w-5 h-5 text-indigo-600" />
             </div>
             <div>
               <h3 className="font-semibold text-foreground">Email Date Range</h3>
@@ -613,7 +595,7 @@ const EmailList: React.FC = () => {
                 <Button
                   key={preset.value}
                   variant={!isCustomRange && timeRange === preset.value ? 'primary' : 'outline'}
-                  size="sm"
+                  
                   onClick={() => handleQuickDateRange(preset.value)}
                   title={preset.desc}
                   className="min-w-[55px]"
@@ -646,7 +628,7 @@ const EmailList: React.FC = () => {
             placeholder="Search emails..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            leftIcon={<MagnifyingGlassIcon className="w-4 h-4" />}
+            leftIcon={<Icons.search className="w-4 h-4" />}
           />
           
           <Select
@@ -674,7 +656,7 @@ const EmailList: React.FC = () => {
           <div className="flex gap-2">
             <Button
               variant="outline"
-              size="sm"
+              
               onClick={() => setViewMode(viewMode === 'list' ? 'compact' : 'list')}
             >
               {viewMode === 'list' ? 'Compact' : 'Detailed'}
@@ -691,15 +673,15 @@ const EmailList: React.FC = () => {
               {selectedEmails.length} email{selectedEmails.length > 1 ? 's' : ''} selected
             </span>
             <div className="flex gap-2">
-              <Button variant="ghost" size="sm" onClick={() => handleBulkAction('archive')}>
-                <ArchiveBoxIcon className="w-4 h-4" />
+              <Button variant="secondary"  onClick={() => handleBulkAction('archive')}>
+                <Icons.archive className="w-4 h-4" />
                 Archive
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => handleBulkAction('delete')}>
-                <TrashIcon className="w-4 h-4" />
+              <Button variant="secondary"  onClick={() => handleBulkAction('delete')}>
+                <Icons.trash className="w-4 h-4" />
                 Delete
               </Button>
-              <Button variant="outline" size="sm" onClick={clearSelection}>
+              <Button variant="outline"  onClick={clearSelection}>
                 Clear
               </Button>
             </div>

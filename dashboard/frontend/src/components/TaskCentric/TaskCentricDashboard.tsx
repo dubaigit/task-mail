@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "../ui/Button";
+import { ModernButton } from "../ui/ModernButton";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/Avatar";
-import { Badge } from "../ui/Badge";
+import { Badge } from "../ui/SimpleComponents";
 import { ScrollArea } from "../ui/ScrollArea";
 import { Separator } from "../ui/Separator";
 import {
@@ -70,14 +70,14 @@ const TaskCentricDashboard: React.FC = () => {
                 </div>
               </div>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
+            <ModernButton
+              variant="secondary"
+              
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="h-8 w-8 p-0"
             >
               {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-            </Button>
+            </ModernButton>
           </div>
           <ScrollArea className="flex-1 px-3">
             <div className="space-y-1 py-2">
@@ -98,7 +98,7 @@ const TaskCentricDashboard: React.FC = () => {
           <div className="p-4 border-t border-border">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-full justify-start p-2">
+                <ModernButton variant="secondary" className="w-full justify-start p-2">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="https://github.com/shadcn.png" />
                     <AvatarFallback>JD</AvatarFallback>
@@ -110,7 +110,7 @@ const TaskCentricDashboard: React.FC = () => {
                     </div>
                   )}
                   {!isCollapsed && <ChevronsUpDown className="h-4 w-4 ml-auto" />}
-                </Button>
+                </ModernButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem>
@@ -132,24 +132,23 @@ const TaskCentricDashboard: React.FC = () => {
       <div className="flex-1 flex flex-col lg:ml-72">
         <header className="h-16 bg-background border-b border-border flex items-center justify-between px-6">
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
+            <ModernButton
+              variant="secondary"
               className="lg:hidden"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
+            </ModernButton>
             <h1 className="text-xl font-semibold">Project Dashboard</h1>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm">
+            <ModernButton variant="secondary">
               <Bell className="h-4 w-4" />
-            </Button>
-            <Button>
+            </ModernButton>
+            <ModernButton>
               <Plus className="h-4 w-4 mr-2" />
               New Task
-            </Button>
+            </ModernButton>
           </div>
         </header>
         <main className="flex-1 overflow-auto p-6">

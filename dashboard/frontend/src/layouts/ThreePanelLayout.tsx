@@ -10,9 +10,13 @@ import {
   TaskCentricMetrics,
   TaskCentricPerformance
 } from '../components/TaskCentric/types';
+import { TaskPriority, TaskStatus } from '../types';
+import { TagSearchFilters } from '../types/TagTypes';
 import TaskNavigationPanel from '../components/TaskCentric/TaskNavigationPanel';
 import TaskListPanel from '../components/TaskCentric/TaskListPanel';
 import TaskDetailPanel from '../components/TaskCentric/TaskDetailPanel';
+import TagFilterPanel from '../components/ui/TagSystem/TagFilterPanel';
+import useTagSystem from '../hooks/useTagSystem';
 import '../styles/TaskCentric.css';
 
 /**
@@ -43,8 +47,8 @@ interface ThreePanelLayoutProps {
   tasks: TaskItem[];
   drafts: TaskCentricDraft[];
   onTaskUpdate: (task: TaskItem) => void;
-  onTaskComplete: (taskId: number) => void;
-  onTaskDelete: (taskId: number) => void;
+  onTaskComplete: (taskId: string) => void;
+  onTaskDelete: (taskId: string) => void;
   onDraftCreate: (task: TaskItem) => void;
   onDraftUpdate: (draft: TaskCentricDraft) => void;
   onDraftSend: (draft: TaskCentricDraft) => void;
@@ -106,6 +110,23 @@ const ThreePanelLayout: React.FC<ThreePanelLayoutProps> = ({
     enableDragAndDrop: false
   });
 
+  // Tag filtering state
+  const [showTagFilters, setShowTagFilters] = useState(false);
+  const [tagFilters, setTagFilters] = useState<TagSearchFilters>({});
+  
+  // Initialize tag system hook
+  const {
+    searchWithTags,
+    availableTags,
+    loadAvailableTags,
+    tagsLoading,
+    tagsError
+  } = useTagSystem({
+    autoLoadTaxonomy: true,
+    enableAnalytics: false,
+    cacheResults: true
+  });
+
   // Performance monitoring
   const [performanceMetrics, setPerformanceMetrics] = useState<TaskCentricPerformance>({
     renderTime: 0,
@@ -127,12 +148,14 @@ const ThreePanelLayout: React.FC<ThreePanelLayoutProps> = ({
   // Navigation categories based on whitepaper specifications
   const navigationCategories: TaskNavigationCategory[] = useMemo(() => {
     const taskCounts = tasks.reduce((acc, task) => {
-      acc[task.category] = (acc[task.category] || 0) + 1;
+      const category = task.category || 'uncategorized';
+      acc[category] = (acc[category] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
     const urgencyCounts = tasks.reduce((acc, task) => {
-      acc[task.urgency] = (acc[task.urgency] || 0) + 1;
+      const urgency = task.urgency || 'MEDIUM';
+      acc[urgency] = (acc[urgency] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
@@ -183,10 +206,10 @@ const ThreePanelLayout: React.FC<ThreePanelLayoutProps> = ({
         id: 'urgent',
         label: 'Urgent',
         icon: 'ExclamationTriangleIcon',
-        count: urgencyCounts['CRITICAL'] + urgencyCounts['HIGH'] || 0,
+        count: urgencyCounts[TaskPriority.CRITICAL] + urgencyCounts['HIGH'] || 0,
         color: '#EF4444',
         customFilter: {
-          urgencyLevels: ['CRITICAL', 'HIGH'],
+          urgencyLevels: [TaskPriority.CRITICAL, TaskPriority.HIGH],
           categories: [],
           statuses: [],
           showCompleted: false,
@@ -210,7 +233,7 @@ const ThreePanelLayout: React.FC<ThreePanelLayoutProps> = ({
           filtered = filtered.filter(task => filter.urgencyLevels!.includes(task.urgency));
         }
         if (filter.categories?.length) {
-          filtered = filtered.filter(task => filter.categories!.includes(task.category));
+          filtered = filtered.filter(task => task.category && filter.categories!.includes(task.category));
         }
       } else {
         // Map category ID to task category
@@ -230,7 +253,7 @@ const ThreePanelLayout: React.FC<ThreePanelLayoutProps> = ({
 
     // Apply additional filters
     if (taskFilter.categories.length > 0) {
-      filtered = filtered.filter(task => taskFilter.categories.includes(task.category));
+      filtered = filtered.filter(task => task.category && taskFilter.categories.includes(task.category));
     }
 
     if (taskFilter.urgencyLevels.length > 0) {
@@ -242,14 +265,14 @@ const ThreePanelLayout: React.FC<ThreePanelLayoutProps> = ({
     }
 
     if (!taskFilter.showCompleted) {
-      filtered = filtered.filter(task => task.status !== 'COMPLETED');
+              filtered = filtered.filter(task => task.status !== TaskStatus.COMPLETED);
     }
 
     if (taskFilter.searchQuery) {
       const query = taskFilter.searchQuery.toLowerCase();
       filtered = filtered.filter(task =>
         task.title.toLowerCase().includes(query) ||
-        task.description.toLowerCase().includes(query) ||
+        task.description?.toLowerCase().includes(query) ||
         task.tags?.some(tag => tag.toLowerCase().includes(query))
       );
     }
@@ -263,7 +286,7 @@ const ThreePanelLayout: React.FC<ThreePanelLayoutProps> = ({
                         new Date(b.dueDate || '9999-12-31').getTime();
           break;
         case 'urgency':
-          const urgencyOrder = { 'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1 };
+          const urgencyOrder: Record<string, number> = { 'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'URGENT': 4 };
           compareValue = (urgencyOrder[b.urgency] || 0) - (urgencyOrder[a.urgency] || 0);
           break;
         case 'createdAt':
@@ -285,13 +308,13 @@ const ThreePanelLayout: React.FC<ThreePanelLayoutProps> = ({
   // Get email for selected task
   const selectedEmail = useMemo(() => {
     if (!selectedTask) return null;
-    return emails.find(email => email.id === selectedTask.emailId) || null;
+    return emails.find(email => email.id.toString() === selectedTask.emailId) || null;
   }, [selectedTask, emails]);
 
   // Get drafts for selected task
   const taskDrafts = useMemo(() => {
     if (!selectedTask) return [];
-    return drafts.filter(draft => draft.taskId === selectedTask.id || draft.emailId === selectedTask.emailId);
+    return drafts.filter(draft => draft.taskId?.toString() === selectedTask.id?.toString() || draft.emailId?.toString() === selectedTask.emailId);
   }, [selectedTask, drafts]);
 
   // Handle task selection
@@ -319,6 +342,22 @@ const ThreePanelLayout: React.FC<ThreePanelLayoutProps> = ({
     setPanelConfig(newConfig);
   }, []);
 
+  // Handle tag filter changes
+  const handleTagFiltersChange = useCallback((newFilters: TagSearchFilters) => {
+    setTagFilters(newFilters);
+    // Could trigger knowledge base search here if needed
+  }, []);
+
+  // Handle clear tag filters
+  const handleClearTagFilters = useCallback(() => {
+    setTagFilters({});
+  }, []);
+
+  // Toggle tag filter panel
+  const handleToggleTagFilters = useCallback(() => {
+    setShowTagFilters(prev => !prev);
+  }, []);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -331,6 +370,10 @@ const ThreePanelLayout: React.FC<ThreePanelLayoutProps> = ({
           case '2':
             event.preventDefault();
             setPanelConfig(prev => ({ ...prev, collapsedRightPanel: !prev.collapsedRightPanel }));
+            break;
+          case '3':
+            event.preventDefault();
+            setShowTagFilters(prev => !prev);
             break;
           case 'k':
             event.preventDefault();
@@ -385,17 +428,22 @@ const ThreePanelLayout: React.FC<ThreePanelLayoutProps> = ({
     const leftWidth = panelConfig.collapsedLeftPanel ? '60px' : `${panelConfig.leftPanelWidth}px`;
     const centerWidth = `${panelConfig.centerPanelWidth}px`;
     const rightWidth = panelConfig.collapsedRightPanel ? '60px' : '1fr';
+    const tagWidth = showTagFilters ? '320px' : '0px';
     
-    return `${leftWidth} ${centerWidth} ${rightWidth}`;
-  }, [panelConfig]);
+    return showTagFilters 
+      ? `${leftWidth} ${centerWidth} ${rightWidth} ${tagWidth}`
+      : `${leftWidth} ${centerWidth} ${rightWidth}`;
+  }, [panelConfig, showTagFilters]);
 
   return (
     <div 
       className={layoutClasses}
       style={{ 
+        display: 'grid',
         gridTemplateColumns,
         height: '100vh',
-        display: 'grid'
+        overflow: 'hidden',
+        position: 'relative'
       }}
       role="application"
       aria-label="Task-centric email interface"
@@ -445,6 +493,18 @@ const ThreePanelLayout: React.FC<ThreePanelLayoutProps> = ({
           onDraftSend={onDraftSend}
           isGeneratingDraft={isGeneratingDraft}
           className="task-detail-panel"
+        />
+      )}
+
+      {/* Tag Filter Panel (conditionally rendered) */}
+      {showTagFilters && (
+        <TagFilterPanel
+          filters={tagFilters}
+          onFiltersChange={handleTagFiltersChange}
+          onClearFilters={handleClearTagFilters}
+          showQualityFilter={true}
+          showAdvancedOptions={false}
+          className="tag-filter-panel"
         />
       )}
 

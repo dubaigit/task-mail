@@ -1,7 +1,7 @@
 import { 
   ExclamationTriangleIcon,
   CheckCircleIcon,
-} from '@heroicons/react/24/outline';
+} from '../components/ui/icons';
 
 export type EmailClassification = 
   | 'NEEDS_REPLY' 

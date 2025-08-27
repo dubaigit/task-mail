@@ -40,10 +40,10 @@ import {
   Users,
   Tag
 } from 'lucide-react';
+import './EmailTemplateManager.css';
 
 // Alias PenTool as Signature for clarity
 const Signature = PenTool;
-import './EmailTemplateManager.css';
 
 // Type definitions
 interface EmailTemplate {

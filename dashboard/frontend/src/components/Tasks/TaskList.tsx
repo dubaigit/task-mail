@@ -1,22 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  PlusIcon,
-  EllipsisVerticalIcon,
-  CalendarDaysIcon,
-  ClockIcon,
-  UserIcon,
-  TagIcon,
-  ExclamationTriangleIcon,
-  CheckCircleIcon,
-  ArrowPathIcon,
-  PencilIcon,
-  TrashIcon,
-  EyeIcon,
-  ChevronRightIcon,
-  FunnelIcon,
-  Bars3Icon,
-  Squares2X2Icon
-} from '@heroicons/react/24/outline';
+import { Icons, ExclamationTriangleIcon, PencilIcon, TrashIcon, UserIcon, CalendarDaysIcon, ArrowPathIcon } from '../ui/icons';
 import { Card, Button, Badge, Input, Select, Skeleton, Alert, Tooltip } from '../ui';
 
 interface Task {
@@ -103,7 +86,7 @@ const TaskList: React.FC = () => {
       case 'high':
         return <ExclamationTriangleIcon className="w-4 h-4" />;
       default:
-        return <CheckCircleIcon className="w-4 h-4" />;
+        return <Icons.checkCircle className="w-4 h-4" />;
     }
   };
 
@@ -116,24 +99,25 @@ const TaskList: React.FC = () => {
     }
   };
 
-  const handleTaskAction = (taskId: number, action: string) => {
+  const handleTaskAction = (taskId: string, action: string) => {
     console.log(`Action ${action} on task ${taskId}`);
     // Implement task actions
   };
 
-  const handleStatusChange = (taskId: number, newStatus: Task['status']) => {
+  const handleStatusChange = (taskId: string, newStatus: Task['status']) => {
     setTasks(prev => 
       prev.map(task => 
-        task.id === taskId ? { ...task, status: newStatus } : task
+        task.id === Number(taskId) ? { ...task, status: newStatus } : task
       )
     );
   };
 
-  const toggleTaskSelection = (taskId: number) => {
+  const toggleTaskSelection = (taskId: string) => {
+    const taskIdNum = Number(taskId);
     setSelectedTasks(prev => 
-      prev.includes(taskId) 
-        ? prev.filter(id => id !== taskId)
-        : [...prev, taskId]
+      prev.includes(taskIdNum) 
+        ? prev.filter(id => id !== taskIdNum)
+        : [...prev, taskIdNum]
     );
   };
 
@@ -163,7 +147,7 @@ const TaskList: React.FC = () => {
   const handleDrop = (e: React.DragEvent, status: Task['status']) => {
     e.preventDefault();
     if (draggedTask && draggedTask.status !== status) {
-      handleStatusChange(draggedTask.id, status);
+      handleStatusChange(String(draggedTask.id), status);
     }
     setDraggedTask(null);
   };
@@ -185,7 +169,7 @@ const TaskList: React.FC = () => {
             <input
               type="checkbox"
               checked={selectedTasks.includes(task.id)}
-              onChange={() => toggleTaskSelection(task.id)}
+              onChange={() => toggleTaskSelection(String(task.id))}
               className="mt-1 rounded border-border text-primary focus:ring-primary"
             />
             <div className="flex-1">
@@ -199,20 +183,20 @@ const TaskList: React.FC = () => {
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <Tooltip content="Edit task">
               <Button
-                variant="ghost"
+                variant="secondary"
                 size="xs"
-                onClick={() => handleTaskAction(task.id, 'edit')}
+                onClick={() => handleTaskAction(String(task.id), 'edit')}
               >
                 <PencilIcon className="w-3 h-3" />
               </Button>
             </Tooltip>
             <Tooltip content="Delete task">
               <Button
-                variant="ghost"
+                variant="secondary"
                 size="xs"
-                onClick={() => handleTaskAction(task.id, 'delete')}
+                onClick={() => handleTaskAction(String(task.id), 'delete')}
               >
-                <TrashIcon className="w-3 h-3" />
+                <Icons.trash className="w-3 h-3" />
               </Button>
             </Tooltip>
           </div>
@@ -220,21 +204,21 @@ const TaskList: React.FC = () => {
 
         {/* Metadata */}
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={getPriorityColor(task.priority)} size="sm">
+          <Badge variant={getPriorityColor(task.priority)} >
             {getPriorityIcon(task.priority)}
             {task.priority.toUpperCase()}
           </Badge>
           
           {task.estimatedTime && (
-            <Badge variant="outline" size="sm">
-              <ClockIcon className="w-3 h-3 mr-1" />
+            <Badge variant="outline" >
+              <Icons.clock className="w-3 h-3 mr-1" />
               {task.estimatedTime}
             </Badge>
           )}
           
           {task.tags?.map(tag => (
-            <Badge key={tag} variant="secondary" size="sm">
-              <TagIcon className="w-3 h-3 mr-1" />
+            <Badge key={tag} variant="secondary" >
+              <Icons.tag className="w-3 h-3 mr-1" />
               {tag}
             </Badge>
           ))}
@@ -263,12 +247,12 @@ const TaskList: React.FC = () => {
         {task.emailId && (
           <div className="pt-2 border-t border-border">
             <Button
-              variant="ghost"
-              size="sm"
+              variant="secondary"
+              
               className="w-full justify-start text-xs"
-              onClick={() => handleTaskAction(task.id, 'view_email')}
+              onClick={() => handleTaskAction(String(task.id), 'view_email')}
             >
-              <EyeIcon className="w-3 h-3 mr-1" />
+              <Icons.eye className="w-3 h-3 mr-1" />
               View related email
             </Button>
           </div>
@@ -312,7 +296,7 @@ const TaskList: React.FC = () => {
     return (
       <Alert variant="danger" title="Error loading tasks" dismissible>
         <p className="mb-3">{error}</p>
-        <Button onClick={fetchTasks} variant="danger" size="sm">
+        <Button onClick={fetchTasks} variant="danger" >
           Try Again
         </Button>
       </Alert>
@@ -340,7 +324,7 @@ const TaskList: React.FC = () => {
           </Button>
           <Button 
             variant="primary" 
-            leftIcon={<PlusIcon className="w-4 h-4" />}
+            leftIcon={<Icons.plus className="w-4 h-4" />}
           >
             New Task
           </Button>
@@ -355,7 +339,7 @@ const TaskList: React.FC = () => {
             placeholder="Search tasks..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            leftIcon={<FunnelIcon className="w-4 h-4" />}
+            leftIcon={<Icons.filter className="w-4 h-4" />}
           />
           
           <Select
@@ -385,18 +369,18 @@ const TaskList: React.FC = () => {
           <div className="flex gap-2">
             <Button
               variant={viewMode === 'kanban' ? 'primary' : 'outline'}
-              size="sm"
+              
               onClick={() => setViewMode('kanban')}
             >
-              <Squares2X2Icon className="w-4 h-4" />
+              <Icons.grid className="w-4 h-4" />
               Kanban
             </Button>
             <Button
               variant={viewMode === 'list' ? 'primary' : 'outline'}
-              size="sm"
+              
               onClick={() => setViewMode('list')}
             >
-              <Bars3Icon className="w-4 h-4" />
+              <Icons.list className="w-4 h-4" />
               List
             </Button>
           </div>
@@ -421,7 +405,7 @@ const TaskList: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-foreground">{column.title}</h3>
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline" size="sm">
+                      <Badge variant="outline" >
                         {columnTasks.length}
                         {column.limit && `/${column.limit}`}
                       </Badge>
@@ -456,11 +440,11 @@ const TaskList: React.FC = () => {
                   
                   {/* Add Task Button */}
                   <Button
-                    variant="ghost"
+                    variant="secondary"
                     className="w-full border-2 border-dashed border-border hover:border-primary/50"
                     onClick={() => console.log(`Add task to ${column.status}`)}
                   >
-                    <PlusIcon className="w-4 h-4 mr-2" />
+                    <Icons.plus className="w-4 h-4 mr-2" />
                     Add Task
                   </Button>
                 </div>
@@ -480,7 +464,7 @@ const TaskList: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={selectedTasks.includes(task.id)}
-                    onChange={() => toggleTaskSelection(task.id)}
+                    onChange={() => toggleTaskSelection(String(task.id))}
                     className="mt-1 rounded border-border text-primary focus:ring-primary"
                   />
                   
@@ -494,10 +478,10 @@ const TaskList: React.FC = () => {
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <Badge variant={getStatusColor(task.status)} size="sm">
+                        <Badge variant={getStatusColor(task.status)} >
                           {task.status.replace('_', ' ').toUpperCase()}
                         </Badge>
-                        <Badge variant={getPriorityColor(task.priority)} size="sm">
+                        <Badge variant={getPriorityColor(task.priority)} >
                           {task.priority.toUpperCase()}
                         </Badge>
                       </div>
@@ -514,14 +498,14 @@ const TaskList: React.FC = () => {
                         
                         {task.estimatedTime && (
                           <div className="flex items-center gap-1">
-                            <ClockIcon className="w-4 h-4" />
+                            <Icons.clock className="w-4 h-4" />
                             <span>{task.estimatedTime}</span>
                           </div>
                         )}
                         
                         {task.tags && task.tags.length > 0 && (
                           <div className="flex items-center gap-1">
-                            <TagIcon className="w-4 h-4" />
+                            <Icons.tag className="w-4 h-4" />
                             <span>{task.tags.join(', ')}</span>
                           </div>
                         )}
@@ -537,11 +521,11 @@ const TaskList: React.FC = () => {
                   </div>
                   
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => handleTaskAction(task.id, 'edit')}>
+                    <Button variant="secondary"  onClick={() => handleTaskAction(String(task.id), 'edit')}>
                       <PencilIcon className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleTaskAction(task.id, 'view')}>
-                      <EyeIcon className="w-4 h-4" />
+                    <Button variant="secondary"  onClick={() => handleTaskAction(String(task.id), 'view')}>
+                      <Icons.eye className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
@@ -551,7 +535,7 @@ const TaskList: React.FC = () => {
             <Card padding="xl" className="text-center">
               <div className="space-y-4">
                 <div className="w-16 h-16 mx-auto bg-secondary rounded-full flex items-center justify-center">
-                  <CheckCircleIcon className="w-8 h-8 text-muted-foreground" />
+                  <Icons.checkCircle className="w-8 h-8 text-muted-foreground" />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-foreground">No tasks found</h3>
@@ -561,7 +545,7 @@ const TaskList: React.FC = () => {
                       : 'Create your first task to get started'}
                   </p>
                 </div>
-                <Button variant="primary" leftIcon={<PlusIcon className="w-4 h-4" />}>
+                <Button variant="primary" leftIcon={<Icons.plus className="w-4 h-4" />}>
                   Create Task
                 </Button>
               </div>

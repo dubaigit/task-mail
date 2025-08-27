@@ -1,17 +1,5 @@
 import React from 'react';
-import {
-  EnvelopeIcon,
-  InboxIcon,
-  PaperAirplaneIcon,
-  StarIcon,
-  ClockIcon,
-  ArchiveBoxIcon,
-  TrashIcon,
-  Bars3Icon,
-  SunIcon,
-  MoonIcon,
-  PlusIcon,
-} from '@heroicons/react/24/outline';
+import { Icons } from '../../ui/icons';
 
 interface SidebarItem {
   id: string;
@@ -36,12 +24,12 @@ interface EmailSidebarProps {
 }
 
 const defaultSidebarItems: SidebarItem[] = [
-  { id: 'inbox', label: 'Inbox', icon: InboxIcon, count: 24 },
-  { id: 'starred', label: 'Starred', icon: StarIcon, count: 5 },
-  { id: 'sent', label: 'Sent', icon: PaperAirplaneIcon, count: null },
-  { id: 'scheduled', label: 'Scheduled', icon: ClockIcon, count: 2 },
-  { id: 'archive', label: 'Archive', icon: ArchiveBoxIcon, count: null },
-  { id: 'trash', label: 'Trash', icon: TrashIcon, count: 1 },
+  { id: 'inbox', label: 'Inbox', icon: Icons.inbox, count: 24 },
+  { id: 'starred', label: 'Starred', icon: Icons.star, count: 5 },
+  { id: 'sent', label: 'Sent', icon: Icons.send, count: null },
+  { id: 'scheduled', label: 'Scheduled', icon: Icons.clock, count: 2 },
+  { id: 'archive', label: 'Archive', icon: Icons.archive, count: null },
+  { id: 'trash', label: 'Trash', icon: Icons.trash, count: 1 },
 ];
 
 export const EmailSidebar: React.FC<EmailSidebarProps> = ({
@@ -65,7 +53,7 @@ export const EmailSidebar: React.FC<EmailSidebarProps> = ({
         {!collapsed && (
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <EnvelopeIcon className="w-5 h-5 text-white" />
+              <Icons.mail className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="font-semibold text-foreground">Email Intelligence</h1>
@@ -78,7 +66,7 @@ export const EmailSidebar: React.FC<EmailSidebarProps> = ({
           className="p-2 hover:bg-secondary rounded-lg transition-colors"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          <Bars3Icon className="w-5 h-5" />
+          <Icons.menu className="w-5 h-5" />
         </button>
       </div>
 
@@ -89,7 +77,7 @@ export const EmailSidebar: React.FC<EmailSidebarProps> = ({
           className={`${collapsed ? 'w-10 h-10' : 'w-full'} compose-button text-primary-foreground rounded-lg flex items-center justify-center gap-2 py-3 font-medium`}
           aria-label="Compose new email"
         >
-          <PlusIcon className="w-5 h-5" />
+          <Icons.plus className="w-5 h-5" />
           {!collapsed && <span>Compose</span>}
         </button>
       </div>
@@ -146,7 +134,7 @@ export const EmailSidebar: React.FC<EmailSidebarProps> = ({
             className="p-2 hover:bg-secondary rounded-lg transition-colors"
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
-            {isDark ? <SunIcon className="w-4 h-4" /> : <MoonIcon className="w-4 h-4" />}
+            {isDark ? <Icons.sun className="w-4 h-4" /> : <Icons.moon className="w-4 h-4" />}
           </button>
         </div>
       </div>

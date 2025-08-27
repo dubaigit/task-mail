@@ -1,20 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Brain, 
   Wifi, 
   WifiOff, 
   RefreshCw, 
-  Zap, 
   AlertTriangle, 
-  CheckCircle, 
-  XCircle,
-  TrendingUp,
   Activity,
   Server,
   Eye,
   Play,
-  Pause,
-  Settings,
   MessageSquare
 } from 'lucide-react';
 
@@ -54,19 +47,19 @@ interface EnhancedAIStatusProps {
   onForceReanalyze: () => void;
   showPrompts: boolean;
   onTogglePrompts: () => void;
-  showChat: boolean;
-  onToggleChat: () => void;
+  showChat?: boolean;
+  onToggleChat?: () => void;
 }
 
-export const EnhancedAIStatus: React.FC<EnhancedAIStatusProps> = ({
+const EnhancedAIStatus: React.FC<EnhancedAIStatusProps> = ({
   syncStatus,
   onSync,
   onResync,
   onForceReanalyze,
   showPrompts,
   onTogglePrompts,
-  showChat,
-  onToggleChat
+  showChat = false,
+  onToggleChat = () => {}
 }) => {
   const [aiConnectivity, setAiConnectivity] = useState<AIConnectivityStatus>({
     connected: true,
@@ -97,7 +90,7 @@ export const EnhancedAIStatus: React.FC<EnhancedAIStatusProps> = ({
     }
   ]);
 
-  const [processingMetrics, setProcessingMetrics] = useState<AIProcessingMetrics>({
+  const [processingMetrics] = useState<AIProcessingMetrics>({
     pending: syncStatus?.aiProcessing?.pending || 0,
     analyzed: syncStatus?.aiProcessing?.analyzed || 0,
     failed: syncStatus?.aiProcessing?.failed || 0,
@@ -114,7 +107,7 @@ export const EnhancedAIStatus: React.FC<EnhancedAIStatusProps> = ({
   const [autoSync, setAutoSync] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
 
-  // Simulate real-time updates
+  // PERFORMANCE FIX: Simulate real-time updates with proper throttling
   useEffect(() => {
     const interval = setInterval(() => {
       // Update connectivity status
@@ -132,7 +125,7 @@ export const EnhancedAIStatus: React.FC<EnhancedAIStatusProps> = ({
         requestCount: model.requestCount + Math.floor(Math.random() * 3),
         avgResponseTime: Math.floor(Math.random() * 100) + 150
       })));
-    }, 5000);
+    }, 60000); // FIXED: Changed from 5 seconds to 60 seconds (1 minute)
 
     return () => clearInterval(interval);
   }, []);
@@ -371,3 +364,6 @@ export const EnhancedAIStatus: React.FC<EnhancedAIStatusProps> = ({
     </div>
   );
 };
+
+export default EnhancedAIStatus;
+export { EnhancedAIStatus };

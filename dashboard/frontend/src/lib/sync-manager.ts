@@ -15,9 +15,9 @@ import { cacheManager } from './cache-manager';
 
 // Type definitions for sync manager
 import { ConflictResolutionStrategy } from '../types';
-export type { ConflictResolutionStrategy };
 
 import { EmailMessage as CoreEmailMessage } from '../types';
+export type { ConflictResolutionStrategy };
 
 export interface EmailMessage extends CoreEmailMessage {
   // Any sync-manager specific properties can be added here

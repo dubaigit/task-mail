@@ -1,0 +1,47 @@
+# Vector Configuration for Supabase Analytics
+
+[api]
+enabled = true
+address = "0.0.0.0:9001"
+
+[sources.supabase_logs]
+type = "file"
+include = ["/var/log/supabase/*.log"]
+start_at_beginning = true
+
+[sources.postgres_logs]
+type = "postgresql_metrics"
+endpoints = ["postgresql://supabase_admin:your_super_secret_jwt_token_with_at_least_32_characters_long@db:5432/postgres"]
+scrape_interval_secs = 60
+
+[transforms.parse_logs]
+type = "remap"
+inputs = ["supabase_logs"]
+source = '''
+. = parse_json!(.message)
+'''
+
+[transforms.add_metadata]
+type = "remap"
+inputs = ["parse_logs"]
+source = '''
+.timestamp = now()
+.service = "supabase"
+.environment = get_env_var("ENVIRONMENT") ?? "development"
+'''
+
+[sinks.console]
+type = "console"
+inputs = ["add_metadata"]
+encoding.codec = "json"
+
+[sinks.logflare]
+type = "http"
+inputs = ["add_metadata"]
+uri = "http://analytics:4000/logs/json"
+encoding.codec = "json"
+
+[sinks.postgres_metrics]
+type = "postgresql_metrics"
+inputs = ["postgres_logs"]
+connection_string = "postgresql://supabase_admin:your_super_secret_jwt_token_with_at_least_32_characters_long@db:5432/postgres"

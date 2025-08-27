@@ -47,18 +47,18 @@ export class ServiceWorkerManager {
    */
   async register(swUrl: string = '/sw.js'): Promise<ServiceWorkerRegistration | null> {
     if (!('serviceWorker' in navigator)) {
-      console.warn('[SW] Service workers not supported');
+      // [SW] Service workers not supported
       return null;
     }
 
     try {
-      console.log('[SW] Registering service worker...');
+      // [SW] Registering service worker...
       
       this.registration = await navigator.serviceWorker.register(swUrl, {
         scope: '/'
       });
 
-      console.log('[SW] Service worker registered:', this.registration.scope);
+      // [SW] Service worker registered: ${this.registration.scope}
 
       // Set up event listeners
       this.setupRegistrationListeners();
@@ -79,7 +79,7 @@ export class ServiceWorkerManager {
       return this.registration;
 
     } catch (error) {
-      console.error('[SW] Service worker registration failed:', error);
+      // [SW] Service worker registration failed: ${error}
       this.emit('error', error);
       return null;
     }
@@ -90,7 +90,7 @@ export class ServiceWorkerManager {
    */
   async unregister(): Promise<boolean> {
     if (!this.registration) {
-      console.warn('[SW] No service worker registered');
+      // [SW] No service worker registered
       return false;
     }
 
@@ -98,7 +98,7 @@ export class ServiceWorkerManager {
       const result = await this.registration.unregister();
       
       if (result) {
-        console.log('[SW] Service worker unregistered');
+        // [SW] Service worker unregistered
         this.stopUpdateChecks();
         this.registration = null;
         this.emit('unregistered');
@@ -106,7 +106,7 @@ export class ServiceWorkerManager {
 
       return result;
     } catch (error) {
-      console.error('[SW] Service worker unregistration failed:', error);
+      // [SW] Service worker unregistration failed: ${error}
       this.emit('error', error);
       return false;
     }
@@ -121,7 +121,7 @@ export class ServiceWorkerManager {
     }
 
     try {
-      console.log('[SW] Checking for updates...');
+      // [SW] Checking for updates...
       
       // Check for SW updates
       await this.registration.update();
@@ -130,7 +130,7 @@ export class ServiceWorkerManager {
       const hasAssetUpdates = await cacheBustingManager.checkForUpdates();
       
       if (hasAssetUpdates) {
-        console.log('[SW] Asset updates detected');
+        // [SW] Asset updates detected
         this.emit('assetsUpdated');
         return true;
       }

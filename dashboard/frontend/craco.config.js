@@ -49,12 +49,14 @@ module.exports = {
                 reuseExistingChunk: true,
               },
               // UI libraries chunk
+              // UI libraries chunk (Radix UI + Lucide React optimized)
               ui: {
-                test: /[\\/]node_modules[\\/](@radix-ui|@headlessui|framer-motion|lucide-react)[\\/]/,
+                test: /[\\/]node_modules[\\/](@radix-ui|lucide-react)[\\/]/,
                 name: 'ui',
                 chunks: 'all',
                 priority: 15,
                 reuseExistingChunk: true,
+                enforce: true, // Force chunk creation for tree-shaking
               },
               // Utilities chunk
               utils: {
@@ -227,7 +229,7 @@ module.exports = {
   jest: {
     configure: {
       // Test configuration for cache-related modules
-      moduleNameMapping: {
+      moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
       },
       setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],

@@ -1,3 +1,4 @@
+import { TaskStatus, TaskPriority, TaskCategory } from '../../types';
 /**
  * ProgressiveLoader.tsx - Progressive Loading System
  * 
@@ -385,7 +386,7 @@ export const ProgressiveLoaderProvider: React.FC<{
         };
 
         setLoadingResults(prev => new Map(prev).set(request.id, result));
-        updateStats('completed', result.duration || 0, true);
+        updateStats(TaskStatus.COMPLETED, result.duration || 0, true);
         return result;
       }
     }
@@ -414,7 +415,7 @@ export const ProgressiveLoaderProvider: React.FC<{
       };
 
       setLoadingResults(prev => new Map(prev).set(request.id, result));
-      updateStats('completed', duration, false);
+      updateStats(TaskStatus.COMPLETED, duration, false);
 
       return result;
 
@@ -722,12 +723,12 @@ export const ProgressiveLoaderProvider: React.FC<{
     }, {} as Record<string, LoadingRequest[]>);
   }, []);
 
-  const updateStats = useCallback((type: 'completed' | 'failed' | 'cancelled', duration: number, fromCache: boolean) => {
+  const updateStats = useCallback((type: TaskStatus.COMPLETED | 'failed' | 'cancelled', duration: number, fromCache: boolean) => {
     setStats(prev => {
       const newStats = { ...prev };
 
       switch (type) {
-        case 'completed':
+        case TaskStatus.COMPLETED:
           newStats.completedRequests++;
           break;
         case 'failed':

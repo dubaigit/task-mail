@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback, useContext, createContext } from 'react';
+import { Icons } from '../ui/icons';
 import {
-  WifiIcon,
-  ExclamationTriangleIcon,
-  CloudArrowUpIcon,
-  ClockIcon,
-  CheckCircleIcon
-} from '@heroicons/react/24/outline';
+  AlertTriangle as ExclamationTriangleIcon,
+  CheckCircle as CheckCircleIcon,
+  CloudUpload as CloudArrowUpIcon
+} from 'lucide-react';
 
 interface OfflineData {
   tasks: any[];
@@ -292,7 +291,7 @@ const OfflineManager: React.FC<OfflineManagerProps> = ({
               </>
             ) : (
               <>
-                <ClockIcon className="w-4 h-4" />
+                <Icons.clock className="w-4 h-4" />
                 <span className="text-sm font-medium">
                   {pendingActions.length} pending {pendingActions.length === 1 ? 'action' : 'actions'}
                 </span>

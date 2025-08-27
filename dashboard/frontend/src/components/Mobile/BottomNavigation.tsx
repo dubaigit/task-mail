@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import {
-  EnvelopeIcon,
-  CheckCircleIcon,
-  PencilSquareIcon,
-  Cog6ToothIcon,
-  MagnifyingGlassIcon,
-  PlusIcon
-} from '@heroicons/react/24/outline';
-import {
-  EnvelopeIcon as EnvelopeSolidIcon,
-  CheckCircleIcon as CheckCircleSolidIcon,
-  PencilSquareIcon as PencilSquareSolidIcon,
-  Cog6ToothIcon as Cog6ToothSolidIcon,
-  MagnifyingGlassIcon as MagnifyingGlassSolidIcon
-} from '@heroicons/react/24/solid';
+  Mail as EnvelopeIcon,
+  CheckCircle as CheckCircleIcon,
+  Edit as PencilSquareIcon,
+  Settings as Cog6ToothIcon,
+  Plus as PlusIcon,
+  Search as MagnifyingGlassIcon,
+  Mail as EnvelopeSolidIcon,
+  CheckCircle as CheckCircleSolidIcon,
+  Edit as PencilSquareSolidIcon,
+  Settings as Cog6ToothSolidIcon,
+  Search as MagnifyingGlassSolidIcon
+} from 'lucide-react';
+import { Icons } from '../ui/icons';
 
 interface BottomNavigationProps {
   currentView: 'emails' | 'tasks' | 'drafts' | 'search' | 'settings';

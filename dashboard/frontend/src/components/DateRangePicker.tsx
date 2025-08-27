@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { CalendarDaysIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { Icons } from './ui/icons';
 
 export interface DateRange {
   start: Date;
@@ -26,8 +26,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   presets = defaultPresets,
   className = '',
   disabled = false,
-  placeholder = 'Select date range',
-  maxDate
+  placeholder: _placeholder = 'Select date range',
+  maxDate: _maxDate
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [tempRange, setTempRange] = useState<DateRange>(value);
@@ -113,9 +113,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
         disabled={disabled}
         className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        <CalendarDaysIcon className="w-4 h-4 text-gray-500" />
+        <Icons.calendarDays className="w-4 h-4 text-gray-500" />
         <span className="text-sm font-medium">{getDisplayText()}</span>
-        <ChevronLeftIcon className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-90' : '-rotate-90'}`} />
+        <Icons.chevronLeft className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-90' : '-rotate-90'}`} />
       </button>
 
       {isOpen && (

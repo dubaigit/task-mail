@@ -4,7 +4,11 @@
  */
 
 // Core Email Intelligence Types
+// Import and re-export unified task types from core
+import { Task, SubTask, TaskComment, TaskStatus, TaskPriority, ActionItem, Deadline } from './core';
+
 export interface EmailMessage {
+  processed: boolean;
   id: string;
   messageId: string;
   subject: string;
@@ -53,23 +57,7 @@ export interface AIAnalysis {
   suggestedActions: SuggestedAction[];
 }
 
-export interface ActionItem {
-  id: string;
-  text: string;
-  priority: 'HIGH' | 'MEDIUM' | 'LOW';
-  estimatedDuration?: number; // minutes
-  assignedTo?: string;
-  deadline?: string;
-  completed: boolean;
-}
-
-export interface Deadline {
-  id: string;
-  text: string;
-  date: string;
-  priority: EmailUrgency;
-  source: 'EXPLICIT' | 'INFERRED';
-}
+// ActionItem and Deadline are now imported from core.ts
 
 export interface SuggestedAction {
   id: string;
@@ -89,49 +77,51 @@ export interface IntelligentEmail extends EmailMessage {
   lastProcessed?: string;
 }
 
-// Task Management Types
-export interface TaskItem {
-  id: string;
-  title: string;
-  description: string;
-  status: TaskStatus;
-  priority: TaskPriority;
-  assignedTo?: string;
-  assignedBy?: string;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-  dueDate?: string;
-  completedAt?: string;
-  estimatedDuration?: number;
-  actualDuration?: number;
-  tags: string[];
-  emailId?: string; // Reference to source email
-  subtasks: SubTask[];
-  dependencies: string[]; // Task IDs
-  progress: number; // 0-100
-  comments: TaskComment[];
+// AI Usage Metrics Type
+export interface AIUsageMetrics {
+  totalTokens: number;
+  inputTokens: number;
+  outputTokens: number;
+  totalCost: number;
+  requestCount: number;
+  errorCount: number;
+  averageLatency: number;
+  modelDistribution: Record<string, number>;
+  featureUsage: Record<string, number>;
+  lastUpdated: string;
 }
 
-export type TaskStatus = 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'BLOCKED';
+export type {
+  Task,
+  TaskFilters,
+  TaskStats,
+  SubTask,
+  TaskComment,
+  ActionItem,
+  Deadline
+} from './core';
 
-export type TaskPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+export {
+  TaskStatus,
+  TaskPriority,
+  TaskCategory,
+  DEFAULT_TASK_VALUES,
+  PRIORITY_ORDER,
+  STATUS_ORDER,
+  TASK_COLORS,
+  isTaskStatus,
+  isTaskPriority,
+  isTaskCategory,
+  isTask
+} from './core';
 
-export interface SubTask {
-  id: string;
-  title: string;
-  completed: boolean;
-  assignedTo?: string;
-  dueDate?: string;
-}
-
-export interface TaskComment {
-  id: string;
-  userId: string;
-  userDisplayName: string;
-  content: string;
-  timestamp: string;
-  mentions: string[];
+// Task Management Types - using unified core types
+export interface TaskItem extends Task {
+  // TaskItem is now an alias for the unified Task interface
+  // with additional fields for backward compatibility
+  subtasks?: SubTask[];
+  dependencies?: string[]; // Task IDs
+  comments?: TaskComment[];
 }
 
 // Draft Management Types

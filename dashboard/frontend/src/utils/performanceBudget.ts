@@ -312,7 +312,7 @@ class PerformanceBudgetEnforcer {
     const blockingViolations = report.violations.filter(v => v.blocking);
 
     // Console logging
-    console.group('🚨 Performance Budget Violations');
+    // 🚨 Performance Budget Violations
     
     report.violations.forEach(violation => {
       const emoji = this.getSeverityEmoji(violation.rule.severity);
@@ -323,13 +323,11 @@ class PerformanceBudgetEnforcer {
         `${violation.threshold} ${violation.rule.unit}` : 
         violation.threshold.toString();
       
-      console.warn(
-        `${emoji} ${violation.rule.description}\n` +
-        `   Current: ${value} | Threshold: ${threshold} | Over by: ${violation.percentage.toFixed(1)}%`
-      );
+      // ${emoji} ${violation.rule.description}
+      //    Current: ${value} | Threshold: ${threshold} | Over by: ${violation.percentage.toFixed(1)}%
     });
     
-    console.groupEnd();
+    // Console group end
 
     // Send alerts based on configuration
     if (this.config.alertWebhook) {
@@ -385,7 +383,7 @@ class PerformanceBudgetEnforcer {
         body: JSON.stringify(payload)
       });
     } catch (error) {
-      console.error('Failed to send webhook alert:', error);
+      // Failed to send webhook alert: ${error}
     }
   }
 
@@ -396,8 +394,8 @@ class PerformanceBudgetEnforcer {
     if (!this.config.emailNotifications) return;
 
     // In a real implementation, this would integrate with an email service
-    console.log('📧 Email alert would be sent to:', this.config.emailNotifications);
-    console.log('Report summary:', report.summary);
+    // 📧 Email alert would be sent to: ${this.config.emailNotifications}
+    // Report summary: ${report.summary}
   }
 
   /**
@@ -555,7 +553,7 @@ export function runBudgetCheck(): void {
   // Wait a moment for metrics to be captured
   setTimeout(() => {
     const ciReport = budget.generateCIReport();
-    console.log(ciReport.report);
+    // ${ciReport.report}
     process.exit(ciReport.exitCode);
   }, 1000);
 }

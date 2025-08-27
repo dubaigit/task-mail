@@ -1,16 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { 
-  PencilSquareIcon,
-  SparklesIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  ArrowPathIcon,
-  ChatBubbleLeftEllipsisIcon,
-  DocumentTextIcon,
-  LightBulbIcon,
-  AdjustmentsHorizontalIcon
-} from '@heroicons/react/24/outline';
+import { Icons } from '../ui/icons';
 import { DraftEditor } from './DraftEditor';
 import { ConversationalAIPanel } from './ConversationalAIPanel';
 import { TemplateManager } from './TemplateManager';
@@ -73,7 +62,7 @@ interface DraftOptions {
   customInstructions?: string;
 }
 
-export const DraftGenerationInterface: React.FC<DraftGenerationInterfaceProps> = ({
+const DraftGenerationInterface: React.FC<DraftGenerationInterfaceProps> = ({
   selectedEmail,
   currentDraft,
   onDraftUpdate,
@@ -227,7 +216,7 @@ export const DraftGenerationInterface: React.FC<DraftGenerationInterfaceProps> =
     return (
       <div className={`flex items-center justify-center h-64 text-muted-foreground ${className}`}>
         <div className="text-center">
-          <DocumentTextIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
+          <Icons.document className="w-16 h-16 mx-auto mb-4 opacity-50" />
           <p className="text-lg font-medium">Select an email to generate a draft</p>
           <p className="text-sm">AI-powered draft generation will start automatically</p>
         </div>
@@ -242,19 +231,19 @@ export const DraftGenerationInterface: React.FC<DraftGenerationInterfaceProps> =
         {/* Generation Status */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <SparklesIcon className="w-5 h-5 text-primary" />
+            <Icons.sparkles className="w-5 h-5 text-primary" />
             <h3 className="text-lg font-semibold">AI Draft Generation</h3>
             
             {state.isGenerating && (
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <ArrowPathIcon className="w-4 h-4 animate-spin" />
+                <Icons.rotate className="w-4 h-4 animate-spin" />
                 <span>Generating...</span>
               </div>
             )}
             
             {state.hasGenerated && !state.isGenerating && (
               <div className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs border ${getConfidenceColor(state.confidence)}`}>
-                <CheckCircleIcon className="w-3 h-3" />
+                <Icons.checkCircle className="w-3 h-3" />
                 <span>{getConfidenceLabel(state.confidence)}</span>
                 <span className="text-xs opacity-75">({(state.confidence * 100).toFixed(0)}%)</span>
               </div>
@@ -279,7 +268,7 @@ export const DraftGenerationInterface: React.FC<DraftGenerationInterfaceProps> =
               disabled={state.isGenerating}
               className="inline-flex items-center space-x-1 px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50"
             >
-              <SparklesIcon className="w-4 h-4" />
+              <Icons.sparkles className="w-4 h-4" />
               <span>Generate</span>
             </button>
           </div>
@@ -295,7 +284,7 @@ export const DraftGenerationInterface: React.FC<DraftGenerationInterfaceProps> =
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <PencilSquareIcon className="w-4 h-4" />
+            <Icons.edit className="w-4 h-4" />
             <span>Editor</span>
           </button>
           
@@ -307,7 +296,7 @@ export const DraftGenerationInterface: React.FC<DraftGenerationInterfaceProps> =
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <ChatBubbleLeftEllipsisIcon className="w-4 h-4" />
+            <Icons.messageSquare className="w-4 h-4" />
             <span>Refine</span>
           </button>
           
@@ -319,7 +308,7 @@ export const DraftGenerationInterface: React.FC<DraftGenerationInterfaceProps> =
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <DocumentTextIcon className="w-4 h-4" />
+            <Icons.document className="w-4 h-4" />
             <span>Templates</span>
           </button>
         </div>
@@ -327,7 +316,7 @@ export const DraftGenerationInterface: React.FC<DraftGenerationInterfaceProps> =
         {/* Generation Options */}
         <div className="flex items-center space-x-4 text-sm">
           <div className="flex items-center space-x-2">
-            <AdjustmentsHorizontalIcon className="w-4 h-4 text-muted-foreground" />
+            <Icons.settings className="w-4 h-4 text-muted-foreground" />
             <select
               value={draftOptions.tone}
               onChange={(e) => setDraftOptions(prev => ({ ...prev, tone: e.target.value as DraftOptions['tone'] }))}
@@ -355,7 +344,7 @@ export const DraftGenerationInterface: React.FC<DraftGenerationInterfaceProps> =
 
           {state.hasGenerated && (
             <div className="flex items-center space-x-1 text-muted-foreground">
-              <ClockIcon className="w-4 h-4" />
+              <Icons.clock className="w-4 h-4" />
               <span>{state.generationTime}ms</span>
             </div>
           )}
@@ -404,3 +393,6 @@ export const DraftGenerationInterface: React.FC<DraftGenerationInterfaceProps> =
     </div>
   );
 };
+
+export default DraftGenerationInterface;
+export { DraftGenerationInterface };

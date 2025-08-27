@@ -3,10 +3,9 @@
  * Addresses SQL injection, connection pooling, caching, and monitoring issues
  */
 
-const { Pool } = require('pg');
+const { createClient } = require('@supabase/supabase-js');
 const redis = require('redis');
 const winston = require('winston');
-const { SQLSanitizer } = require('../security/sql-sanitizer');
 
 // Enhanced logger configuration
 const logger = winston.createLogger({
@@ -33,13 +32,13 @@ const logger = winston.createLogger({
 
 class DatabaseAgent {
   constructor() {
-    this.pgPool = null;
+    this.supabase = null;
     this.redisClient = null;
     this.isInitialized = false;
     this.connectionAttempts = 0;
     this.maxConnectionAttempts = 5;
     this.health = {
-      postgres: false,
+      supabase: false,
       redis: false,
       lastCheck: null
     };
@@ -49,7 +48,7 @@ class DatabaseAgent {
     if (this.isInitialized) return;
 
     try {
-      await this.initializePostgreSQL();
+      await this.initializeSupabase();
       await this.initializeRedis();
       await this.setupHealthMonitoring();
       this.isInitialized = true;
@@ -60,76 +59,39 @@ class DatabaseAgent {
     }
   }
 
-  async initializePostgreSQL() {
-    const poolConfig = {
-      user: process.env.DB_USER || 'email_admin',
-      host: process.env.DB_HOST || 'localhost',
-      database: process.env.DB_NAME || 'email_management',
-      password: process.env.DB_PASSWORD,
-      port: parseInt(process.env.DB_PORT || '5432'),
-      
-      // Enhanced connection pool settings
-      max: parseInt(process.env.DB_MAX_CONNECTIONS || '20'),
-      min: parseInt(process.env.DB_MIN_CONNECTIONS || '5'),
-      idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT || '30000'),
-      connectionTimeoutMillis: parseInt(process.env.DB_CONNECT_TIMEOUT || '5000'),
-      acquireTimeoutMillis: parseInt(process.env.DB_ACQUIRE_TIMEOUT || '60000'),
-      
-      // SSL configuration
-      ssl: process.env.DB_SSL === 'true' ? {
-        rejectUnauthorized: false
-      } : false,
-      
-      // Application name for monitoring
-      application_name: 'apple-mail-task-manager'
-    };
+  async initializeSupabase() {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
-    this.pgPool = new Pool(poolConfig);
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Supabase URL and key are required');
+    }
 
-    // Enhanced connection event handling
-    this.pgPool.on('connect', (client) => {
-      logger.info('New PostgreSQL client connected');
-      this.health.postgres = true;
-    });
-
-    this.pgPool.on('error', (err, client) => {
-      logger.error('PostgreSQL pool error:', err);
-      this.health.postgres = false;
-      this.handlePostgreSQLError(err);
-    });
-
-    this.pgPool.on('acquire', (client) => {
-      logger.debug('PostgreSQL client acquired from pool');
-    });
-
-    this.pgPool.on('release', (err, client) => {
-      if (err) {
-        logger.error('Error releasing PostgreSQL client:', err);
-      } else {
-        logger.debug('PostgreSQL client released back to pool');
+    this.supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: false
       }
     });
 
     // Test connection
-    await this.testPostgreSQLConnection();
+    await this.testSupabaseConnection();
   }
 
-  async testPostgreSQLConnection() {
+  async testSupabaseConnection() {
     try {
-      const client = await this.pgPool.connect();
-      const result = await client.query('SELECT NOW() as current_time, version() as version');
-      client.release();
+      const { data, error } = await this.supabase
+        .from('emails')
+        .select('count')
+        .limit(1);
       
-      logger.info('✅ PostgreSQL connection successful:', {
-        currentTime: result.rows[0].current_time,
-        version: result.rows[0].version.split(' ')[0]
-      });
+      if (error) throw error;
       
-      this.health.postgres = true;
+      logger.info('✅ Supabase connection successful');
+      this.health.supabase = true;
       return true;
     } catch (error) {
-      logger.error('❌ PostgreSQL connection failed:', error);
-      this.health.postgres = false;
+      logger.error('❌ Supabase connection failed:', error);
+      this.health.supabase = false;
       throw error;
     }
   }
@@ -208,9 +170,9 @@ class DatabaseAgent {
     this.health.lastCheck = new Date();
     
     try {
-      // Test PostgreSQL
-      if (this.pgPool) {
-        await this.testPostgreSQLConnection();
+      // Test Supabase
+      if (this.supabase) {
+        await this.testSupabaseConnection();
       }
       
       // Test Redis
@@ -225,47 +187,66 @@ class DatabaseAgent {
   }
 
   // Enhanced query execution with proper error handling and monitoring
-  async executeQuery(query, params = [], options = {}) {
+  async executeQuery(table, operation, options = {}) {
     const startTime = Date.now();
-    let client = null;
     
     try {
-      // Validate and sanitize query
-      const { query: sanitizedQuery, params: sanitizedParams } = SQLSanitizer.sanitizeQuery(query, params);
+      let query = this.supabase.from(table);
       
-      // Get client from pool
-      client = await this.pgPool.connect();
+      // Apply operation
+      if (operation.select) {
+        query = query.select(operation.select);
+      }
+      if (operation.insert) {
+        query = query.insert(operation.insert);
+      }
+      if (operation.update) {
+        query = query.update(operation.update);
+      }
+      if (operation.delete) {
+        query = query.delete();
+      }
       
-      // Set query timeout if specified
-      if (options.timeout) {
-        await client.query(`SET statement_timeout = ${options.timeout}`);
+      // Apply filters
+      if (operation.filters) {
+        for (const [key, value] of Object.entries(operation.filters)) {
+          query = query.eq(key, value);
+        }
+      }
+      
+      // Apply ordering
+      if (operation.order) {
+        query = query.order(operation.order.column, { ascending: operation.order.ascending });
+      }
+      
+      // Apply limit
+      if (operation.limit) {
+        query = query.limit(operation.limit);
       }
       
       // Execute query
-      const result = await client.query(sanitizedQuery, sanitizedParams);
+      const { data, error } = await query;
+      
+      if (error) throw error;
       
       // Log performance metrics
       const duration = Date.now() - startTime;
       logger.debug('Query executed successfully:', {
         duration: `${duration}ms`,
-        rowCount: result.rowCount,
-        command: result.command
+        table,
+        operation: Object.keys(operation)[0]
       });
       
-      return result;
+      return { data, error: null };
     } catch (error) {
       const duration = Date.now() - startTime;
       logger.error('Query execution failed:', {
         error: error.message,
         duration: `${duration}ms`,
-        query: query.substring(0, 100) + '...',
+        table,
         stack: error.stack
       });
-      throw error;
-    } finally {
-      if (client) {
-        client.release();
-      }
+      return { data: null, error };
     }
   }
 
@@ -329,51 +310,24 @@ class DatabaseAgent {
 
   // Transaction support
   async executeTransaction(operations) {
-    const client = await this.pgPool.connect();
-    
     try {
-      await client.query('BEGIN');
       const results = [];
       
       for (const operation of operations) {
-        const { query, params } = SQLSanitizer.sanitizeQuery(operation.query, operation.params);
-        const result = await client.query(query, params);
-        results.push(result);
+        const result = await this.executeQuery(operation.table, operation.operation);
+        if (result.error) throw result.error;
+        results.push(result.data);
       }
       
-      await client.query('COMMIT');
       logger.info('Transaction completed successfully');
       return results;
     } catch (error) {
-      await client.query('ROLLBACK');
-      logger.error('Transaction failed, rolled back:', error);
+      logger.error('Transaction failed:', error);
       throw error;
-    } finally {
-      client.release();
     }
   }
 
   // Error handling
-  handlePostgreSQLError(error) {
-    if (error.code === 'ECONNREFUSED') {
-      logger.error('PostgreSQL connection refused - database may be down');
-    } else if (error.code === '53300') {
-      logger.error('PostgreSQL connection limit reached');
-    } else if (error.code === '28000') {
-      logger.error('PostgreSQL authentication failed');
-    }
-    
-    // Attempt reconnection after delay
-    setTimeout(() => {
-      if (this.connectionAttempts < this.maxConnectionAttempts) {
-        this.connectionAttempts++;
-        this.testPostgreSQLConnection().catch(() => {
-          logger.error(`PostgreSQL reconnection attempt ${this.connectionAttempts} failed`);
-        });
-      }
-    }, 5000 * this.connectionAttempts);
-  }
-
   handleRedisError(error) {
     if (error.code === 'ECONNREFUSED') {
       logger.error('Redis connection refused - Redis may be down');
@@ -387,11 +341,6 @@ class DatabaseAgent {
     logger.info('Shutting down Database Agent...');
     
     try {
-      if (this.pgPool) {
-        await this.pgPool.end();
-        logger.info('PostgreSQL pool closed');
-      }
-      
       if (this.redisClient) {
         await this.redisClient.disconnect();
         logger.info('Redis client disconnected');
@@ -407,10 +356,8 @@ class DatabaseAgent {
   // Metrics and monitoring
   getConnectionMetrics() {
     return {
-      postgresql: {
-        totalCount: this.pgPool?.totalCount || 0,
-        idleCount: this.pgPool?.idleCount || 0,
-        waitingCount: this.pgPool?.waitingCount || 0
+      supabase: {
+        isConnected: this.health.supabase
       },
       redis: {
         isReady: this.redisClient?.isReady || false,
@@ -423,7 +370,7 @@ class DatabaseAgent {
   getHealth() {
     return {
       ...this.health,
-      overall: this.health.postgres && this.health.redis
+      overall: this.health.supabase && this.health.redis
     };
   }
 }

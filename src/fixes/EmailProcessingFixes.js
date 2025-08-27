@@ -376,7 +376,7 @@ class DatabaseConnectionManager {
         }
       } catch (error) {
         attempts++;
-        logger.warn(\`Database query attempt \${attempts} failed:`, error.message);
+        logger.warn(`Database query attempt ${attempts} failed:`, error.message);
         
         if (attempts >= maxRetries) {
           logger.error('Database query failed after all retries');

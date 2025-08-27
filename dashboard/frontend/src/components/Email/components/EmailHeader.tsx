@@ -1,16 +1,5 @@
 import React from 'react';
-import {
-  EyeIcon,
-  StarIcon,
-  ArchiveBoxIcon,
-  TrashIcon,
-  ArrowPathIcon,
-  ClockIcon,
-  FireIcon,
-  ExclamationTriangleIcon,
-  InformationCircleIcon,
-  MinusCircleIcon
-} from '@heroicons/react/24/outline';
+import { Icons } from '../../ui/icons';
 
 interface Email {
   id: number;
@@ -59,13 +48,13 @@ export const EmailHeader: React.FC<EmailHeaderProps> = ({
   const getUrgencyIcon = (urgency: string) => {
     switch (urgency) {
       case 'high':
-        return <FireIcon className="w-5 h-5 text-red-500" />;
+        return <Icons.fire className="w-5 h-5 text-red-500" />;
       case 'normal':
-        return <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500" />;
+        return <Icons.warning className="w-5 h-5 text-yellow-500" />;
       case 'low':
-        return <InformationCircleIcon className="w-5 h-5 text-blue-500" />;
+        return <Icons.info className="w-5 h-5 text-blue-500" />;
       default:
-        return <MinusCircleIcon className="w-5 h-5 text-gray-400" />;
+        return <Icons.minus className="w-5 h-5 text-gray-400" />;
     }
   };
 
@@ -108,9 +97,9 @@ export const EmailHeader: React.FC<EmailHeaderProps> = ({
             title="Mark as read"
           >
             {actionLoading === 'markRead' ? (
-              <ArrowPathIcon className="w-4 h-4 animate-spin" />
+              <Icons.refresh className="w-4 h-4 animate-spin" />
             ) : (
-              <EyeIcon className="w-4 h-4" />
+              <Icons.eye className="w-4 h-4" />
             )}
           </button>
           <button 
@@ -118,7 +107,7 @@ export const EmailHeader: React.FC<EmailHeaderProps> = ({
             className="action-button p-2 rounded-lg"
             title="Star email"
           >
-            <StarIcon className="w-4 h-4" />
+            <Icons.star className="w-4 h-4" />
           </button>
           <button 
             onClick={onArchive}
@@ -127,9 +116,9 @@ export const EmailHeader: React.FC<EmailHeaderProps> = ({
             title="Archive email"
           >
             {actionLoading === 'archive' ? (
-              <ArrowPathIcon className="w-4 h-4 animate-spin" />
+              <Icons.refresh className="w-4 h-4 animate-spin" />
             ) : (
-              <ArchiveBoxIcon className="w-4 h-4" />
+              <Icons.archive className="w-4 h-4" />
             )}
           </button>
           <button 
@@ -139,9 +128,9 @@ export const EmailHeader: React.FC<EmailHeaderProps> = ({
             title="Delete email"
           >
             {actionLoading === 'delete' ? (
-              <ArrowPathIcon className="w-4 h-4 animate-spin" />
+              <Icons.refresh className="w-4 h-4 animate-spin" />
             ) : (
-              <TrashIcon className="w-4 h-4" />
+              <Icons.trash className="w-4 h-4" />
             )}
           </button>
         </div>
@@ -157,7 +146,7 @@ export const EmailHeader: React.FC<EmailHeaderProps> = ({
         </span>
         {selectedEmail.estimatedResponseTime && (
           <span className="flex items-center gap-1 text-sm text-muted-foreground">
-            <ClockIcon className="w-4 h-4" />
+            <Icons.clock className="w-4 h-4" />
             Est. {selectedEmail.estimatedResponseTime} to read
           </span>
         )}

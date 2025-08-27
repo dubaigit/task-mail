@@ -1,0 +1,126 @@
+/* 
+ * Design System - Spacing Tokens
+ * Consistent spacing system based on 4px grid
+ */
+
+:root {
+  /* Base spacing unit (4px) */
+  --space-base: 0.25rem;
+  --space-base-multiplier: 1;
+  
+  /* Spacing Scale */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0_5: calc(0.125rem * var(--space-base-multiplier));  /* 2px */
+  --space-1: calc(0.25rem * var(--space-base-multiplier));     /* 4px */
+  --space-1_5: calc(0.375rem * var(--space-base-multiplier));  /* 6px */
+  --space-2: calc(0.5rem * var(--space-base-multiplier));      /* 8px */
+  --space-2_5: calc(0.625rem * var(--space-base-multiplier));  /* 10px */
+  --space-3: calc(0.75rem * var(--space-base-multiplier));     /* 12px */
+  --space-3_5: calc(0.875rem * var(--space-base-multiplier));  /* 14px */
+  --space-4: calc(1rem * var(--space-base-multiplier));        /* 16px */
+  --space-5: calc(1.25rem * var(--space-base-multiplier));     /* 20px */
+  --space-6: calc(1.5rem * var(--space-base-multiplier));      /* 24px */
+  --space-7: calc(1.75rem * var(--space-base-multiplier));     /* 28px */
+  --space-8: calc(2rem * var(--space-base-multiplier));        /* 32px */
+  --space-9: calc(2.25rem * var(--space-base-multiplier));     /* 36px */
+  --space-10: calc(2.5rem * var(--space-base-multiplier));     /* 40px */
+  --space-11: calc(2.75rem * var(--space-base-multiplier));    /* 44px */
+  --space-12: calc(3rem * var(--space-base-multiplier));       /* 48px */
+  --space-14: calc(3.5rem * var(--space-base-multiplier));     /* 56px */
+  --space-16: calc(4rem * var(--space-base-multiplier));       /* 64px */
+  --space-20: calc(5rem * var(--space-base-multiplier));       /* 80px */
+  --space-24: calc(6rem * var(--space-base-multiplier));       /* 96px */
+  --space-28: calc(7rem * var(--space-base-multiplier));       /* 112px */
+  --space-32: calc(8rem * var(--space-base-multiplier));       /* 128px */
+  --space-36: calc(9rem * var(--space-base-multiplier));       /* 144px */
+  --space-40: calc(10rem * var(--space-base-multiplier));      /* 160px */
+  --space-44: calc(11rem * var(--space-base-multiplier));      /* 176px */
+  --space-48: calc(12rem * var(--space-base-multiplier));      /* 192px */
+  --space-52: calc(13rem * var(--space-base-multiplier));      /* 208px */
+  --space-56: calc(14rem * var(--space-base-multiplier));      /* 224px */
+  --space-60: calc(15rem * var(--space-base-multiplier));      /* 240px */
+  --space-64: calc(16rem * var(--space-base-multiplier));      /* 256px */
+  --space-72: calc(18rem * var(--space-base-multiplier));      /* 288px */
+  --space-80: calc(20rem * var(--space-base-multiplier));      /* 320px */
+  --space-96: calc(24rem * var(--space-base-multiplier));      /* 384px */
+  
+  /* Semantic spacing tokens */
+  --space-xs: var(--space-1);      /* 4px */
+  --space-sm: var(--space-2);      /* 8px */
+  --space-md: var(--space-4);      /* 16px */
+  --space-lg: var(--space-6);      /* 24px */
+  --space-xl: var(--space-8);      /* 32px */
+  --space-2xl: var(--space-12);    /* 48px */
+  --space-3xl: var(--space-16);    /* 64px */
+  --space-4xl: var(--space-24);    /* 96px */
+  --space-5xl: var(--space-32);    /* 128px */
+  
+  /* Component specific spacing */
+  --space-component-padding-sm: var(--space-2);     /* 8px */
+  --space-component-padding-md: var(--space-4);     /* 16px */
+  --space-component-padding-lg: var(--space-6);     /* 24px */
+  
+  --space-component-gap-sm: var(--space-2);         /* 8px */
+  --space-component-gap-md: var(--space-3);         /* 12px */
+  --space-component-gap-lg: var(--space-4);         /* 16px */
+  
+  --space-layout-margin-sm: var(--space-4);         /* 16px */
+  --space-layout-margin-md: var(--space-6);         /* 24px */
+  --space-layout-margin-lg: var(--space-8);         /* 32px */
+  
+  --space-layout-padding-sm: var(--space-4);        /* 16px */
+  --space-layout-padding-md: var(--space-6);        /* 24px */
+  --space-layout-padding-lg: var(--space-8);        /* 32px */
+  
+  /* Form spacing */
+  --space-form-element-gap: var(--space-4);         /* 16px */
+  --space-form-group-gap: var(--space-6);           /* 24px */
+  --space-form-section-gap: var(--space-8);         /* 32px */
+  
+  /* Task/Card spacing */
+  --space-task-padding: var(--space-4);             /* 16px */
+  --space-task-gap: var(--space-3);                 /* 12px */
+  --space-task-list-gap: var(--space-2);            /* 8px */
+  
+  /* Navigation spacing */
+  --space-nav-padding: var(--space-3);              /* 12px */
+  --space-nav-gap: var(--space-2);                  /* 8px */
+  --space-nav-item-padding: var(--space-2);         /* 8px */
+}
+
+/* Density Modifiers */
+[data-density="compact"] {
+  --space-base-multiplier: 0.75;
+  --space-component-padding-sm: var(--space-1_5);   /* 6px */
+  --space-component-padding-md: var(--space-3);     /* 12px */
+  --space-component-padding-lg: var(--space-4);     /* 16px */
+  --space-task-padding: var(--space-3);             /* 12px */
+  --space-task-gap: var(--space-2);                 /* 8px */
+}
+
+[data-density="comfortable"] {
+  --space-base-multiplier: 1;
+}
+
+[data-density="spacious"] {
+  --space-base-multiplier: 1.25;
+  --space-component-padding-sm: var(--space-3);     /* 12px */
+  --space-component-padding-md: var(--space-5);     /* 20px */
+  --space-component-padding-lg: var(--space-8);     /* 32px */
+  --space-task-padding: var(--space-5);             /* 20px */
+  --space-task-gap: var(--space-4);                 /* 16px */
+}
+
+/* Responsive spacing adjustments */
+@media (max-width: 640px) {
+  :root {
+    --space-layout-margin-sm: var(--space-2);       /* 8px on mobile */
+    --space-layout-margin-md: var(--space-4);       /* 16px on mobile */
+    --space-layout-margin-lg: var(--space-6);       /* 24px on mobile */
+    
+    --space-layout-padding-sm: var(--space-3);      /* 12px on mobile */
+    --space-layout-padding-md: var(--space-4);      /* 16px on mobile */
+    --space-layout-padding-lg: var(--space-6);      /* 24px on mobile */
+  }
+}

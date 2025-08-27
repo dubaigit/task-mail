@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
   MessageSquare, 
-  Eye, 
   EyeOff, 
   Copy, 
   RefreshCw, 
@@ -35,7 +34,7 @@ interface AIPromptViewerProps {
 
 export const AIPromptViewer: React.FC<AIPromptViewerProps> = ({ visible, onClose }) => {
   const [prompts, setPrompts] = useState<AIPrompt[]>([]);
-  const [selectedPrompt, setSelectedPrompt] = useState<AIPrompt | null>(null);
+  const [, ] = useState<AIPrompt | null>(null);
   const [filter, setFilter] = useState<'all' | 'classification' | 'analysis' | 'draft' | 'chat'>('all');
   const [expandedPrompts, setExpandedPrompts] = useState<Set<string>>(new Set());
 

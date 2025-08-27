@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  MagnifyingGlassIcon,
-  StarIcon,
-  ClockIcon
-} from '@heroicons/react/24/outline';
+import { Icons } from '../ui/icons';
 import { TemplateFilters as FiltersType } from './types';
 
 interface TemplateFiltersProps {
@@ -23,7 +19,7 @@ export const TemplateFilters: React.FC<TemplateFiltersProps> = ({
     <div className="space-y-3">
       {/* Search */}
       <div className="relative">
-        <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Icons.search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
           type="text"
           placeholder="Search templates..."
@@ -56,7 +52,7 @@ export const TemplateFilters: React.FC<TemplateFiltersProps> = ({
             onChange={(e) => updateFilter('starred', e.target.checked)}
             className="rounded border-gray-300"
           />
-          <StarIcon className="w-4 h-4" />
+          <Icons.star className="w-4 h-4" />
           <span>Starred</span>
         </label>
 
@@ -67,7 +63,7 @@ export const TemplateFilters: React.FC<TemplateFiltersProps> = ({
             onChange={(e) => updateFilter('recentlyUsed', e.target.checked)}
             className="rounded border-gray-300"
           />
-          <ClockIcon className="w-4 h-4" />
+          <Icons.clock className="w-4 h-4" />
           <span>Recently Used</span>
         </label>
       </div>

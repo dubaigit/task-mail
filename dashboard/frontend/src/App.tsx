@@ -3,12 +3,16 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import DashboardLayout from './components/Layout/DashboardLayout';
 import EmailList from './components/Email/EmailList';
 import TaskList from './components/Tasks/TaskListUpdated';
-// Remove old TaskCentricApp import to avoid conflicts
 import DraftList from './components/Drafts/DraftList';
 import Analytics from './components/Analytics/Analytics';
-// Removed Login import - no authentication required
-import EmailTaskDashboard from './components/TaskCentric/EmailTaskDashboard';
-import { CacheBustingProvider, CacheDebugInfo } from './components/CacheBustingProvider';
+import TaskDashboard from './components/TaskCentric/TaskDashboard';
+import Login from './components/Auth/Login';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
+import { CacheBustingProvider } from './components/CacheBustingProvider';
+import DarkModeSystem from './components/ui/DarkModeSystem';
+import './styles/design-system/unified-design-tokens.css';
+import './styles/layout-fixes.css';
 
 interface ThemeContextType {
   isDark: boolean;
@@ -35,11 +39,6 @@ function App() {
     // Default to DARK MODE (user preference)
     return true;
   });
-  
-  // Remove authentication requirement
-  const [isAuthenticated] = useState(true); // Always authenticated
-  
-  const [userEmail] = useState('user@example.com'); // Default user
 
   const toggleTheme = () => {
     setIsDark(prev => {
@@ -48,26 +47,23 @@ function App() {
       return newTheme;
     });
   };
-  
-  // Remove login/logout handlers since no auth required
+
 
   useEffect(() => {
-    // Apply theme class and data attribute to document root
+    // Apply standardized data-theme attribute for consistent theming
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    
+    // Legacy support: maintain .dark class for existing components during transition
     if (isDark) {
       document.documentElement.classList.add('dark');
-      document.documentElement.setAttribute('data-theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
-      document.documentElement.setAttribute('data-theme', 'light');
     }
   }, [isDark]);
 
   // Cache-busting and deployment confirmation
   useEffect(() => {
     const timestamp = new Date().toISOString();
-    console.log(`🚀 Task-Centric App loaded at ${timestamp}`);
-    console.log('✅ Task-centric Kanban interface deployed');
-    console.log('📊 Features: Task management, colleague tracking, draft generation');
     
     // Force cache invalidation on mount
     const cacheKey = `app-cache-${Date.now()}`;
@@ -84,33 +80,48 @@ function App() {
     };
   }, []);
 
+  // Show main app with proper authentication
   return (
-    <CacheBustingProvider 
-      enableServiceWorker={process.env.NODE_ENV === 'production'}
-      enableUpdateChecks={true}
-      updateCheckInterval={60000}
-    >
-      <ThemeContext.Provider value={{ isDark, toggleTheme }}>
-        <div className="app-container min-h-screen overflow-x-hidden" data-testid="task-centric-app">
-          <Router>
-            <Routes>
-              {/* Direct access to EmailTaskDashboard - no login required */}
-              <Route path="/" element={<EmailTaskDashboard />} />
-              <Route path="/taskmail" element={<EmailTaskDashboard />} />
-              <Route path="/dashboard" element={<DashboardLayout />}>
-                {/* Legacy routes */}
-                <Route index element={<Navigate to="/" replace />} />
-                <Route path="tasks" element={<TaskList />} />
-                <Route path="drafts" element={<DraftList />} />
-                <Route path="inbox" element={<EmailList />} />
-                <Route path="analytics" element={<Analytics />} />
-              </Route>
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Router>
-        </div>
-      </ThemeContext.Provider>
-    </CacheBustingProvider>
+    <AuthProvider>
+      <CacheBustingProvider 
+        enableServiceWorker={process.env.NODE_ENV === 'production'}
+        enableUpdateChecks={true}
+        updateCheckInterval={60000}
+      >
+        <ThemeContext.Provider value={{ isDark, toggleTheme }}>
+          <DarkModeSystem enableAnimations={true}>
+            <div className="app-container" style={{ 
+              minHeight: '100vh',
+              overflow: 'hidden',
+              position: 'relative'
+            }} data-testid="task-centric-app">
+              <Router>
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/login" element={<Login />} />
+                  
+                  {/* Protected Routes */}
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/" element={<TaskDashboard />} />
+                    <Route path="/taskmail" element={<TaskDashboard />} />
+                    <Route path="/dashboard" element={<DashboardLayout />}>
+                      <Route index element={<Navigate to="/" replace />} />
+                      <Route path="tasks" element={<TaskList />} />
+                      <Route path="drafts" element={<DraftList />} />
+                      <Route path="inbox" element={<EmailList />} />
+                      <Route path="analytics" element={<Analytics />} />
+                    </Route>
+                  </Route>
+                  
+                  {/* Fallback for unknown routes */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Router>
+            </div>
+          </DarkModeSystem>
+        </ThemeContext.Provider>
+      </CacheBustingProvider>
+    </AuthProvider>
   );
 }
 

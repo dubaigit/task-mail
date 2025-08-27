@@ -103,7 +103,7 @@ class ApiClient {
         status: response.status,
       };
     } catch (error) {
-      console.error('API request error:', error);
+      // API request error: ${error}
       
       if (error instanceof Error) {
         if (error.message === 'Request timeout') {

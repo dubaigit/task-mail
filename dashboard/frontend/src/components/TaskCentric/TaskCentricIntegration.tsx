@@ -1,12 +1,11 @@
+import { TaskStatus, TaskPriority, TaskCategory } from '../../types/core';
 import React, { useState, useCallback, useMemo } from 'react';
 import { ThreePanelLayout } from './index';
 import type {
   TaskItem,
   TaskCentricEmail,
   TaskCentricDraft,
-  TaskUrgencyLevel,
-  TaskCategory,
-  TaskStatus
+  TaskUrgencyLevel
 } from './types';
 
 /**
@@ -45,22 +44,27 @@ interface TaskCentricIntegrationProps {
 // Mock data generators for demonstration
 const generateMockTasks = (emails: any[]): TaskItem[] => {
   return emails.slice(0, 10).map((email, index) => ({
-    id: index + 1,
+    id: (index + 1).toString(),
     title: `Reply to: ${email.subject || 'Untitled Email'}`,
     description: `Process email from ${email.sender || 'Unknown Sender'}. ${email.preview || 'No preview available'}`,
-    category: mapEmailClassificationToTaskCategory(email.classification),
-    urgency: mapEmailUrgencyToTaskUrgency(email.urgency),
-    status: 'PENDING' as TaskStatus,
-    estimatedDuration: Math.floor(Math.random() * 30) + 5, // 5-35 minutes
+    category: 'NEEDS_REPLY' as TaskCategory,
+    urgency: 'MEDIUM' as TaskUrgencyLevel,
+    priority: 'MEDIUM' as TaskUrgencyLevel,
+    status: 'TODO' as TaskStatus,
+    estimatedTime: Math.floor(Math.random() * 30) + 5, // 5-35 minutes
     dueDate: new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
     createdAt: email.date || new Date().toISOString(),
     updatedAt: email.date || new Date().toISOString(),
+    createdBy: 'System',
+    sender: email.sender || 'Unknown Sender',
+    senderEmail: email.senderEmail || email.sender || '',
     assignedTo: Math.random() > 0.7 ? 'John Doe' : undefined,
     emailId: email.id,
     progress: Math.floor(Math.random() * 30),
     tags: email.tags || [],
+    draftGenerated: false,
     aiConfidence: Math.random() * 0.3 + 0.7, // 0.7-1.0
-    aiReasoning: `This email requires ${mapEmailClassificationToTaskCategory(email.classification).toLowerCase().replace('_', ' ')} based on content analysis and sender importance.`,
+    aiReasoning: `This email requires reply based on content analysis and sender importance.`,
     suggestedActions: [
       'Review email content thoroughly',
       'Prepare response within estimated timeframe',
@@ -111,28 +115,18 @@ const generateMockDrafts = (): TaskCentricDraft[] => {
 
 // Utility functions for data mapping
 const mapEmailClassificationToTaskCategory = (classification: string): TaskCategory => {
-  const mapping: Record<string, TaskCategory> = {
-    'NEEDS_REPLY': 'NEEDS_REPLY',
-    'APPROVAL_REQUIRED': 'APPROVAL_REQUIRED',
-    'DELEGATION': 'DELEGATE',
-    'TASK': 'DO_MYSELF',
-    'FOLLOW_UP': 'FOLLOW_UP',
-    'FYI_ONLY': 'FYI_ONLY',
-    'MEETING_REQUEST': 'MEETING_REQUEST',
-    'RESEARCH': 'RESEARCH',
-    'ADMINISTRATIVE': 'ADMINISTRATIVE'
-  };
-  return mapping[classification] || 'DO_MYSELF';
+  // Map to simplified category
+  return 'NEEDS_REPLY' as TaskCategory;
 };
 
 const mapEmailUrgencyToTaskUrgency = (urgency: string): TaskUrgencyLevel => {
-  const mapping: Record<string, TaskUrgencyLevel> = {
-    'CRITICAL': 'CRITICAL',
-    'HIGH': 'HIGH',
-    'MEDIUM': 'MEDIUM',
-    'LOW': 'LOW'
-  };
-  return mapping[urgency] || 'MEDIUM';
+  switch(urgency) {
+    case TaskPriority.CRITICAL: return TaskPriority.CRITICAL as TaskUrgencyLevel;
+    case 'HIGH': return 'HIGH' as TaskUrgencyLevel;
+    case 'MEDIUM': return 'MEDIUM' as TaskUrgencyLevel;
+    case 'LOW': return 'LOW' as TaskUrgencyLevel;
+    default: return 'MEDIUM' as TaskUrgencyLevel;
+  }
 };
 
 const TaskCentricIntegration: React.FC<TaskCentricIntegrationProps> = ({
@@ -158,12 +152,12 @@ const TaskCentricIntegration: React.FC<TaskCentricIntegrationProps> = ({
     console.log('Task updated:', updatedTask);
   }, []);
 
-  const handleTaskComplete = useCallback(async (taskId: number) => {
+  const handleTaskComplete = useCallback(async (taskId: string) => {
     setTasks(prev => prev.map(task => 
-      task.id === taskId 
+      task.id === String(taskId) 
         ? { 
             ...task, 
-            status: 'COMPLETED' as TaskStatus, 
+            status: TaskStatus.COMPLETED as TaskStatus, 
             progress: 100, 
             completedAt: new Date().toISOString() 
           }
@@ -174,7 +168,7 @@ const TaskCentricIntegration: React.FC<TaskCentricIntegrationProps> = ({
     console.log('Task completed:', taskId);
   }, []);
 
-  const handleTaskDelete = useCallback(async (taskId: number) => {
+  const handleTaskDelete = useCallback(async (taskId: string) => {
     setTasks(prev => prev.filter(task => task.id !== taskId));
     
     // Here you would typically make an API call to delete the task
@@ -190,13 +184,13 @@ const TaskCentricIntegration: React.FC<TaskCentricIntegrationProps> = ({
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Find related email
-      const relatedEmail = taskCentricEmails.find(email => email.id === task.emailId);
+      const relatedEmail = taskCentricEmails.find(email => email.id.toString() === task.emailId);
       
       // Generate mock draft
       const newDraft: TaskCentricDraft = {
         id: drafts.length + 1,
-        emailId: task.emailId,
-        taskId: task.id,
+        emailId: parseInt(task.emailId || '0'),
+        taskId: typeof task.id === 'string' ? parseInt(task.id) : task.id,
         content: `Thank you for your email regarding "${relatedEmail?.subject}". I have reviewed your request and will provide a detailed response shortly.\n\nBest regards,\nJohn Doe`,
         subject: `Re: ${relatedEmail?.subject || 'Your Email'}`,
         recipients: [relatedEmail?.senderEmail || 'unknown@example.com'],
@@ -243,7 +237,7 @@ const TaskCentricIntegration: React.FC<TaskCentricIntegrationProps> = ({
     
     // Mark related task as completed
     if (draft.taskId) {
-      await handleTaskComplete(draft.taskId);
+      await handleTaskComplete(draft.taskId.toString());
     }
   }, [handleTaskComplete]);
 
@@ -255,7 +249,8 @@ const TaskCentricIntegration: React.FC<TaskCentricIntegrationProps> = ({
       description: `Handle email from ${email.sender}. ${email.preview || ''}`,
       category: mapEmailClassificationToTaskCategory(email.classification),
       urgency: mapEmailUrgencyToTaskUrgency(email.urgency),
-      status: 'PENDING',
+      priority: mapEmailUrgencyToTaskUrgency(email.urgency),
+      status: 'TODO' as TaskStatus,
       estimatedDuration: 15,
       dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow
       createdAt: new Date().toISOString(),
@@ -263,7 +258,12 @@ const TaskCentricIntegration: React.FC<TaskCentricIntegrationProps> = ({
       emailId: email.id,
       progress: 0,
       aiConfidence: 0.85,
-      aiReasoning: 'Automatically generated from email classification and content analysis.'
+      aiReasoning: 'Automatically generated from email classification and content analysis.',
+      createdBy: 'System',
+      sender: email.sender,
+      senderEmail: email.senderEmail,
+      draftGenerated: false,
+      tags: email.tags || []
     };
     
     setTasks(prev => [...prev, newTask]);

@@ -1,22 +1,15 @@
-import {
-  DocumentTextIcon,
-  ClockIcon,
-  BuildingOfficeIcon,
-  UserGroupIcon,
-  BookmarkIcon,
-  PencilIcon
-} from '@heroicons/react/24/outline';
+import { Icons } from '../ui/icons';
 import { EmailTemplate } from './types';
 
 export const getCategoryIcon = (category: EmailTemplate['category']) => {
   switch (category) {
-    case 'response': return DocumentTextIcon;
-    case 'follow-up': return ClockIcon;
-    case 'approval': return BuildingOfficeIcon;
-    case 'delegation': return UserGroupIcon;
-    case 'meeting': return BookmarkIcon;
-    case 'custom': return PencilIcon;
-    default: return DocumentTextIcon;
+    case 'response': return Icons.document;
+    case 'follow-up': return Icons.clock;
+    case 'approval': return Icons.building;
+    case 'delegation': return Icons.users;
+    case 'meeting': return Icons.bookmark;
+    case 'custom': return Icons.edit;
+    default: return Icons.document;
   }
 };
 

@@ -60,7 +60,7 @@ const getStoredTheme = (storageKey: string): Theme | null => {
       return stored as Theme;
     }
   } catch (error) {
-    console.warn('Failed to read theme from localStorage:', error);
+    // Failed to read theme from localStorage
   }
   
   return null;
@@ -77,7 +77,7 @@ const setStoredTheme = (storageKey: string, theme: Theme): void => {
   try {
     localStorage.setItem(storageKey, theme);
   } catch (error) {
-    console.warn('Failed to store theme in localStorage:', error);
+    // Failed to store theme in localStorage
   }
 };
 

@@ -112,7 +112,7 @@ class AdvancedPerformanceMonitor {
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
         this.observers.set('lcp', lcpObserver);
       } catch (e) {
-        console.warn('LCP observer not supported:', e);
+        // LCP observer not supported: ${e}
       }
 
       // First Contentful Paint
@@ -128,7 +128,7 @@ class AdvancedPerformanceMonitor {
         fcpObserver.observe({ entryTypes: ['paint'] });
         this.observers.set('fcp', fcpObserver);
       } catch (e) {
-        console.warn('FCP observer not supported:', e);
+        // FCP observer not supported: ${e}
       }
 
       // Cumulative Layout Shift
@@ -146,7 +146,7 @@ class AdvancedPerformanceMonitor {
         clsObserver.observe({ entryTypes: ['layout-shift'] });
         this.observers.set('cls', clsObserver);
       } catch (e) {
-        console.warn('CLS observer not supported:', e);
+        // CLS observer not supported: ${e}
       }
 
       // Interaction to Next Paint (INP) - approximation
@@ -164,7 +164,7 @@ class AdvancedPerformanceMonitor {
         eventObserver.observe({ entryTypes: ['event'] });
         this.observers.set('inp', eventObserver);
       } catch (e) {
-        console.warn('INP observer not supported:', e);
+        // INP observer not supported: ${e}
       }
     }
   }
@@ -199,7 +199,7 @@ class AdvancedPerformanceMonitor {
         resourceObserver.observe({ entryTypes: ['resource'] });
         this.observers.set('resource', resourceObserver);
       } catch (e) {
-        console.warn('Resource observer not supported:', e);
+        // Resource observer not supported: ${e}
       }
     }
   }
@@ -307,7 +307,7 @@ class AdvancedPerformanceMonitor {
     }
 
     // Log to console for debugging
-    console.warn(`Performance Alert [${type.toUpperCase()}]: ${message}`, data);
+    // Performance Alert [${type.toUpperCase()}]: ${message} ${data}
   }
 
   private getAlertSeverity(type: string, data: any): 'low' | 'medium' | 'high' | 'critical' {

@@ -1,3 +1,4 @@
+import { TaskStatus, TaskPriority, TaskCategory } from '../../types';
 import React, { useState, useEffect } from 'react';
 import { ResponsiveLayout } from './index';
 import '../../styles/responsive/responsive-breakpoints.css';
@@ -94,10 +95,10 @@ const MobileIntegrationExample: React.FC<MobileIntegrationExampleProps> = ({
   }, [emails.length]);
 
   // Handler functions for mobile interface
-  const handleTaskComplete = async (taskId: number) => {
+  const handleTaskComplete = async (taskId: string) => {
     setTasks(prev => prev.map(task => 
-      task.id === taskId 
-        ? { ...task, status: 'completed', updated_at: new Date().toISOString() }
+      task.id === String(taskId) 
+        ? { ...task, status: TaskStatus.COMPLETED, updated_at: new Date().toISOString() }
         : task
     ));
     
@@ -107,9 +108,9 @@ const MobileIntegrationExample: React.FC<MobileIntegrationExampleProps> = ({
     }
   };
 
-  const handleTaskDelegate = async (taskId: number, assignee: string) => {
+  const handleTaskDelegate = async (taskId: string, assignee: string) => {
     setTasks(prev => prev.map(task => 
-      task.id === taskId 
+      task.id === String(taskId) 
         ? { ...task, status: 'delegated', assignee, updated_at: new Date().toISOString() }
         : task
     ));

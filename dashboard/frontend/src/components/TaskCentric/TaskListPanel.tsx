@@ -1,3 +1,4 @@
+import { TaskStatus, TaskPriority, TaskCategory } from '../../types/core';
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import {
@@ -5,18 +6,16 @@ import {
   TaskItem,
   TaskCentricEmail
 } from './types';
-import TaskCard from './TaskCard';
+import { UnifiedTaskCard } from '../ui/UnifiedTaskCard';
+import { Icons } from '../ui/icons';
 import {
-  Squares2X2Icon,
-  ListBulletIcon,
-  CalendarIcon,
-  ArrowsUpDownIcon,
-  FunnelIcon,
-  PlusIcon,
-  ExclamationTriangleIcon,
-  CheckCircleIcon,
-  ClockIcon
-} from '@heroicons/react/24/outline';
+  List as ListBulletIcon,
+  Grid3X3 as Squares2X2Icon,
+  Calendar as CalendarIcon,
+  AlertTriangle as ExclamationTriangleIcon,
+  ArrowUpDown as ArrowsUpDownIcon,
+  Filter as FunnelIcon,
+} from 'lucide-react';
 
 /**
  * TaskListPanel - Center panel with card-based task list and virtual scrolling
@@ -58,7 +57,7 @@ const TaskListPanel: React.FC<TaskListPanelProps> = ({
   const [viewMode, setViewMode] = useState<'list' | 'board' | 'calendar'>('list');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [showCompactView, setShowCompactView] = useState(false);
-  const [selectedTasks, setSelectedTasks] = useState<Set<number>>(new Set());
+  const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
 
   // Virtualization refs
   const listRef = useRef<HTMLDivElement>(null);
@@ -67,14 +66,14 @@ const TaskListPanel: React.FC<TaskListPanelProps> = ({
   // Task metrics for summary
   const taskMetrics = useMemo(() => {
     const total = tasks.length;
-    const completed = tasks.filter(t => t.status === 'COMPLETED').length;
-    const pending = tasks.filter(t => t.status === 'PENDING').length;
+    const completed = tasks.filter(t => t.status === TaskStatus.COMPLETED).length;
+    const pending = tasks.filter(t => t.status === 'TODO').length;
     const inProgress = tasks.filter(t => t.status === 'IN_PROGRESS').length;
     const overdue = tasks.filter(t => {
       if (!t.dueDate) return false;
-      return new Date(t.dueDate) < new Date() && t.status !== 'COMPLETED';
+      return new Date(t.dueDate) < new Date() && t.status !== TaskStatus.COMPLETED;
     }).length;
-    const critical = tasks.filter(t => t.urgency === 'CRITICAL').length;
+    const critical = tasks.filter(t => t.urgency === TaskPriority.CRITICAL).length;
     
     return { total, completed, pending, inProgress, overdue, critical };
   }, [tasks]);
@@ -93,8 +92,23 @@ const TaskListPanel: React.FC<TaskListPanelProps> = ({
     onTaskSelect(task);
   }, [onTaskSelect]);
 
+  // Wrapper functions to handle ID type conversion for UnifiedTaskCard
+  const handleTaskUpdate = useCallback((updatedTask: any) => {
+    // Convert string ID back to number if needed
+    const taskWithNumberId = {...updatedTask, id: Number(updatedTask.id)};
+    onTaskUpdate(taskWithNumberId);
+  }, [onTaskUpdate]);
+
+  const handleTaskComplete = useCallback((taskId: string) => {
+    onTaskComplete(taskId);
+  }, [onTaskComplete]);
+
+  const handleTaskDelete = useCallback((taskId: string) => {
+    onTaskDelete(taskId);
+  }, [onTaskDelete]);
+
   // Handle bulk selection
-  const handleTaskToggle = useCallback((taskId: number, isSelected: boolean) => {
+  const handleTaskToggle = useCallback((taskId: string, isSelected: boolean) => {
     setSelectedTasks(prev => {
       const newSet = new Set(prev);
       if (isSelected) {
@@ -197,7 +211,7 @@ const TaskListPanel: React.FC<TaskListPanelProps> = ({
         </div>
         <div className="stat-item">
           <span className="stat-value">{taskMetrics.pending}</span>
-          <span className="stat-label">Pending</span>
+          <span className="stat-label">To Do</span>
         </div>
         <div className="stat-item">
           <span className="stat-value">{taskMetrics.inProgress}</span>
@@ -229,7 +243,7 @@ const TaskListPanel: React.FC<TaskListPanelProps> = ({
   const renderEmptyState = () => (
     <div className="empty-state">
       <div className="empty-state-icon">
-        <CheckCircleIcon className="w-12 h-12 text-muted-foreground" />
+        <Icons.checkCircle className="w-12 h-12 text-muted-foreground" />
       </div>
       <h3 className="empty-state-title">No tasks found</h3>
       <p className="empty-state-description">
@@ -239,7 +253,7 @@ const TaskListPanel: React.FC<TaskListPanelProps> = ({
         }
       </p>
       <button className="empty-state-action">
-        <PlusIcon className="w-4 h-4" />
+        <Icons.plus className="w-4 h-4" />
         Create Task
       </button>
     </div>
@@ -286,7 +300,8 @@ const TaskListPanel: React.FC<TaskListPanelProps> = ({
           if (!task) return null;
 
           const isSelected = selectedTask?.id === task.id;
-          const isMultiSelected = selectedTasks.has(task.id);
+          const taskIdStr = task.id.toString();
+          const isMultiSelected = selectedTasks.has(taskIdStr);
 
           return (
             <div
@@ -301,15 +316,12 @@ const TaskListPanel: React.FC<TaskListPanelProps> = ({
                 transform: `translateY(${virtualItem.start}px)`
               }}
             >
-              <TaskCard
-                task={task}
-                email={undefined} // Could be passed if needed
+              <UnifiedTaskCard
+                task={{...task, id: task.id.toString()}}
                 isSelected={isSelected}
-                onClick={handleTaskSelect}
-                onUpdate={onTaskUpdate}
-                onComplete={onTaskComplete}
-                onDelete={onTaskDelete}
-                config={config}
+                onSelect={handleTaskSelect}
+                onEdit={handleTaskUpdate}
+                onDelete={handleTaskDelete}
                 className={`virtual-task-card ${isMultiSelected ? 'multi-selected' : ''}`}
               />
             </div>
@@ -322,10 +334,10 @@ const TaskListPanel: React.FC<TaskListPanelProps> = ({
   // Render board view (Kanban style)
   const renderBoardView = () => {
     const columns = [
-      { id: 'pending', title: 'Pending', status: 'PENDING' },
+      { id: 'todo', title: 'To Do', status: 'TODO' },
       { id: 'in_progress', title: 'In Progress', status: 'IN_PROGRESS' },
-      { id: 'waiting', title: 'Waiting', status: 'WAITING' },
-      { id: 'completed', title: 'Completed', status: 'COMPLETED' }
+      { id: 'waiting', title: 'Waiting', status: 'WAITING_FOR_REPLY' },
+      { id: TaskStatus.COMPLETED, title: 'Completed', status: TaskStatus.COMPLETED }
     ];
 
     return (
@@ -341,15 +353,13 @@ const TaskListPanel: React.FC<TaskListPanelProps> = ({
               </div>
               <div className="board-column-content">
                 {columnTasks.map(task => (
-                  <TaskCard
+                  <UnifiedTaskCard
                     key={task.id}
-                    task={task}
+                    task={{...task, id: task.id.toString()}}
                     isSelected={selectedTask?.id === task.id}
-                    onClick={handleTaskSelect}
-                    onUpdate={onTaskUpdate}
-                    onComplete={onTaskComplete}
-                    onDelete={onTaskDelete}
-                    config={{ ...config, expandedByDefault: false }}
+                    onSelect={handleTaskSelect}
+                    onEdit={handleTaskUpdate}
+                    onDelete={handleTaskDelete}
                     className="board-task-card"
                   />
                 ))}
@@ -396,7 +406,7 @@ const TaskListPanel: React.FC<TaskListPanelProps> = ({
             </button>
             
             <button className="add-task-button" title="Create task">
-              <PlusIcon className="w-4 h-4" />
+              <Icons.plus className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -415,7 +425,7 @@ const TaskListPanel: React.FC<TaskListPanelProps> = ({
                 onClick={() => handleBulkAction('complete')}
                 className="bulk-action-button complete"
               >
-                <CheckCircleIcon className="w-4 h-4" />
+                <Icons.checkCircle className="w-4 h-4" />
                 Complete
               </button>
               <button

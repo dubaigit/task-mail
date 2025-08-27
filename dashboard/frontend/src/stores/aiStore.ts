@@ -40,6 +40,10 @@ export interface ViewModeAnalysis {
 }
 
 interface AIState {
+  aiMetrics: any;
+  isGeneratingDraft: boolean;
+  conversationHistory: any[];
+  usageStats: any;
   // State
   drafts: Draft[];
   currentDraft: Draft | null;
@@ -87,6 +91,10 @@ export const useAIStore = create<AIState>()(
     persist(
       (set, get) => ({
         // Initial state
+        aiMetrics: null,
+        isGeneratingDraft: false,
+        conversationHistory: [],
+        usageStats: null,
         drafts: [],
         currentDraft: null,
         isGenerating: false,

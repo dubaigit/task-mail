@@ -206,7 +206,7 @@ class AdvancedCacheManager {
       }
       
     } catch (error) {
-      console.error('Cache set error:', error);
+      // Cache set error: ${error}
     }
   }
 
@@ -268,7 +268,7 @@ class AdvancedCacheManager {
       return data as T;
       
     } catch (error) {
-      console.error('Cache get error:', error);
+      // Cache get error: ${error}
       this.stats.totalMisses++;
       this.updateHitRate();
       return null;
@@ -397,7 +397,7 @@ class AdvancedCacheManager {
       return data;
       
     } catch (error) {
-      console.error('Compression error:', error);
+      // Compression error: ${error}
       return data;
     }
   }
@@ -444,7 +444,7 @@ class AdvancedCacheManager {
       return compressedData;
       
     } catch (error) {
-      console.error('Decompression error:', error);
+      // Decompression error: ${error}
       return compressedData;
     }
   }
@@ -462,7 +462,7 @@ class AdvancedCacheManager {
         localStorage.setItem(`cache_${item.key}`, JSON.stringify(item));
       }
     } catch (error) {
-      console.error('Persistence error:', error);
+      // Persistence error: ${error}
     }
   }
 
@@ -478,7 +478,7 @@ class AdvancedCacheManager {
         return stored ? JSON.parse(stored) : undefined;
       }
     } catch (error) {
-      console.error('Load persistence error:', error);
+      // Load persistence error: ${error}
       return undefined;
     }
   }
@@ -494,7 +494,7 @@ class AdvancedCacheManager {
         localStorage.removeItem(`cache_${key}`);
       }
     } catch (error) {
-      console.error('Remove persistence error:', error);
+      // Remove persistence error: ${error}
     }
   }
 
@@ -575,7 +575,7 @@ class AdvancedCacheManager {
           .forEach(key => localStorage.removeItem(key));
       }
     } catch (error) {
-      console.error('Clear persistence error:', error);
+      // Clear persistence error: ${error}
     }
   }
 
@@ -589,7 +589,7 @@ class AdvancedCacheManager {
       // This would load all persisted items
       // Simplified for demo
     } catch (error) {
-      console.error('Load persisted cache error:', error);
+      // Load persisted cache error: ${error}
     }
   }
 

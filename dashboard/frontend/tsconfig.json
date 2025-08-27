@@ -22,6 +22,12 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src"
+    "src",
+    "src/types/ts-reset.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "src/backup/**/*"
   ]
 }

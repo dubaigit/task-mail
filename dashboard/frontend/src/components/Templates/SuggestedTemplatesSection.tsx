@@ -1,5 +1,5 @@
 import React from 'react';
-import { SparklesIcon } from '@heroicons/react/24/outline';
+import { Icons } from '../ui/icons';
 import { EmailTemplate, Email } from './types';
 import { getCategoryIcon, getCategoryColor } from './templateUtils';
 
@@ -21,7 +21,7 @@ export const SuggestedTemplatesSection: React.FC<SuggestedTemplatesSectionProps>
   return (
     <div className="border-b border-border p-4 bg-muted/30">
       <h4 className="text-sm font-medium text-muted-foreground mb-3 flex items-center">
-        <SparklesIcon className="w-4 h-4 mr-2" />
+        <Icons.sparkles className="w-4 h-4 mr-2" />
         AI Suggested for "{selectedEmail?.classification}"
       </h4>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">

@@ -24,16 +24,16 @@ import {
   DragEndEvent,
   DragOverEvent,
   UniqueIdentifier
-} from '@dnd-kit/core/dist/index.js';
+} from '@dnd-kit/core';
 import {
   SortableContext,
   arrayMove,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
   useSortable
-} from '@dnd-kit/sortable/dist/index.js';
-import { CSS } from '@dnd-kit/utilities/dist/index.js';
-import { restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers/dist/index.js';
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { EmailMessage as BaseEmailMessage } from '../../types/index';
 
 // Extended EmailMessage type for threaded view compatibility

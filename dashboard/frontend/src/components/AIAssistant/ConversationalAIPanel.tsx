@@ -1,16 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  PaperAirplaneIcon,
-  SparklesIcon,
-  ChatBubbleLeftRightIcon,
-  ExclamationCircleIcon,
-  CheckCircleIcon,
-  ArrowPathIcon,
-  LightBulbIcon,
-  ClockIcon,
-  MicrophoneIcon,
-  StopIcon
-} from '@heroicons/react/24/outline';
+import { Icons } from '../ui/icons';
 
 interface Email {
   id: number;
@@ -55,7 +44,7 @@ interface ConversationalAIPanelProps {
   className?: string;
 }
 
-export const ConversationalAIPanel: React.FC<ConversationalAIPanelProps> = ({
+const ConversationalAIPanel: React.FC<ConversationalAIPanelProps> = ({
   draft,
   email,
   onRefinementInstruction,
@@ -76,42 +65,42 @@ export const ConversationalAIPanel: React.FC<ConversationalAIPanelProps> = ({
       id: 'make-formal',
       text: 'Make this more formal',
       description: 'Increase formality and professionalism',
-      icon: <LightBulbIcon className="w-4 h-4" />,
+      icon: <Icons.lightbulb className="w-4 h-4" />,
       category: 'tone'
     },
     {
       id: 'make-friendly',
       text: 'Make this warmer and friendlier',
       description: 'Add warmth and personal touch',
-      icon: <SparklesIcon className="w-4 h-4" />,
+      icon: <Icons.sparkles className="w-4 h-4" />,
       category: 'tone'
     },
     {
       id: 'make-shorter',
       text: 'Make this shorter and more concise',
       description: 'Reduce length while keeping key points',
-      icon: <ArrowPathIcon className="w-4 h-4" />,
+      icon: <Icons.rotate className="w-4 h-4" />,
       category: 'length'
     },
     {
       id: 'add-deadline',
       text: 'Add a deadline request',
       description: 'Include urgency and timeline',
-      icon: <ClockIcon className="w-4 h-4" />,
+      icon: <Icons.clock className="w-4 h-4" />,
       category: 'content'
     },
     {
       id: 'add-technical',
       text: 'Add more technical details',
       description: 'Include specific technical information',
-      icon: <ExclamationCircleIcon className="w-4 h-4" />,
+      icon: <Icons.alertCircle className="w-4 h-4" />,
       category: 'content'
     },
     {
       id: 'soften-tone',
       text: 'Soften the tone',
       description: 'Make the message less direct',
-      icon: <ChatBubbleLeftRightIcon className="w-4 h-4" />,
+      icon: <Icons.messageSquare className="w-4 h-4" />,
       category: 'tone'
     }
   ];
@@ -263,7 +252,7 @@ export const ConversationalAIPanel: React.FC<ConversationalAIPanelProps> = ({
     return (
       <div className={`flex items-center justify-center h-full text-muted-foreground ${className}`}>
         <div className="text-center">
-          <ChatBubbleLeftRightIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
+          <Icons.messageSquare className="w-16 h-16 mx-auto mb-4 opacity-50" />
           <p className="text-lg font-medium">AI Conversation Ready</p>
           <p className="text-sm">Generate a draft first to start refining with natural language</p>
         </div>
@@ -276,7 +265,7 @@ export const ConversationalAIPanel: React.FC<ConversationalAIPanelProps> = ({
       {/* Header */}
       <div className="border-b border-border p-4">
         <div className="flex items-center space-x-2">
-          <SparklesIcon className="w-5 h-5 text-primary" />
+          <Icons.sparkles className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-semibold">Conversational Refinement</h3>
           <span className="text-sm text-muted-foreground">
             Tell me how to improve your draft
@@ -331,10 +320,10 @@ export const ConversationalAIPanel: React.FC<ConversationalAIPanelProps> = ({
                   {formatTime(message.timestamp)}
                 </span>
                 {message.processing && (
-                  <ArrowPathIcon className="w-3 h-3 animate-spin" />
+                  <Icons.rotate className="w-3 h-3 animate-spin" />
                 )}
                 {message.applied && (
-                  <CheckCircleIcon className="w-3 h-3" />
+                  <Icons.checkCircle className="w-3 h-3" />
                 )}
               </div>
             </div>
@@ -372,9 +361,9 @@ export const ConversationalAIPanel: React.FC<ConversationalAIPanelProps> = ({
               title={isListening ? 'Stop listening' : 'Start voice input'}
             >
               {isListening ? (
-                <StopIcon className="w-5 h-5" />
+                <Icons.stop className="w-5 h-5" />
               ) : (
-                <MicrophoneIcon className="w-5 h-5" />
+                <Icons.mic className="w-5 h-5" />
               )}
             </button>
           )}
@@ -386,7 +375,7 @@ export const ConversationalAIPanel: React.FC<ConversationalAIPanelProps> = ({
             className="p-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
             title="Send message"
           >
-            <PaperAirplaneIcon className="w-5 h-5" />
+            <Icons.send className="w-5 h-5" />
           </button>
         </div>
 
@@ -410,3 +399,6 @@ export const ConversationalAIPanel: React.FC<ConversationalAIPanelProps> = ({
     </div>
   );
 };
+
+export default ConversationalAIPanel;
+export { ConversationalAIPanel };

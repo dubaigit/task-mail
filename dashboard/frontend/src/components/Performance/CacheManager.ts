@@ -350,7 +350,7 @@ export class CacheManager {
     // Check if compression is needed
     let finalData: any = data;
     let compressed = false;
-    let originalSize = dataSize;
+    const originalSize = dataSize;
 
     if (this.config.enableCompression && dataSize > this.config.compressionThreshold) {
       try {

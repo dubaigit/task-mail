@@ -69,7 +69,7 @@ const TaskList: React.FC = () => {
     }
   };
 
-  const updateTaskState = async (taskId: number, newState: string) => {
+  const updateTaskState = async (taskId: string, newState: string) => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`/api/tasks/${taskId}`, {
@@ -97,28 +97,28 @@ const TaskList: React.FC = () => {
       case 2:
         return <Badge variant="info">Normal</Badge>;
       case 3:
-        return <Badge variant="default">Low</Badge>;
+        return <Badge variant="primary">Low</Badge>;
       default:
         return null;
     }
   };
 
-  const getStateBadge = (state: string) => {
-    const stateColors: Record<string, string> = {
-      'todo': 'bg-yellow-500',
-      'in_progress': 'bg-blue-500',
-      'waiting_on_reply': 'bg-purple-500',
-      'done': 'bg-green-500',
-      'snoozed': 'bg-gray-500',
-      'delegated': 'bg-orange-500',
-    };
+  // const _getStateBadge = (state: string) => {
+  //   const stateColors: Record<string, string> = {
+  //     'todo': 'bg-yellow-500',
+  //     'in_progress': 'bg-blue-500',
+  //     'waiting_on_reply': 'bg-purple-500',
+  //     'done': 'bg-green-500',
+  //     'snoozed': 'bg-gray-500',
+  //     'delegated': 'bg-orange-500',
+  //   };
 
-    return (
-      <span className={`px-2 py-1 rounded text-white text-xs ${stateColors[state] || 'bg-gray-500'}`}>
-        {state.replace('_', ' ').toUpperCase()}
-      </span>
-    );
-  };
+  //   return (
+  //     <span className={`px-2 py-1 rounded text-white text-xs ${stateColors[state] || 'bg-gray-500'}`}>
+  //       {state.replace('_', ' ').toUpperCase()}
+  //     </span>
+  //   );
+  // };
 
   const getTaskTypeIcon = (type: string) => {
     const icons: Record<string, string> = {
@@ -243,7 +243,7 @@ const TaskList: React.FC = () => {
                         {task.state === 'todo' && (
                           <>
                             <Button
-                              size="sm"
+                              
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(`/tasks/${task.id}`);
@@ -252,11 +252,11 @@ const TaskList: React.FC = () => {
                               Open
                             </Button>
                             <Button
-                              size="sm"
+                              
                               variant="outline"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                updateTaskState(task.id, 'in_progress');
+                                updateTaskState(String(task.id), 'in_progress');
                               }}
                             >
                               Start
@@ -266,7 +266,7 @@ const TaskList: React.FC = () => {
                         {task.state === 'in_progress' && (
                           <>
                             <Button
-                              size="sm"
+                              
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(`/tasks/${task.id}`);
@@ -275,11 +275,11 @@ const TaskList: React.FC = () => {
                               Continue
                             </Button>
                             <Button
-                              size="sm"
+                              
                               variant="success"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                updateTaskState(task.id, 'done');
+                                updateTaskState(String(task.id), 'done');
                               }}
                             >
                               Complete
@@ -288,7 +288,7 @@ const TaskList: React.FC = () => {
                         )}
                         {task.state === 'waiting_on_reply' && (
                           <Button
-                            size="sm"
+                            
                             variant="outline"
                             onClick={(e) => {
                               e.stopPropagation();

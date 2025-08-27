@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Icons } from '../ui/icons';
 import {
-  CheckCircleIcon,
-  UserIcon,
-  TrashIcon,
-  ArchiveBoxIcon,
-  ArrowPathIcon
-} from '@heroicons/react/24/outline';
+  CheckCircle as CheckCircleIcon,
+  User as UserIcon,
+  RefreshCw as ArrowPathIcon
+} from 'lucide-react';
 
 interface TouchGesturesProps {
   children: React.ReactNode;

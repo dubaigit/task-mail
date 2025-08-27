@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  EnvelopeIcon,
-  PaperAirplaneIcon,
-  CalendarDaysIcon,
-  InformationCircleIcon,
-  UsersIcon,
-} from '@heroicons/react/24/outline';
+import { Icons } from '../../ui/icons';
 
 export type ViewMode = 'email' | 'task' | 'draft' | 'info' | 'colleagues';
 
@@ -32,11 +26,11 @@ const VIEW_MODE_CONFIG: Record<ViewMode, {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
 }> = {
-  email: { icon: EnvelopeIcon, label: 'Email' },
-  task: { icon: CalendarDaysIcon, label: 'Task' },
-  draft: { icon: PaperAirplaneIcon, label: 'Draft' },
-  info: { icon: InformationCircleIcon, label: 'Info' },
-  colleagues: { icon: UsersIcon, label: 'Colleagues' },
+  email: { icon: Icons.mail, label: 'Email' },
+  task: { icon: Icons.calendar, label: 'Task' },
+  draft: { icon: Icons.send, label: 'Draft' },
+  info: { icon: Icons.info, label: 'Info' },
+  colleagues: { icon: Icons.users, label: 'Colleagues' },
 };
 
 export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({

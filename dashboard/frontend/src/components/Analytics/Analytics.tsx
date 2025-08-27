@@ -1,24 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  ChartBarIcon,
-  ClockIcon,
-  EnvelopeIcon,
-  ExclamationTriangleIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  CalendarDaysIcon,
-  FunnelIcon,
-  ArrowPathIcon,
-  EyeIcon,
-  PaperAirplaneIcon,
-  CheckCircleIcon,
-  UserGroupIcon,
-  DocumentTextIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon
-} from '@heroicons/react/24/outline';
-import { Card, Button, Select, Badge, Skeleton, Alert } from '../ui';
+import { Icons } from '../ui/icons';
+import { Card, Button, Alert, Badge, Skeleton } from '../ui';
 import { DateRangePicker, DateRange } from '../DateRangePicker';
+import { TaskPriority } from '../../types';
 
 interface AnalyticsData {
   totalEmails: number;
@@ -66,7 +50,7 @@ const Analytics: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
-  const [selectedMetric, setSelectedMetric] = useState<'volume' | 'response' | 'productivity'>('volume');
+  const [selectedMetric] = useState<'volume' | 'response' | 'productivity'>('volume');
   const [dateRange, setDateRange] = useState<DateRange>({
     start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
     end: new Date()
@@ -117,10 +101,6 @@ const Analytics: React.FC = () => {
     }
   }, [timeRange, dateRange, isCustomRange]);
 
-  const handleTimeRangeChange = (newTimeRange: string) => {
-    setTimeRange(newTimeRange as any);
-    setIsCustomRange(false);
-  };
 
   const handleDateRangeChange = (newDateRange: DateRange) => {
     setDateRange(newDateRange);
@@ -150,11 +130,11 @@ const Analytics: React.FC = () => {
 
   const getClassificationIcon = (type: string) => {
     switch (type) {
-      case 'needsReply': return <PaperAirplaneIcon className="w-5 h-5" />;
-      case 'approvalRequired': return <ExclamationTriangleIcon className="w-5 h-5" />;
-      case 'createTask': return <CalendarDaysIcon className="w-5 h-5" />;
-      case 'delegate': return <UserGroupIcon className="w-5 h-5" />;
-      default: return <EyeIcon className="w-5 h-5" />;
+      case 'needsReply': return <Icons.send className="w-5 h-5" />;
+      case 'approvalRequired': return <Icons.warning className="w-5 h-5" />;
+      case 'createTask': return <Icons.calendar className="w-5 h-5" />;
+      case 'delegate': return <Icons.users className="w-5 h-5" />;
+      default: return <Icons.eye className="w-5 h-5" />;
     }
   };
 
@@ -162,14 +142,6 @@ const Analytics: React.FC = () => {
     return num.toLocaleString();
   };
 
-  const calculateTrend = (current: number, previous: number) => {
-    const change = ((current - previous) / previous) * 100;
-    return {
-      value: Math.abs(change).toFixed(1),
-      isPositive: change > 0,
-      isNeutral: Math.abs(change) < 1
-    };
-  };
 
   if (loading) {
     return (
@@ -205,7 +177,7 @@ const Analytics: React.FC = () => {
     return (
       <Alert variant="danger" title="Error loading analytics" dismissible>
         <p className="mb-3">{error}</p>
-        <Button onClick={fetchAnalytics} variant="danger" size="sm">
+        <Button onClick={fetchAnalytics} variant="danger" >
           Try Again
         </Button>
       </Alert>
@@ -227,7 +199,7 @@ const Analytics: React.FC = () => {
             </p>
             {data && (
               <div className="text-sm text-muted-foreground mt-2 flex items-center gap-2">
-                <CalendarDaysIcon className="w-4 h-4" />
+                <Icons.calendar className="w-4 h-4" />
                 <span>Showing data for: {formatDateRangeDisplay()}</span>
               </div>
             )}
@@ -236,7 +208,7 @@ const Analytics: React.FC = () => {
           <Button 
             onClick={fetchAnalytics} 
             variant="outline" 
-            leftIcon={<ArrowPathIcon className="w-4 h-4" />}
+            leftIcon={<Icons.refresh className="w-4 h-4" />}
           >
             Refresh
           </Button>
@@ -247,7 +219,7 @@ const Analytics: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
-                <CalendarDaysIcon className="w-5 h-5 text-blue-600" />
+                <Icons.calendar className="w-5 h-5 text-blue-600" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground">Date Range Selection</h3>
@@ -269,7 +241,7 @@ const Analytics: React.FC = () => {
                   <Button
                     key={preset.value}
                     variant={!isCustomRange && timeRange === preset.value ? 'primary' : 'outline'}
-                    size="sm"
+                    
                     onClick={() => handleQuickDateRange(preset.value)}
                     title={preset.desc}
                     className="min-w-[50px]"
@@ -295,9 +267,9 @@ const Analytics: React.FC = () => {
           {/* Range Navigation Arrows */}
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
             <Button
-              variant="ghost"
-              size="sm"
-              leftIcon={<ChevronLeftIcon className="w-4 h-4" />}
+              variant="secondary"
+              
+              leftIcon={<Icons.chevronLeft className="w-4 h-4" />}
               onClick={() => {
                 if (isCustomRange && dateRange.start && dateRange.end) {
                   const rangeDays = Math.ceil((dateRange.end.getTime() - dateRange.start.getTime()) / (1000 * 60 * 60 * 24));
@@ -328,9 +300,9 @@ const Analytics: React.FC = () => {
             </div>
             
             <Button
-              variant="ghost"
-              size="sm"
-              rightIcon={<ChevronRightIcon className="w-4 h-4" />}
+              variant="secondary"
+              
+              rightIcon={<Icons.chevronRight className="w-4 h-4" />}
               onClick={() => {
                 if (isCustomRange && dateRange.start && dateRange.end) {
                   const rangeDays = Math.ceil((dateRange.end.getTime() - dateRange.start.getTime()) / (1000 * 60 * 60 * 24));
@@ -366,12 +338,12 @@ const Analytics: React.FC = () => {
               <p className="text-sm font-medium text-muted-foreground">Total Emails</p>
               <p className="text-2xl font-bold text-foreground">{formatNumber(data.totalEmails)}</p>
               <div className="flex items-center gap-1 mt-1">
-                <ArrowTrendingUpIcon className="w-3 h-3 text-green-500" />
+                <Icons.arrowTrendingUp className="w-3 h-3 text-green-500" />
                 <span className="text-xs text-green-600">+12% from last period</span>
               </div>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <EnvelopeIcon className="w-6 h-6 text-blue-600" />
+              <Icons.mail className="w-6 h-6 text-blue-600" />
             </div>
           </div>
         </Card>
@@ -382,12 +354,12 @@ const Analytics: React.FC = () => {
               <p className="text-sm font-medium text-muted-foreground">Unread</p>
               <p className="text-2xl font-bold text-foreground">{formatNumber(data.unreadEmails)}</p>
               <div className="flex items-center gap-1 mt-1">
-                <ArrowTrendingDownIcon className="w-3 h-3 text-red-500" />
+                <Icons.arrowTrendingDown className="w-3 h-3 text-red-500" />
                 <span className="text-xs text-red-600">-5% from yesterday</span>
               </div>
             </div>
             <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
-              <ExclamationTriangleIcon className="w-6 h-6 text-amber-600" />
+              <Icons.warning className="w-6 h-6 text-amber-600" />
             </div>
           </div>
         </Card>
@@ -398,12 +370,12 @@ const Analytics: React.FC = () => {
               <p className="text-sm font-medium text-muted-foreground">Response Rate</p>
               <p className="text-2xl font-bold text-foreground">{data.responseRate}%</p>
               <div className="flex items-center gap-1 mt-1">
-                <ArrowTrendingUpIcon className="w-3 h-3 text-green-500" />
+                <Icons.arrowTrendingUp className="w-3 h-3 text-green-500" />
                 <span className="text-xs text-green-600">+3.2% this week</span>
               </div>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <CheckCircleIcon className="w-6 h-6 text-green-600" />
+              <Icons.checkCircle className="w-6 h-6 text-green-600" />
             </div>
           </div>
         </Card>
@@ -414,12 +386,12 @@ const Analytics: React.FC = () => {
               <p className="text-sm font-medium text-muted-foreground">Avg Response Time</p>
               <p className="text-2xl font-bold text-foreground">{data.avgResponseTime}</p>
               <div className="flex items-center gap-1 mt-1">
-                <ArrowTrendingDownIcon className="w-3 h-3 text-green-500" />
+                <Icons.trendingDown className="w-3 h-3 text-green-500" />
                 <span className="text-xs text-green-600">18% faster</span>
               </div>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <ClockIcon className="w-6 h-6 text-purple-600" />
+              <Icons.clock className="w-6 h-6 text-purple-600" />
             </div>
           </div>
         </Card>
@@ -431,7 +403,7 @@ const Analytics: React.FC = () => {
         <Card padding="lg" variant="elevated">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-foreground">Emails by Urgency</h3>
-            <ChartBarIcon className="w-5 h-5 text-muted-foreground" />
+            <Icons.barChart className="w-5 h-5 text-muted-foreground" />
           </div>
           
           <div className="space-y-4">
@@ -469,7 +441,7 @@ const Analytics: React.FC = () => {
         <Card padding="lg" variant="elevated">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-foreground">Email Classification</h3>
-            <FunnelIcon className="w-5 h-5 text-muted-foreground" />
+            <Icons.filter className="w-5 h-5 text-muted-foreground" />
           </div>
           
           <div className="space-y-4">
@@ -515,7 +487,7 @@ const Analytics: React.FC = () => {
         </div>
         
         <div className="space-y-4">
-          {data.weeklyTrends.map((day, index) => {
+          {data.weeklyTrends.map((day) => {
             const maxValue = Math.max(...data.weeklyTrends.map(d => Math.max(d.received, d.sent, d.processed)));
             
             return (
@@ -578,7 +550,7 @@ const Analytics: React.FC = () => {
         <Card padding="lg" variant="elevated">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-foreground">Top Email Senders</h3>
-            <UserGroupIcon className="w-5 h-5 text-muted-foreground" />
+            <Icons.users className="w-5 h-5 text-muted-foreground" />
           </div>
           
           <div className="space-y-3">
@@ -597,11 +569,11 @@ const Analytics: React.FC = () => {
                 </div>
                 <Badge 
                   variant={
-                    sender.avgUrgency === 'CRITICAL' ? 'danger' :
+                    sender.avgUrgency === TaskPriority.CRITICAL ? 'danger' :
                     sender.avgUrgency === 'HIGH' ? 'warning' :
                     sender.avgUrgency === 'MEDIUM' ? 'info' : 'success'
                   }
-                  size="sm"
+                  
                 >
                   {sender.avgUrgency}
                 </Badge>
@@ -614,7 +586,7 @@ const Analytics: React.FC = () => {
         <Card padding="lg" variant="elevated">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-foreground">Today's Productivity</h3>
-            <ArrowTrendingUpIcon className="w-5 h-5 text-muted-foreground" />
+            <Icons.trendingUp className="w-5 h-5 text-muted-foreground" />
           </div>
           
           <div className="grid grid-cols-2 gap-4">
@@ -645,7 +617,7 @@ const Analytics: React.FC = () => {
       <Card padding="lg" variant="elevated">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-foreground">AI Insights & Recommendations</h3>
-          <DocumentTextIcon className="w-5 h-5 text-muted-foreground" />
+          <Icons.document className="w-5 h-5 text-muted-foreground" />
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -653,7 +625,7 @@ const Analytics: React.FC = () => {
             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
               <div className="flex items-start space-x-3">
                 <div className="p-1.5 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
-                  <ArrowTrendingUpIcon className="w-4 h-4 text-blue-600" />
+                  <Icons.trendingUp className="w-4 h-4 text-blue-600" />
                 </div>
                 <div>
                   <h4 className="font-medium text-blue-900 dark:text-blue-100">High Priority Emails Increasing</h4>
@@ -667,7 +639,7 @@ const Analytics: React.FC = () => {
             <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
               <div className="flex items-start space-x-3">
                 <div className="p-1.5 bg-green-100 dark:bg-green-900/50 rounded-lg">
-                  <CheckCircleIcon className="w-4 h-4 text-green-600" />
+                  <Icons.checkCircle className="w-4 h-4 text-green-600" />
                 </div>
                 <div>
                   <h4 className="font-medium text-green-900 dark:text-green-100">Task Completion Improved</h4>
@@ -683,7 +655,7 @@ const Analytics: React.FC = () => {
             <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
               <div className="flex items-start space-x-3">
                 <div className="p-1.5 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
-                  <ExclamationTriangleIcon className="w-4 h-4 text-amber-600" />
+                  <Icons.warning className="w-4 h-4 text-amber-600" />
                 </div>
                 <div>
                   <h4 className="font-medium text-amber-900 dark:text-amber-100">Draft Response Optimization</h4>
@@ -697,7 +669,7 @@ const Analytics: React.FC = () => {
             <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
               <div className="flex items-start space-x-3">
                 <div className="p-1.5 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
-                  <UserGroupIcon className="w-4 h-4 text-purple-600" />
+                  <Icons.users className="w-4 h-4 text-purple-600" />
                 </div>
                 <div>
                   <h4 className="font-medium text-purple-900 dark:text-purple-100">Delegation Opportunities</h4>

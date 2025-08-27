@@ -1,5 +1,5 @@
 import React from 'react';
-import { DocumentTextIcon } from '@heroicons/react/24/outline';
+import { Icons } from '../ui/icons';
 import { EmailTemplate } from './types';
 import { TemplateCard } from './TemplateCard';
 
@@ -33,7 +33,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({
     return (
       <div className="flex items-center justify-center h-64 text-muted-foreground">
         <div className="text-center">
-          <DocumentTextIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
+          <Icons.document className="w-16 h-16 mx-auto mb-4 opacity-50" />
           <p className="text-lg font-medium">No templates found</p>
           <p className="text-sm">Try adjusting your filters or create a new template</p>
         </div>

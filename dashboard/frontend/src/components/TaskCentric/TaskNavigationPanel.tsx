@@ -1,32 +1,22 @@
+import { TaskStatus, TaskPriority, TaskCategory } from '../../types/core';
 import React, { useState, useCallback, useMemo } from 'react';
 import {
   TaskNavigationPanelProps,
   TaskNavigationCategory,
   TaskFilter,
-  TaskCategory,
-  TaskUrgencyLevel,
-  TaskStatus
+  TaskUrgencyLevel
 } from './types';
+import { Icons } from '../ui/icons';
 import {
-  ListBulletIcon,
-  ChatBubbleLeftRightIcon,
-  CheckCircleIcon,
-  UserGroupIcon,
-  UserIcon,
-  ClockIcon,
-  ExclamationTriangleIcon,
-  MagnifyingGlassIcon,
-  AdjustmentsHorizontalIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-  XMarkIcon,
-  FunnelIcon,
-  Bars3Icon
-} from '@heroicons/react/24/outline';
-import {
-  StarIcon as StarSolidIcon,
-  BookmarkIcon as BookmarkSolidIcon
-} from '@heroicons/react/24/solid';
+  Menu as Bars3Icon,
+  X as XMarkIcon,
+  Filter as FunnelIcon,
+  ChevronDown as ChevronDownIcon,
+  Search as MagnifyingGlassIcon,
+  ChevronRight as ChevronRightIcon,
+  SlidersHorizontal as AdjustmentsHorizontalIcon,
+  Bookmark as BookmarkSolidIcon
+} from 'lucide-react';
 
 /**
  * TaskNavigationPanel - Left panel for hierarchical task navigation
@@ -53,15 +43,15 @@ import {
 
 // Icon mapping for dynamic icon rendering
 const iconMap = {
-  ListBulletIcon,
-  ChatBubbleLeftRightIcon,
-  CheckCircleIcon,
-  UserGroupIcon,
-  UserIcon,
-  ClockIcon,
-  ExclamationTriangleIcon,
-  StarSolidIcon,
-  BookmarkSolidIcon
+  ListBulletIcon: Icons.list,
+  ChatBubbleLeftRightIcon: Icons.messageSquare,
+  CheckCircleIcon: Icons.checkCircle,
+  UserGroupIcon: Icons.users,
+  UserIcon: Icons.user,
+  ClockIcon: Icons.clock,
+  ExclamationTriangleIcon: Icons.warning,
+  StarSolidIcon: Icons.star,
+  BookmarkSolidIcon: Icons.bookmark
 };
 
 const TaskNavigationPanel: React.FC<TaskNavigationPanelProps> = ({
@@ -92,13 +82,13 @@ const TaskNavigationPanel: React.FC<TaskNavigationPanelProps> = ({
     {
       id: 'high-urgency',
       label: 'High Urgency',
-      filter: { urgencyLevels: ['CRITICAL', 'HIGH'] as TaskUrgencyLevel[] },
+      filter: { urgencyLevels: [TaskPriority.CRITICAL, 'HIGH'] as TaskUrgencyLevel[] },
       color: '#EF4444'
     },
     {
-      id: 'pending-tasks',
-      label: 'Pending',
-      filter: { statuses: ['PENDING'] as TaskStatus[] },
+      id: 'todo-tasks',
+      label: 'To Do',
+      filter: { statuses: ['TODO'] as TaskStatus[] },
       color: '#F59E0B'
     },
     {
@@ -110,7 +100,7 @@ const TaskNavigationPanel: React.FC<TaskNavigationPanelProps> = ({
     {
       id: 'needs-review',
       label: 'Needs Review',
-      filter: { categories: ['APPROVAL_REQUIRED'] as TaskCategory[] },
+      filter: { categories: [TaskCategory.REVIEW] },
       color: '#8B5CF6'
     }
   ], []);

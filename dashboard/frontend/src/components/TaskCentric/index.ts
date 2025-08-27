@@ -5,7 +5,7 @@ export { default as ThreePanelLayout } from '../../layouts/ThreePanelLayout';
 export { default as TaskNavigationPanel } from './TaskNavigationPanel';
 export { default as TaskListPanel } from './TaskListPanel';
 export { default as TaskDetailPanel } from './TaskDetailPanel';
-export { default as TaskCard } from './TaskCard';
+// TaskCard removed - using UnifiedTaskCard from ui/
 
 // Type exports
 export * from './types';

@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { EnvelopeIcon } from '@heroicons/react/24/outline';
-import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
+import { Icons } from '../../ui/icons';
 
 export interface Email {
   id: number;
@@ -84,7 +83,7 @@ export const VirtualEmailList: React.FC<VirtualEmailListProps> = ({
     return (
       <div className="flex-1 overflow-y-auto scrollbar-custom" role="status" aria-live="polite">
         <div className="p-8 text-center">
-          <EnvelopeIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
+          <Icons.mail className="w-12 h-12 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
           <p className="text-muted-foreground">No emails found</p>
         </div>
       </div>
@@ -147,7 +146,7 @@ export const VirtualEmailList: React.FC<VirtualEmailListProps> = ({
                     <span className={`font-medium truncate ${!email.isRead ? 'font-semibold' : ''}`}>
                       {email.sender}
                     </span>
-                    {email.isStarred && <StarSolidIcon className="w-4 h-4 text-amber-500 flex-shrink-0" aria-label="Starred email" />}
+                    {email.isStarred && <Icons.star className="w-4 h-4 text-amber-500 flex-shrink-0" aria-label="Starred email" />}
                   </div>
                   <span className="text-xs text-muted-foreground whitespace-nowrap">
                     {formatTime(email.date)}

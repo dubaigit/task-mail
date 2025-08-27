@@ -1,3 +1,4 @@
+import { TaskStatus, TaskPriority, TaskCategory } from '../../types/core';
 import React, { useState, useEffect } from 'react';
 import { 
   CheckSquare, 
@@ -18,7 +19,7 @@ interface TaskData {
   id: string;
   title: string;
   description: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  status: 'pending' | 'in_progress' | TaskStatus.COMPLETED | 'cancelled';
   priority: string;
   due_date?: string;
   created_from_email?: string;
@@ -81,7 +82,7 @@ const TaskView: React.FC = () => {
         return <span className={`${badgeClasses} bg-yellow-100 text-yellow-800`}>Pending</span>;
       case 'in_progress':
         return <span className={`${badgeClasses} bg-blue-100 text-blue-800`}>In Progress</span>;
-      case 'completed':
+      case TaskStatus.COMPLETED:
         return <span className={`${badgeClasses} bg-green-100 text-green-800`}>Completed</span>;
       case 'cancelled':
         return <span className={`${badgeClasses} bg-gray-100 text-gray-800`}>Cancelled</span>;
@@ -98,7 +99,7 @@ const TaskView: React.FC = () => {
     const matchesFilter = filterBy === 'all' || 
       (filterBy === 'pending' && task.status === 'pending') ||
       (filterBy === 'in_progress' && task.status === 'in_progress') ||
-      (filterBy === 'completed' && task.status === 'completed') ||
+      (filterBy === TaskStatus.COMPLETED && task.status === TaskStatus.COMPLETED) ||
       (filterBy === 'from_email' && task.created_from_email);
 
     return matchesSearch && matchesFilter;
@@ -107,7 +108,7 @@ const TaskView: React.FC = () => {
   const taskStats = {
     pending: tasks.filter(t => t.status === 'pending').length,
     in_progress: tasks.filter(t => t.status === 'in_progress').length,
-    completed: tasks.filter(t => t.status === 'completed').length,
+    completed: tasks.filter(t => t.status === TaskStatus.COMPLETED).length,
     from_email: tasks.filter(t => t.created_from_email).length
   };
 
@@ -250,10 +251,10 @@ const TaskView: React.FC = () => {
                   <div className="flex items-center pt-1">
                     <input
                       type="checkbox"
-                      checked={task.status === 'completed'}
+                      checked={task.status === TaskStatus.COMPLETED}
                       onChange={(e) => {
                         e.stopPropagation();
-                        updateTaskStatus(task.id, e.target.checked ? 'completed' : 'pending');
+                        updateTaskStatus(task.id, e.target.checked ? TaskStatus.COMPLETED : 'pending');
                       }}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
@@ -264,7 +265,7 @@ const TaskView: React.FC = () => {
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-2">
                         <h3 className={`text-sm font-medium ${
-                          task.status === 'completed' ? 'line-through text-gray-500' : 'text-gray-900'
+                          task.status === TaskStatus.COMPLETED ? 'line-through text-gray-500' : 'text-gray-900'
                         }`}>
                           {task.title}
                         </h3>
@@ -333,7 +334,7 @@ const TaskView: React.FC = () => {
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            updateTaskStatus(task.id, 'completed');
+                            updateTaskStatus(task.id, TaskStatus.COMPLETED);
                           }}
                           className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200"
                         >

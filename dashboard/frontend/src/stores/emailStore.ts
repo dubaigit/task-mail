@@ -20,9 +20,13 @@ export interface Email {
   isStarred?: boolean;
   tags?: string[];
   estimatedResponseTime?: string;
+  processed: boolean;
 }
 
 interface EmailState {
+  unreadCount: number;
+  syncEmails: () => Promise<void>;
+  isLoading: boolean;
   // State
   emails: Email[];
   selectedEmail: Email | null;
@@ -115,11 +119,17 @@ export const useEmailStore = create<EmailState>()(
         searchQuery: '',
         filterBy: 'all',
         selectedCategory: 'inbox',
+        isLoading: false,
         
         // Computed values
         get filteredEmails() {
           const { emails, searchQuery, filterBy, selectedCategory } = get();
           return filterEmails(emails, searchQuery, filterBy, selectedCategory);
+        },
+        
+        get unreadCount() {
+          const { emails } = get();
+          return emails.filter(email => !email.isRead).length;
         },
         
         // Actions
@@ -151,6 +161,10 @@ export const useEmailStore = create<EmailState>()(
         
         setError: (error) => set({ error }),
         
+        syncEmails: async () => {
+          await get().fetchEmails();
+        },
+        
         // Async actions
         fetchEmails: async () => {
           const { setLoading, setError, setEmails } = get();
@@ -178,7 +192,8 @@ export const useEmailStore = create<EmailState>()(
                 content: email.content || '',
                 isRead: email.isRead ?? email.is_read ?? false,
                 isStarred: email.isStarred ?? email.is_starred ?? false,
-                tags: email.tags || []
+                tags: email.tags || [],
+                processed: email.processed ?? true
               }));
               
               setEmails(processedEmails);

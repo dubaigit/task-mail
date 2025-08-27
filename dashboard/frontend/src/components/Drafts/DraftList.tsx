@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Badge, Button, Card, TextArea } from '../ui';
-// import { PaperAirplaneIcon, PencilIcon } from '@heroicons/react/24/outline'; // Temporarily disabled
+// import { PaperAirplaneIcon, PencilIcon } from '../ui/icons';
 
 interface Draft {
   id: number;

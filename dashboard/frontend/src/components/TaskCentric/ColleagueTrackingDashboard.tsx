@@ -1,20 +1,14 @@
+import { TaskStatus, TaskPriority, TaskCategory } from '../../types/core';
 import React, { useState, useEffect } from 'react';
+import { Icons } from '../ui/icons';
 import {
-  UsersIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  ChatBubbleLeftRightIcon,
-  BellIcon,
-  EyeIcon,
-  CalendarDaysIcon,
-  ArrowPathIcon
-} from '@heroicons/react/24/outline';
-import {
-  CheckCircleIcon as CheckCircleSolid,
-  ExclamationTriangleIcon as ExclamationTriangleSolid,
-  XCircleIcon as XCircleSolid
-} from '@heroicons/react/24/solid';
+  Users as UsersIcon,
+  CalendarDays as CalendarDaysIcon,
+  MessageSquare as ChatBubbleLeftRightIcon,
+  RefreshCw as ArrowPathIcon,
+  CheckCircle as CheckCircleSolid,
+  AlertTriangle as ExclamationTriangleSolid
+} from 'lucide-react';
 
 interface ColleagueInfo {
   email: string;
@@ -32,7 +26,7 @@ interface DelegatedTask {
   assignedTo: ColleagueInfo;
   assignedBy: string;
   dueDate?: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'overdue';
+  status: 'pending' | 'in_progress' | TaskStatus.COMPLETED | 'overdue';
   priority: 'critical' | 'high' | 'medium' | 'low';
   emailSubject: string;
   delegatedAt: string;
@@ -54,7 +48,7 @@ export const ColleagueTrackingDashboard: React.FC<ColleagueTrackingDashboardProp
   onViewTask,
   className = ''
 }) => {
-  const [filter, setFilter] = useState<'all' | 'pending' | 'overdue' | 'completed'>('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'overdue' | TaskStatus.COMPLETED>('all');
   const [sortBy, setSortBy] = useState<'dueDate' | 'delegatedAt' | 'priority'>('dueDate');
 
   // Mock data for demonstration
@@ -112,7 +106,7 @@ export const ColleagueTrackingDashboard: React.FC<ColleagueTrackingDashboardProp
       },
       assignedBy: 'John Doe',
       dueDate: '2025-08-18T12:00:00Z',
-      status: 'completed',
+      status: TaskStatus.COMPLETED,
       priority: 'medium',
       emailSubject: 'Project Kickoff Meeting Coordination',
       delegatedAt: '2025-08-13T14:00:00Z',
@@ -125,16 +119,16 @@ export const ColleagueTrackingDashboard: React.FC<ColleagueTrackingDashboardProp
 
   const getStatusIcon = (status: DelegatedTask['status']) => {
     switch (status) {
-      case 'completed':
+      case TaskStatus.COMPLETED:
         return <CheckCircleSolid className="w-4 h-4 text-green-600" aria-label="Completed" />;
       case 'pending':
-        return <ClockIcon className="w-4 h-4 text-yellow-600" aria-label="Pending" />;
+        return <Icons.clock className="w-4 h-4 text-yellow-600" aria-label="Pending" />;
       case 'overdue':
         return <ExclamationTriangleSolid className="w-4 h-4 text-red-600" aria-label="Overdue" />;
       case 'in_progress':
         return <ArrowPathIcon className="w-4 h-4 text-blue-600" aria-label="In progress" />;
       default:
-        return <ClockIcon className="w-4 h-4 text-gray-600" aria-label="Unknown status" />;
+        return <Icons.clock className="w-4 h-4 text-gray-600" aria-label="Unknown status" />;
     }
   };
 
@@ -155,7 +149,7 @@ export const ColleagueTrackingDashboard: React.FC<ColleagueTrackingDashboardProp
 
   const getTaskStatusColor = (status: DelegatedTask['status']) => {
     switch (status) {
-      case 'completed':
+      case TaskStatus.COMPLETED:
         return 'bg-green-50 dark:bg-green-950/20 border-green-200';
       case 'pending':
         return 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200';
@@ -191,7 +185,7 @@ export const ColleagueTrackingDashboard: React.FC<ColleagueTrackingDashboardProp
     total: displayTasks.length,
     pending: displayTasks.filter(t => t.status === 'pending').length,
     overdue: displayTasks.filter(t => t.status === 'overdue').length,
-    completed: displayTasks.filter(t => t.status === 'completed').length,
+    completed: displayTasks.filter(t => t.status === TaskStatus.COMPLETED).length,
     responseRate: displayTasks.length > 0 
       ? Math.round((displayTasks.filter(t => t.responseReceived).length / displayTasks.length) * 100) 
       : 0
@@ -254,7 +248,7 @@ export const ColleagueTrackingDashboard: React.FC<ColleagueTrackingDashboardProp
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium text-foreground">Filter:</span>
             <div className="flex items-center bg-background border border-border rounded-lg p-1">
-              {(['all', 'pending', 'overdue', 'completed'] as const).map((filterOption) => (
+              {(['all', 'pending', 'overdue', TaskStatus.COMPLETED] as const).map((filterOption) => (
                 <button
                   key={filterOption}
                   onClick={() => setFilter(filterOption)}
@@ -269,7 +263,7 @@ export const ColleagueTrackingDashboard: React.FC<ColleagueTrackingDashboardProp
                     <span className="ml-1 text-xs">
                       ({filterOption === 'pending' ? stats.pending : 
                         filterOption === 'overdue' ? stats.overdue : 
-                        filterOption === 'completed' ? stats.completed : 0})
+                        filterOption === TaskStatus.COMPLETED ? stats.completed : 0})
                     </span>
                   )}
                 </button>
@@ -352,7 +346,7 @@ export const ColleagueTrackingDashboard: React.FC<ColleagueTrackingDashboardProp
                         <CheckCircleSolid className="w-3 h-3 text-green-600" />
                       )}
                       {task.assignedTo.status === 'pending' && (
-                        <ClockIcon className="w-3 h-3 text-yellow-600" />
+                        <Icons.clock className="w-3 h-3 text-yellow-600" />
                       )}
                       {task.assignedTo.status === 'overdue' && (
                         <ExclamationTriangleSolid className="w-3 h-3 text-red-600" />
@@ -392,7 +386,7 @@ export const ColleagueTrackingDashboard: React.FC<ColleagueTrackingDashboardProp
                   </div>
                   {task.dueDate && (
                     <div className="flex items-center gap-1">
-                      <ClockIcon className="w-3 h-3" />
+                      <Icons.clock className="w-3 h-3" />
                       <span className={isOverdue(task.dueDate) ? 'text-red-600 font-medium' : ''}>
                         Due: {formatDate(task.dueDate)}
                       </span>
@@ -418,7 +412,7 @@ export const ColleagueTrackingDashboard: React.FC<ColleagueTrackingDashboardProp
                     onClick={() => onViewTask?.(task.id)}
                     className="flex items-center gap-1 text-primary hover:text-primary/80 transition-colors"
                   >
-                    <EyeIcon className="w-3 h-3" />
+                    <Icons.eye className="w-3 h-3" />
                     <span>View</span>
                   </button>
                 </div>

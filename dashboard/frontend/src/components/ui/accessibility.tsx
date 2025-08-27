@@ -7,7 +7,7 @@
 import React from 'react';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import * as FocusScope from '@radix-ui/react-focus-scope';
-import * as FocusGuards from '@radix-ui/react-focus-guards';
+// import * as FocusGuards from '@radix-ui/react-focus-guards'; // Currently unused
 
 /**
  * VisuallyHidden - Hides content visually but keeps it accessible to screen readers
@@ -29,19 +29,19 @@ export interface FocusTrapProps {
 export const FocusTrap: React.FC<FocusTrapProps> = ({ 
   children, 
   active = true,
-  autoFocus = true,
-  returnFocus = true 
+  autoFocus: _autoFocus = true,
+  returnFocus: _returnFocus = true 
 }) => {
   if (!active) return <>{children}</>;
   
   return (
-    <FocusGuards.Root>
+    <div data-focus-trap="true">
       <FocusScope.Root asChild trapped={active}>
-        <div data-focus-trap="true">
+        <div>
           {children}
         </div>
       </FocusScope.Root>
-    </FocusGuards.Root>
+    </div>
   );
 };
 
@@ -250,4 +250,4 @@ export const useAccessibility = () => React.useContext(AccessibilityContext);
 /**
  * Export commonly used Radix UI accessibility utilities
  */
-export { VisuallyHidden, FocusScope, FocusGuards };
+export { VisuallyHidden, FocusScope };

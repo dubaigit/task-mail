@@ -8,19 +8,16 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  ChartBarIcon,
-  ExclamationTriangleIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  CpuChipIcon,
-  SignalIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  EyeIcon,
-  BoltIcon,
-  DevicePhoneMobileIcon,
-  ComputerDesktopIcon
-} from '@heroicons/react/24/outline';
+  Zap as BoltIcon,
+  Cpu as CpuChipIcon,
+  BarChart3 as ChartBarIcon,
+  Activity as SignalIcon,
+  TrendingUp as ArrowTrendingUpIcon,
+  TrendingDown as ArrowTrendingDownIcon,
+  AlertTriangle as ExclamationTriangleIcon,
+  CheckCircle as CheckCircleIcon
+} from 'lucide-react';
+import { Icons } from '../ui/icons';
 import { Card, Button, Badge, Alert, Skeleton } from '../ui';
 import { usePerformanceMonitor, PerformanceMetrics, CoreWebVitals } from '../../utils/performanceMonitor';
 
@@ -146,7 +143,7 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({
         status: getVitalStatus(coreWebVitals.lcp, 2500, 4000),
         trend: calculateTrend('coreWebVitals.lcp'),
         description: 'Time when the largest content element becomes visible',
-        icon: <EyeIcon className="w-6 h-6" />
+        icon: <Icons.eye className="w-6 h-6" />
       },
       {
         title: 'Interaction to Next Paint',
@@ -165,7 +162,7 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({
         status: getVitalStatus(coreWebVitals.cls, 0.1, 0.25),
         trend: calculateTrend('coreWebVitals.cls'),
         description: 'Unexpected layout shifts during page load',
-        icon: <DevicePhoneMobileIcon className="w-6 h-6" />
+        icon: <Icons.phone className="w-6 h-6" />
       },
       {
         title: 'First Contentful Paint',
@@ -175,7 +172,7 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({
         status: getVitalStatus(coreWebVitals.fcp, 1800, 3000),
         trend: calculateTrend('coreWebVitals.fcp'),
         description: 'Time when first content becomes visible',
-        icon: <ClockIcon className="w-6 h-6" />
+        icon: <Icons.clock className="w-6 h-6" />
       },
       {
         title: 'Memory Usage',
@@ -213,7 +210,7 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({
         status: getVitalStatus(resourceMetrics.totalSize / 1024, 300, 500),
         trend: calculateTrend('resourceMetrics.totalSize'),
         description: 'Total size of loaded resources',
-        icon: <ComputerDesktopIcon className="w-6 h-6" />
+        icon: <Icons.cpu className="w-6 h-6" />
       }
     ];
   }, [currentMetrics, getVitalStatus, calculateTrend]);
@@ -328,7 +325,7 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({
               <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-red-200">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium text-red-800">{violation.metric}</span>
-                  <Badge variant="danger" size="sm">{violation.severity}</Badge>
+                  <Badge variant="danger" >{violation.severity}</Badge>
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">
                   <div>Current: {typeof violation.current === 'number' ? violation.current.toFixed(2) : violation.current}</div>
@@ -389,7 +386,7 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({
                         metric.status === 'good' ? 'success' :
                         metric.status === 'warning' ? 'warning' : 'danger'
                       }
-                      size="sm"
+                      
                     >
                       {metric.status.toUpperCase()}
                     </Badge>

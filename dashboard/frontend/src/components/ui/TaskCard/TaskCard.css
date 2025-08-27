@@ -1,0 +1,359 @@
+/* Unified TaskCard Styles */
+
+/* Base TaskCard Styles */
+.unified-task-card {
+  @apply relative bg-white rounded-lg border-2 transition-all duration-300 cursor-pointer;
+  border-left-style: solid;
+}
+
+.unified-task-card:focus {
+  @apply outline-none ring-2 ring-blue-500/50;
+}
+
+.unified-task-card.selected {
+  @apply ring-2 ring-blue-500 shadow-lg;
+}
+
+.unified-task-card.updating {
+  @apply pointer-events-none opacity-75;
+}
+
+.unified-task-card.overdue {
+  @apply border-red-400 bg-red-50;
+}
+
+/* Layout Variants */
+.task-card-compact {
+  @apply p-3 mb-2;
+}
+
+.task-card-detailed {
+  @apply p-4 mb-3;
+}
+
+.task-card-business {
+  @apply p-4 rounded-xl;
+  background: var(--business-bg);
+  border: 1px solid var(--business-border);
+}
+
+.task-card-minimal {
+  @apply p-2 mb-2;
+}
+
+/* Theme Variants */
+.task-card-dark {
+  @apply bg-gray-800 text-gray-100 border-gray-600;
+}
+
+.task-card-compact-spacing > * + * {
+  @apply mt-2;
+}
+
+.task-card-center .task-card-content {
+  @apply text-center;
+}
+
+.task-card-hover-effects:hover {
+  @apply shadow-lg transform scale-[1.02];
+}
+
+/* Color Schemes */
+.task-card-professional {
+  --urgency-critical: #dc2626;
+  --urgency-high: #ea580c;
+  --urgency-medium: #d97706;
+  --urgency-low: #6b7280;
+}
+
+.task-card-urgency-based {
+  --urgency-critical: #dc2626;
+  --urgency-high: #ea580c;
+  --urgency-medium: #2563eb;
+  --urgency-low: #6b7280;
+}
+
+.task-card-category-based {
+  --category-needs-reply: #dc2626;
+  --category-approval: #d97706;
+  --category-meeting: #2563eb;
+  --category-default: #6b7280;
+}
+
+/* Header Components */
+.task-card-header {
+  @apply flex items-center justify-between mb-3;
+}
+
+.task-card-meta {
+  @apply flex items-center space-x-2;
+}
+
+.sender-avatar {
+  @apply w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold;
+}
+
+.category-icon {
+  @apply p-1 rounded;
+}
+
+.urgency-badge {
+  @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
+  gap: 0.25rem;
+}
+
+.task-timestamp {
+  @apply text-xs text-gray-500;
+}
+
+/* Quick Actions */
+.task-card-actions {
+  @apply flex items-center space-x-1;
+}
+
+.quick-action-button {
+  @apply p-1.5 rounded hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition-colors;
+}
+
+.quick-action-button:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.quick-action-button.start {
+  @apply text-green-600 hover:bg-green-50;
+}
+
+.quick-action-button.pause {
+  @apply text-yellow-600 hover:bg-yellow-50;
+}
+
+.quick-action-button.complete {
+  @apply text-blue-600 hover:bg-blue-50;
+}
+
+.quick-action-button.more {
+  @apply text-gray-600 hover:bg-gray-50;
+}
+
+/* Content */
+.task-card-content {
+  @apply mb-3;
+}
+
+.task-title {
+  @apply text-lg font-semibold text-gray-900 line-clamp-2 mb-2;
+}
+
+.task-card-business .task-title {
+  @apply text-sm font-semibold text-slate-100 text-center;
+}
+
+.task-description {
+  @apply text-sm text-gray-600 line-clamp-3;
+}
+
+.task-card-business .task-description {
+  @apply text-xs text-slate-400;
+}
+
+/* Progress Bar */
+.progress-container {
+  @apply relative w-full bg-gray-200 rounded-full h-2 mt-2;
+}
+
+.progress-bar {
+  @apply h-2 rounded-full transition-all duration-300;
+}
+
+.progress-text {
+  @apply absolute right-0 top-0 transform translate-x-full -translate-y-1 text-xs text-gray-500;
+}
+
+/* Footer */
+.task-card-footer {
+  @apply space-y-2;
+}
+
+.status-badge {
+  @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
+  gap: 0.25rem;
+}
+
+.due-date {
+  @apply inline-flex items-center text-xs;
+  gap: 0.25rem;
+}
+
+.due-date.overdue {
+  @apply font-semibold;
+}
+
+.assignee {
+  @apply inline-flex items-center text-xs text-gray-600;
+  gap: 0.25rem;
+}
+
+/* Tags */
+.task-tags {
+  @apply flex flex-wrap gap-1 mt-2;
+}
+
+.task-tag {
+  @apply inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800;
+  gap: 0.25rem;
+}
+
+.task-tag-more {
+  @apply inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-200 text-gray-600;
+}
+
+/* Metadata */
+.task-metadata {
+  @apply text-xs text-gray-500 space-y-1;
+}
+
+.metadata-item {
+  @apply flex justify-between;
+}
+
+.metadata-label {
+  @apply font-medium;
+}
+
+/* Email Link */
+.email-link {
+  @apply p-1 rounded hover:bg-gray-100 focus:bg-gray-100 focus:outline-none text-gray-600;
+}
+
+/* Expanded Actions */
+.expanded-actions {
+  @apply absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-lg shadow-lg z-10;
+}
+
+.action-button {
+  @apply w-full px-4 py-2 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none flex items-center;
+  gap: 0.5rem;
+}
+
+.action-button.delete {
+  @apply text-red-600 hover:bg-red-50;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  @apply absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-lg;
+}
+
+.loading-spinner {
+  @apply w-5 h-5 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin;
+}
+
+.loading-message {
+  @apply ml-2 text-sm text-gray-600;
+}
+
+/* Urgency Pulse Animation */
+.urgency-pulse {
+  @apply absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+/* Business Layout Specific Styles */
+.task-card-business {
+  @apply relative transition-all duration-300 hover:shadow-lg cursor-pointer w-full text-left focus:outline-none focus:ring-2 focus:ring-slate-400/50 hover:scale-[1.02];
+}
+
+.task-card-business .business-metrics {
+  @apply flex items-center justify-between mt-4 pt-3 border-t border-slate-700/40;
+}
+
+.task-card-business .metric-item {
+  @apply flex items-center gap-1;
+}
+
+.task-card-business .metric-value {
+  @apply text-xs text-slate-400;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .task-card-detailed,
+  .task-card-business {
+    @apply p-3;
+  }
+  
+  .task-title {
+    @apply text-base;
+  }
+  
+  .task-card-actions {
+    @apply space-x-0.5;
+  }
+  
+  .quick-action-button {
+    @apply p-1;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .task-card-dark {
+    @apply bg-gray-900 text-gray-100 border-gray-700;
+  }
+  
+  .task-card-dark .task-title {
+    @apply text-gray-100;
+  }
+  
+  .task-card-dark .task-description {
+    @apply text-gray-300;
+  }
+  
+  .task-card-dark .quick-action-button:hover {
+    @apply bg-gray-700;
+  }
+  
+  .task-card-dark .loading-overlay {
+    @apply bg-gray-900 bg-opacity-75;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .unified-task-card {
+    @apply border-2;
+  }
+  
+  .urgency-badge,
+  .status-badge,
+  .task-tag {
+    @apply border border-current;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .unified-task-card,
+  .quick-action-button,
+  .progress-bar {
+    @apply transition-none;
+  }
+  
+  .urgency-pulse {
+    @apply animate-none;
+  }
+  
+  .task-card-hover-effects:hover {
+    @apply transform-none scale-100;
+  }
+}

@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { 
-  Home, 
+   
   Inbox, 
   CheckSquare, 
   FileText, 
@@ -13,9 +13,9 @@ import {
   X, 
   ChevronLeft, 
   ChevronRight,
-  User,
-  Settings,
-  LogOut,
+  
+  
+  
   Plus
 } from "lucide-react";
 
