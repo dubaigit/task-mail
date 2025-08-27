@@ -38,7 +38,10 @@
     "validate": "node scripts/validate-integration.js",
     "validate:fix": "node scripts/validate-integration.js --fix",
     "db:init": "node scripts/initialize-databases.js",
-    "db:sync": "node scripts/sync-databases.js"
+    "db:sync": "node scripts/sync-databases.js",
+    "fake:db": "node database/fake-apple-mail/build-fake-database.js",
+    "fake:data": "node database/fake-apple-mail/generate-more-data.js",
+    "fake:reset": "npm run fake:db && npm run fake:data"
   },
   "keywords": [
     "email",

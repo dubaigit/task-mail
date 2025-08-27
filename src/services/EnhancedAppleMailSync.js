@@ -41,8 +41,8 @@ class EnhancedAppleMailSync extends EventEmitter {
       ]
     });
 
-    // Apple Mail database path
-    this.appleMailDbPath = path.join(
+    // Apple Mail database path (configurable via environment)
+    this.appleMailDbPath = process.env.APPLE_MAIL_DB_PATH || path.join(
       os.homedir(),
       'Library/Mail/V10/MailData/Envelope Index'
     );
