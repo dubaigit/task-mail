@@ -8,37 +8,17 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
-    '@typescript-eslint/recommended',
-    'plugin:react/recommended',
-    'plugin:react-hooks/recommended',
-    'plugin:react/jsx-runtime',
+    'react-app',
+    'react-app/jest',
   ],
-  ignorePatterns: ['dist', '.eslintrc.js', 'craco.config.js', 'build/'],
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
-  plugins: [
-    'react-refresh',
-    '@typescript-eslint',
-    'react',
-    'react-hooks'
-  ],
+  ignorePatterns: ['dist', '.eslintrc.js', 'craco.config.js', 'build/', 'coverage/'],
   rules: {
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
-    ],
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    'react/prop-types': 'off', // We use TypeScript for prop validation
-    'react/react-in-jsx-scope': 'off', // Not needed with React 17+
-    '@typescript-eslint/no-explicit-any': 'warn',
+    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'prefer-const': 'error',
     'no-var': 'error',
+    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    'react/jsx-uses-react': 'off', // Not needed with React 17+
+    'react/react-in-jsx-scope': 'off', // Not needed with React 17+
   },
   settings: {
     react: {
