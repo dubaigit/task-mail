@@ -20,7 +20,8 @@ const {
   taskQueryValidation,
   aiCommandValidation,
   emailClassificationValidation,
-  handleValidationErrors
+  handleValidationErrors,
+  cleanup: authCleanup
 } = require('./src/middleware/auth');
 
 const bcrypt = require('bcrypt');
@@ -1243,10 +1244,15 @@ if (process.env.NODE_ENV === 'production') {
 // Security error handling middleware (must be last)
 app.use(sanitizeErrors);
 
+// Server variables for graceful shutdown
+let server;
+let wss;
+let connectionManager;
+
 // Server startup
 const startServer = async () => {
   try {
-    const server = app.listen(PORT, () => {
+    server = app.listen(PORT, () => {
       console.log(`✅ Server is running on port ${PORT}`);
       console.log(`API available at http://localhost:${PORT}/api`);
       console.log(`Frontend will be served from http://localhost:3000`);
@@ -1261,7 +1267,7 @@ const startServer = async () => {
       // Initialize WebSocket for real-time updates
       try {
         const WebSocketManager = require('./src/websocket/WebSocketManager');
-        WebSocketManager.initialize(server);
+        wss = WebSocketManager.initialize(server);
         console.log('🔌 WebSocket initialized for real-time updates');
       } catch (error) {
         console.warn('⚠️ WebSocket initialization failed:', error.message);
@@ -1392,9 +1398,14 @@ const gracefulShutdown = async (signal) => {
     }
     
     // Close Supabase connections if needed
-    if (connectionManager) {
+    if (typeof connectionManager !== 'undefined' && connectionManager) {
       await connectionManager.cleanup();
       console.log('✅ Supabase connections cleaned up');
+    }
+    
+    if (authCleanup) {
+      authCleanup();
+      console.log('✅ Authentication middleware cleaned up');
     }
     
     console.log('👋 Graceful shutdown complete');

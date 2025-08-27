@@ -134,13 +134,20 @@ const clearBlacklistedTokens = () => {
 };
 
 // Clean expired tokens from blacklist every hour
-setInterval(() => {
+const tokenCleanupInterval = setInterval(() => {
   // In a real implementation, you'd check token expiration times
   // For now, we'll periodically clear the blacklist to prevent memory leaks
   if (blacklistedTokens.size > 1000) {
     clearBlacklistedTokens();
   }
 }, 60 * 60 * 1000);
+
+const cleanup = () => {
+  if (tokenCleanupInterval) {
+    clearInterval(tokenCleanupInterval);
+    console.log('🧹 Token cleanup interval cleared');
+  }
+};
 
 // Rate limiting configurations
 const createRateLimiter = (windowMs, max, message) => {
@@ -734,7 +741,7 @@ module.exports = {
   emailClassificationValidation,
   handleValidationErrors,
   validateEnvironment,
-  // Enhanced security utilities
+  cleanup,
   blacklistToken,
   clearBlacklistedTokens,
   refreshTokens,
