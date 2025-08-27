@@ -202,8 +202,8 @@ async function initializeOptimizations() {
   }
 }
 
-// Initialize optimizations after database connection
-setTimeout(initializeOptimizations, 2000);
+// Initialize optimizations after database connection - COMMENTED OUT TO PREVENT HANGING
+// setTimeout(initializeOptimizations, 2000);
 
 // Initialize database health monitoring
 async function initializeDatabaseHealth() {
@@ -229,8 +229,8 @@ async function initializeDatabaseHealth() {
   }
 }
 
-// Initialize database health monitoring after a delay
-setTimeout(initializeDatabaseHealth, 3000);
+// Initialize database health monitoring after a delay - COMMENTED OUT TO PREVENT HANGING
+// setTimeout(initializeDatabaseHealth, 3000);
 
 // WebSocket server initialization function
 function initializeWebSocket(server) {

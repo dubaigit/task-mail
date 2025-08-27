@@ -1193,7 +1193,7 @@ const TaskDashboard: React.FC = () => {
           title="AI Email Assistant"
           placeholder="Ask me about your emails, request drafts, or create automation rules..."
           messages={[]}
-          onSendMessage={(message) => {
+          onSendMessage={(_message) => {
             // Handle AI message processing here
           }}
           onClose={() => setShowAIChat(false)}
