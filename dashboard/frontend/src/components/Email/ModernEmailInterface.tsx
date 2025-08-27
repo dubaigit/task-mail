@@ -1263,7 +1263,6 @@ const ModernEmailInterface: React.FC = () => {
                   }}
                   onTaskCreate={(email) => {
                     // Handle task creation
-                    console.log('Creating task for email:', email);
                   }}
                 />
               )}
@@ -1405,11 +1404,9 @@ const ModernEmailInterface: React.FC = () => {
                 <div className="p-6">
                   <ColleagueTrackingDashboard
                     onViewTask={(taskId) => {
-                      console.log('Viewing task:', taskId);
                       showToast(`Viewing colleague task: ${taskId}`, 'info');
                     }}
                     onTaskUpdate={(taskId, updates) => {
-                      console.log('Updating task:', taskId, updates);
                       showToast(`Updated colleague task: ${taskId}`, 'success');
                     }}
                   />

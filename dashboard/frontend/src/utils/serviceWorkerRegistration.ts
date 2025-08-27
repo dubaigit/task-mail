@@ -147,15 +147,12 @@ export class ServiceWorkerManager {
    */
   async skipWaiting(): Promise<void> {
     if (this.registration?.waiting) {
-      console.log('[SW] Skipping waiting...');
-      
       // Send skip waiting message
       this.registration.waiting.postMessage({ type: 'SKIP_WAITING' });
       
       // Wait for controller change
       return new Promise((resolve) => {
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-          console.log('[SW] Controller changed');
           this.emit('controllerchange');
           resolve();
         }, { once: true });
@@ -199,7 +196,6 @@ export class ServiceWorkerManager {
    */
   async clearCache(): Promise<void> {
     if (!this.registration || !navigator.serviceWorker.controller) {
-      console.warn('[SW] No active service worker to clear cache');
       return;
     }
 
@@ -208,7 +204,6 @@ export class ServiceWorkerManager {
       
       messageChannel.port1.onmessage = (event) => {
         if (event.data.type === 'CACHE_CLEARED') {
-          console.log('[SW] All caches cleared');
           this.emit('cacheCleared');
           resolve();
         }
@@ -233,7 +228,6 @@ export class ServiceWorkerManager {
    */
   async invalidateAssets(assetPaths: string[]): Promise<void> {
     if (!navigator.serviceWorker.controller) {
-      console.warn('[SW] No active service worker to invalidate cache');
       return;
     }
 
@@ -245,8 +239,6 @@ export class ServiceWorkerManager {
       type: 'INVALIDATE_CACHE',
       assets: cacheBustedUrls
     });
-
-    console.log('[SW] Invalidated cache for', assetPaths.length, 'assets');
   }
 
   /**
@@ -308,7 +300,6 @@ export class ServiceWorkerManager {
 
     // Listen for controller changes
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      console.log('[SW] Controller changed');
       this.emit('controllerchange');
     });
 

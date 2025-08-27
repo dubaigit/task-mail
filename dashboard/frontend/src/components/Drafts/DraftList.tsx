@@ -52,13 +52,11 @@ const DraftList: React.FC = () => {
       
       // Defensive programming: ensure data is an array
       if (!Array.isArray(data)) {
-        console.error('API response is not an array:', data);
         throw new Error('Invalid API response format');
       }
       
       setDrafts(data);
     } catch (err) {
-      console.error('Failed to fetch drafts:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch drafts');
       setDrafts([]); // Ensure drafts is always an array
     } finally {
@@ -118,7 +116,6 @@ const DraftList: React.FC = () => {
       fetchDrafts();
       
     } catch (err) {
-      console.error('Failed to send draft:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to send draft';
       setError(`Failed to send draft: ${errorMessage}`);
       alert(`Failed to send draft: ${errorMessage}`);

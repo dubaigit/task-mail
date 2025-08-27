@@ -90,7 +90,6 @@ const EmailSyncManager: React.FC<EmailSyncManagerProps> = ({ className }) => {
     const ws = new WebSocket(`ws://localhost:8000/ws/sync-updates`);
     
     ws.onopen = () => {
-      console.log('📡 WebSocket connected');
       setWebsocket(ws);
     };
 
@@ -115,7 +114,6 @@ const EmailSyncManager: React.FC<EmailSyncManagerProps> = ({ className }) => {
     };
 
     ws.onclose = () => {
-      console.log('📡 WebSocket disconnected');
       setWebsocket(null);
     };
 
@@ -162,7 +160,6 @@ const EmailSyncManager: React.FC<EmailSyncManagerProps> = ({ className }) => {
       }
 
       const result = await response.json();
-      console.log(`✅ ${result.message}`);
       
       // Refresh data to show new operation
       setTimeout(fetchData, 1000);
@@ -185,7 +182,6 @@ const EmailSyncManager: React.FC<EmailSyncManagerProps> = ({ className }) => {
       }
 
       const result = await response.json();
-      console.log(`✅ ${result.message}`);
       
       // Refresh data
       fetchData();

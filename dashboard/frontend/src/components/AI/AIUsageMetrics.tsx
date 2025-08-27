@@ -34,7 +34,6 @@ const AIUsageMetrics: React.FC<Props> = ({ refreshTrigger = 0 }) => {
     const minInterval = 30000; // 30 seconds minimum (increased from 10 seconds)
     
     if (!forceRefresh && timeSinceLastFetch < minInterval) {
-      console.log(`API throttled: ${Math.ceil((minInterval - timeSinceLastFetch) / 1000)}s remaining`);
       return;
     }
     
@@ -67,7 +66,6 @@ const AIUsageMetrics: React.FC<Props> = ({ refreshTrigger = 0 }) => {
       if (isComponentMountedRef.current) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to fetch usage stats';
         setError(errorMessage);
-        console.error('Error fetching AI usage stats:', err);
         
         // EXPONENTIAL BACKOFF: Increase retry count for failed requests
         setRetryCount(prev => Math.min(prev + 1, 6)); // Max 6 retries
@@ -99,8 +97,6 @@ const AIUsageMetrics: React.FC<Props> = ({ refreshTrigger = 0 }) => {
       const backoffMultiplier = Math.pow(2, retryCount); // 2^retryCount
       const maxInterval = 1800000; // 30 minutes max (increased from 10 minutes)
       const actualInterval = Math.min(baseInterval * backoffMultiplier, maxInterval);
-      
-      console.log(`Next AI usage fetch in ${actualInterval / 1000}s (retry count: ${retryCount})`);
       
       fetchTimeoutRef.current = setTimeout(() => {
         fetchStats();

@@ -97,7 +97,6 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
     // Start periodic reporting
     startPeriodicReporting();
 
-    console.log('🚀 Advanced Performance Monitoring Started');
   }, [isMonitoring]);
 
   // Stop monitoring
@@ -112,7 +111,6 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
     // Stop UX tracking
     uxTracker.stopTracking();
 
-    console.log('⏹️ Performance Monitoring Stopped');
   }, [isMonitoring]);
 
   // Set up event listeners for all monitoring systems
@@ -248,11 +246,9 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
   // Automated performance optimization
   const optimizePerformance = useCallback(async (): Promise<void> => {
     if (!enableOptimizations) {
-      console.warn('Performance optimizations are disabled');
       return;
     }
 
-    console.log('🔧 Starting automated performance optimization...');
 
     try {
       // 1. Cache optimization
@@ -267,7 +263,6 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
       // 4. Prefetch critical resources
       await prefetchCriticalResources();
 
-      console.log('✅ Performance optimization completed');
 
       const alert: PerformanceAlert = {
         id: `optimization-${Date.now()}`,
@@ -279,7 +274,6 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
       setAlerts(prev => [...prev, alert]);
 
     } catch (error) {
-      console.error('❌ Performance optimization failed:', error);
     }
   }, [enableOptimizations]);
 
@@ -288,12 +282,10 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
     const stats = advancedCache.getStats();
     
     if (stats.hitRate < 70) {
-      console.log('📊 Cache hit rate is low, optimizing...');
       // Implement cache warming strategies
     }
 
     if (stats.totalSize > 40 * 1024 * 1024) { // 40MB
-      console.log('🧹 Cache size is large, triggering cleanup...');
       // The cache will handle this automatically with its eviction strategies
     }
   };
@@ -304,12 +296,6 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
     if (!metrics) return;
 
     if (metrics.resourceMetrics.totalSize > 500 * 1024) { // 500KB
-      console.log('📦 Bundle size optimization suggestions:', {
-        'Enable code splitting': 'Break large bundles into smaller chunks',
-        'Tree shake unused code': 'Remove unused imports and dependencies',
-        'Compress assets': 'Enable gzip/brotli compression',
-        'Optimize images': 'Use modern formats and proper sizing'
-      });
     }
   };
 
@@ -319,7 +305,6 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
     if (!metrics?.memoryUsage) return;
 
     if (metrics.memoryUsage.percentage > 80) {
-      console.log('🧹 Performing memory cleanup...');
       
       // Force garbage collection if available
       if ('gc' in window && typeof (window as any).gc === 'function') {
@@ -342,7 +327,6 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
     for (const resource of criticalResources) {
       const cached = await advancedCache.get(resource);
       if (!cached) {
-        console.log(`🔄 Prefetching critical resource: ${resource}`);
         // In a real implementation, this would fetch from the API
         // and cache the result
       }

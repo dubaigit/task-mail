@@ -325,7 +325,6 @@ const EmailList: React.FC = () => {
       const data = await response.json();
       
       if (!Array.isArray(data)) {
-        console.error('API response is not an array:', data);
         throw new Error('Invalid API response format');
       }
       
@@ -349,7 +348,6 @@ const EmailList: React.FC = () => {
       
       setEmails(enhancedEmails);
     } catch (err) {
-      console.error('Failed to fetch emails:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch emails');
       setEmails([]);
     } finally {

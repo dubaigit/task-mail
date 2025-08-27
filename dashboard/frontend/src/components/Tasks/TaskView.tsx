@@ -308,7 +308,6 @@ const TaskView: React.FC = () => {
                           onClick={(e) => {
                             e.stopPropagation();
                             // Navigate to email or show email details
-                            console.log('View related email:', task.created_from_email);
                           }}
                         >
                           <ExternalLink className="h-3 w-3" />

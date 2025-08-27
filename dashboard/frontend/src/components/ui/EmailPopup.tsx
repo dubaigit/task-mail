@@ -86,7 +86,6 @@ ${task.sender}
         setIsLoadingEmail(false);
       }, 500);
     } catch (error) {
-      console.error('Error loading email:', error);
       setIsLoadingEmail(false);
     }
   }, [task]);
@@ -118,7 +117,6 @@ ${task.sender}
       if (response.ok) {
         const data = await response.json();
         setDraftReply(data.draft);
-        console.log(`Draft generated with ${data.model_used}, cost: $${data.cost}`);
       } else {
         // Use AI service for draft generation
         try {
@@ -148,7 +146,6 @@ ${task.sender}
         }
       }
     } catch (error) {
-      console.error('Error loading draft:', error);
       setDraftReply(`Dear ${task.sender},\n\nRegarding: ${displayTitle}\n\n[Please complete your response here]\n\nBest regards`);
     } finally {
       setIsLoadingDraft(false);
@@ -196,7 +193,6 @@ ${task.sender}
       };
       setChatHistory(prev => [...prev, aiMessage]);
     } catch (error) {
-      console.error('Error processing command:', error);
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         content: 'I encountered an error processing your request. Please try again.',
@@ -239,8 +235,6 @@ ${task.sender}
       const data = await response.json();
       return data.response;
     } catch (error) {
-      console.error('Error processing command with GPT-5:', error);
-      
       // Fallback to basic pattern matching
       const cmd = command.toLowerCase();
       

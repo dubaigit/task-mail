@@ -384,7 +384,6 @@ const DraftGenerationInterface: React.FC<DraftGenerationInterfaceProps> = ({
             }}
             onTemplateCreate={(content) => {
               // Handle template creation
-              console.log('Creating template from:', content);
             }}
             className="h-full"
           />

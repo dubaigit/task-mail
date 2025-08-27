@@ -92,7 +92,6 @@ export const AdminValidationProvider: React.FC<AdminValidationProviderProps> = (
       }));
       
     } catch (error) {
-      console.error('Security validation failed:', error);
     } finally {
       setState(prev => ({ ...prev, isValidating: false }));
     }
@@ -118,7 +117,6 @@ export const AdminValidationProvider: React.FC<AdminValidationProviderProps> = (
       }));
       
     } catch (error) {
-      console.error('System health check failed:', error);
     } finally {
       setState(prev => ({ ...prev, isValidating: false }));
     }
@@ -133,7 +131,6 @@ export const AdminValidationProvider: React.FC<AdminValidationProviderProps> = (
         runSystemHealthCheck()
       ]);
     } catch (error) {
-      console.error('Full validation failed:', error);
     } finally {
       setState(prev => ({ ...prev, isValidating: false }));
     }

@@ -93,7 +93,6 @@ const OfflineManager: React.FC<OfflineManagerProps> = ({
         }));
         setPendingActions(actions);
       } catch (error) {
-        console.error('Failed to load pending actions:', error);
         localStorage.removeItem(STORAGE_KEYS.pendingActions);
       }
     }
@@ -199,8 +198,6 @@ const OfflineManager: React.FC<OfflineManagerProps> = ({
         navigator.vibrate([100, 50, 100]);
       }
     } catch (error) {
-      console.error('Sync failed:', error);
-      
       // Increment retry count for failed actions
       setPendingActions(prev => prev.map(action => {
         if (action.retryCount < action.maxRetries) {
@@ -230,7 +227,6 @@ const OfflineManager: React.FC<OfflineManagerProps> = ({
         lastSync: new Date(parsed.lastSync)
       };
     } catch (error) {
-      console.error('Failed to parse offline data:', error);
       return null;
     }
   }, []);

@@ -59,7 +59,6 @@ export const AdminRealTimeMonitor: React.FC<AdminRealTimeMonitorProps> = ({
       wsRef.current = new WebSocket(wsEndpoint);
 
       wsRef.current.onopen = () => {
-        console.log('🔌 Admin WebSocket connected');
         setConnectionStatus('connected');
         setIsConnected(true);
         setReconnectAttempts(0);
@@ -80,7 +79,6 @@ export const AdminRealTimeMonitor: React.FC<AdminRealTimeMonitorProps> = ({
       };
 
       wsRef.current.onclose = (event) => {
-        console.log('📡 Admin WebSocket disconnected:', event.code, event.reason);
         setConnectionStatus('disconnected');
         setIsConnected(false);
         
@@ -156,7 +154,6 @@ export const AdminRealTimeMonitor: React.FC<AdminRealTimeMonitorProps> = ({
         break;
         
       default:
-        console.log('Unknown WebSocket message type:', data.type);
     }
   };
 

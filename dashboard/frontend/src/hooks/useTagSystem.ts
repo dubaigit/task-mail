@@ -268,7 +268,6 @@ export const useTagSystem = (options: UseTagSystemOptions = {}) => {
       return result.data;
 
     } catch (error) {
-      console.error('Error applying tags:', error);
       throw error;
     }
   }, [API_BASE, cacheResults, searchCache]);
@@ -293,7 +292,6 @@ export const useTagSystem = (options: UseTagSystemOptions = {}) => {
       return result.data.tags;
 
     } catch (error) {
-      console.error('Error getting document tags:', error);
       throw error;
     }
   }, [API_BASE]);
@@ -335,7 +333,6 @@ export const useTagSystem = (options: UseTagSystemOptions = {}) => {
       return result.data;
 
     } catch (error) {
-      console.error('Error removing tags:', error);
       throw error;
     }
   }, [API_BASE, cacheResults, searchCache]);
@@ -474,7 +471,6 @@ export const useTagSystem = (options: UseTagSystemOptions = {}) => {
       return result.data;
 
     } catch (error) {
-      console.error('Error in bulk tag operation:', error);
       throw error;
     }
   }, [API_BASE, cacheResults, searchCache]);
@@ -519,7 +515,6 @@ export const useTagSystem = (options: UseTagSystemOptions = {}) => {
       return result.data;
 
     } catch (error) {
-      console.error('Error in auto-tagging:', error);
       throw error;
     }
   }, [API_BASE, cacheResults, searchCache]);
@@ -534,8 +529,7 @@ export const useTagSystem = (options: UseTagSystemOptions = {}) => {
   // Auto-load taxonomy on mount
   useEffect(() => {
     if (autoLoadTaxonomy) {
-      loadAvailableTags().catch(error => {
-        console.warn('Failed to auto-load tag taxonomy:', error);
+      loadAvailableTags().catch(() => {
       });
     }
   }, [autoLoadTaxonomy, loadAvailableTags]);

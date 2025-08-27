@@ -271,7 +271,7 @@ const DraftView: React.FC = () => {
                           onClick={(e) => {
                             e.stopPropagation();
                             // Navigate to related email
-                            console.log('View related email:', draft.generated_for);
+                            // TODO: Implement navigation to related email
                           }}
                           className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 flex items-center space-x-1"
                         >
@@ -286,7 +286,6 @@ const DraftView: React.FC = () => {
                             onClick={(e) => {
                               e.stopPropagation();
                               // Edit draft functionality
-                              console.log('Edit draft:', draft.id);
                             }}
                             className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 flex items-center space-x-1"
                           >

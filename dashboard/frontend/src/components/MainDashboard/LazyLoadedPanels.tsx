@@ -227,7 +227,6 @@ const PanelErrorBoundary: React.FC<{
     <ErrorBoundary 
       FallbackComponent={ErrorFallback}
       onError={(error: Error) => {
-        console.error(`Error in ${panelName}:`, error);
         // Could send to error reporting service here
       }}
       onReset={() => {

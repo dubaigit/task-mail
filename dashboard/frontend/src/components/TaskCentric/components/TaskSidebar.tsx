@@ -63,9 +63,9 @@ export const TaskSidebar: React.FC<TaskSidebarProps> = ({
           </button>
         </div>
         <EnhancedAIStatus 
-          onSync={() => console.log('Sync requested')}
-          onResync={() => console.log('Resync requested')}
-          onForceReanalyze={() => console.log('Force reanalyze requested')}
+          onSync={() => {}}
+          onResync={() => {}}
+          onForceReanalyze={() => {}}
           showPrompts={showAIPrompts}
           onTogglePrompts={() => setShowAIPrompts(!showAIPrompts)}
         />
@@ -102,8 +102,8 @@ export const TaskSidebar: React.FC<TaskSidebarProps> = ({
             tasks={[selectedEmail]}
             categoryFilter="all"
             categoryCounts={{}}
-            onSettingsClick={() => console.log('Settings clicked')}
-            onCategoryFilterChange={(filter) => console.log('Category filter changed:', filter)}
+            onSettingsClick={() => {}}
+            onCategoryFilterChange={() => {}}
           />
         </GlassCard>
       )}
@@ -139,7 +139,7 @@ export const TaskSidebar: React.FC<TaskSidebarProps> = ({
           <div className="h-96">
             <UnifiedChat 
               messages={[]}
-              onSendMessage={(message) => console.log('Send message:', message)}
+              onSendMessage={() => {}}
             />
           </div>
         )}

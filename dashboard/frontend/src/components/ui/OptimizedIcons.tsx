@@ -127,7 +127,6 @@ export const OptimizedIcon: React.FC<IconProps> = ({
   const IconComponent = iconMap[name];
   
   if (!IconComponent) {
-    console.warn(`Icon "${name}" not found in iconMap`);
     return null;
   }
   

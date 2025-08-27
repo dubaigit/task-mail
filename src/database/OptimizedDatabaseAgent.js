@@ -59,9 +59,9 @@ class OptimizedDatabaseAgent {
             logger.info('✅ Supabase client initialized for Optimized Database Agent');
         }
         
-        // Simple in-memory cache
         this.queryCache = new Map();
-        this.cacheExpiry = 5000; // 5 seconds default
+        this.cacheExpiry = process.env.CACHE_TTL || 30000; // 30 seconds default
+        this.cacheStats = { hits: 0, misses: 0 };
         this.isInitialized = true;
     }
 
@@ -148,7 +148,6 @@ class OptimizedDatabaseAgent {
         }
     }
 
-    // Execute query with caching
     async executeQuery(query, params = [], options = {}) {
         const cacheKey = `${query}_${JSON.stringify(params)}`;
         
@@ -156,17 +155,20 @@ class OptimizedDatabaseAgent {
         if (options.cache !== false) {
             const cached = this.queryCache.get(cacheKey);
             if (cached && cached.expiry > Date.now()) {
+                this.cacheStats.hits++;
                 return { rows: cached.data, fromCache: true };
             }
         }
         
+        this.cacheStats.misses++;
         const result = await this.query(query, params);
         
-        // Cache the result
+        // Cache the result with dynamic TTL
         if (options.cache !== false && result.rows.length > 0) {
+            const customTTL = options.cacheTTL || this.cacheExpiry;
             this.queryCache.set(cacheKey, {
                 data: result.rows,
-                expiry: Date.now() + (options.cacheTTL || this.cacheExpiry)
+                expiry: Date.now() + customTTL
             });
         }
         
@@ -298,6 +300,7 @@ class OptimizedDatabaseAgent {
 
     // Metrics and monitoring
     getConnectionMetrics() {
+        const total = this.cacheStats.hits + this.cacheStats.misses;
         return {
             sqlite: {
                 isReady: this.db !== null,
@@ -309,7 +312,8 @@ class OptimizedDatabaseAgent {
             },
             cache: {
                 size: this.queryCache.size,
-                entries: Array.from(this.queryCache.keys())
+                hitRate: total > 0 ? (this.cacheStats.hits / total * 100).toFixed(2) : 0,
+                stats: this.cacheStats
             }
         };
     }
