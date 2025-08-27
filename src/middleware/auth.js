@@ -70,15 +70,17 @@ const blacklistedTokens = new Set();
 
 // Enhanced authentication middleware with token blacklist support
 const authenticateToken = (req, res, next) => {
-  // BYPASS AUTHENTICATION FOR DEVELOPMENT - NO LOGIN REQUIRED
-  req.user = {
-    id: 'default-user',
-    email: 'admin@taskmail.com',
-    role: 'admin'
-  };
-  return next();
+  // Allow bypass for development environment with specific flag
+  if (process.env.NODE_ENV === 'development' && process.env.BYPASS_AUTH === 'true') {
+    console.warn('⚠️ WARNING: Authentication bypassed for development');
+    req.user = {
+      id: 'dev-user',
+      email: 'dev@taskmail.com',
+      role: 'admin'
+    };
+    return next();
+  }
   
-  /* ORIGINAL AUTH CODE - DISABLED FOR DEVELOPMENT
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
@@ -120,7 +122,6 @@ const authenticateToken = (req, res, next) => {
     req.user = { ...user, token };
     next();
   });
-  */ // END OF DISABLED AUTH CODE
 };
 
 // Token blacklist management

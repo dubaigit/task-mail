@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import TaskDashboard from '../../../dashboard/frontend/src/components/TaskCentric/TaskDashboard';
+import TaskDashboard from '../components/TaskCentric/TaskDashboard';
 
 // Mock API calls
-jest.mock('../../../dashboard/frontend/src/services/api', () => ({
+jest.mock('../services/api', () => ({
   get: jest.fn(),
   post: jest.fn(),
   put: jest.fn(),

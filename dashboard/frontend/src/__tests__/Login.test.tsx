@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import Login from '../../../dashboard/frontend/src/components/Auth/Login';
-import { AuthContext } from '../../../dashboard/frontend/src/context/AuthContext';
+import Login from '../components/Auth/Login';
+import { AuthContext } from '../context/AuthContext';
 
 // Mock the AuthContext
 const mockLogin = jest.fn();
