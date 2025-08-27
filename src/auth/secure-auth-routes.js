@@ -35,21 +35,8 @@ const refreshTokens = new Map();
 const loginAttempts = new Map();
 const blacklistedTokens = new Set();
 
-// Rate limiting for auth endpoints
-const strictAuthLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 3, // limit each IP to 3 requests per windowMs
-  message: {
-    success: false,
-    error: {
-      code: 'RATE_LIMIT_EXCEEDED',
-      message: 'Too many authentication attempts, please try again later',
-      retryAfter: 15 * 60
-    }
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// Rate limiting disabled for local development
+const strictAuthLimiter = (req, res, next) => next();
 
 // Input validation middleware
 const loginValidation = [

@@ -48,8 +48,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, onError, isDark: propIsDark }) =
   };
 
   const handleDemoLogin = () => {
-    setEmail('test@example.com');
-    setPassword('test123');
+    setEmail('user@example.com');
+    setPassword('SecureUser@2024');
   };
 
   return (
@@ -163,8 +163,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, onError, isDark: propIsDark }) =
           <div className={`mt-6 p-4 rounded-lg ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-blue-50 border border-blue-200'}`}>
             <div className={`text-sm ${isDark ? 'text-blue-200' : 'text-blue-700'}`}>
               <p><strong>Demo Credentials:</strong></p>
-              <p>Email: test@example.com</p>
-              <p>Password: test123</p>
+              <p>Email: user@example.com</p>
+              <p>Password: SecureUser@2024</p>
             </div>
           </div>
         </form>

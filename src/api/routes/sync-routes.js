@@ -6,42 +6,86 @@ const express = require('express');
 const router = express.Router();
 const { authenticateToken, generalLimiter } = require('../../middleware/auth');
 
-// Import sync status manager (to be created)
-let syncStatus = {
-  email: {
-    status: 'idle',
-    lastSync: null,
-    totalEmails: 0,
-    processedEmails: 0,
-    errors: []
-  },
-  tasks: {
-    status: 'idle',
-    lastSync: null,
-    totalTasks: 0,
-    processedTasks: 0,
-    errors: []
-  },
-  ai: {
-    status: 'idle',
-    lastProcess: null,
-    queueLength: 0,
-    processing: false
+// Import enhanced sync services
+const EnhancedAppleMailSync = require('../../services/EnhancedAppleMailSync');
+const AutomationEngine = require('../../services/AutomationEngine');
+const DraftSyncService = require('../../services/DraftSyncService');
+
+// Initialize services
+let emailSyncService = null;
+let automationEngine = null;
+let draftSyncService = null;
+
+// Initialize services on startup
+async function initializeServices() {
+  try {
+    // Initialize Enhanced Apple Mail Sync
+    emailSyncService = new EnhancedAppleMailSync();
+    await emailSyncService.initialize();
+    
+    // Initialize Automation Engine
+    automationEngine = new AutomationEngine();
+    await automationEngine.initialize();
+    
+    // Initialize Draft Sync (Mac only)
+    if (process.platform === 'darwin') {
+      draftSyncService = new DraftSyncService();
+      await draftSyncService.initialize();
+    }
+    
+    // Set up email processing through automation
+    emailSyncService.on('batch-synced', async (stats) => {
+      console.log(`✅ Batch synced: ${stats.synced} emails`);
+    });
+    
+    console.log('✅ All sync services initialized');
+  } catch (error) {
+    console.error('❌ Failed to initialize sync services:', error);
   }
-};
+}
+
+// Initialize on module load
+initializeServices();
 
 /**
  * Get synchronization status
- * GET /api/sync-status
+ * GET /api/sync/status
  */
 router.get('/status', 
   authenticateToken,
   generalLimiter,
   async (req, res) => {
     try {
+      const emailStats = emailSyncService ? emailSyncService.getStats() : null;
+      const automationStats = automationEngine ? automationEngine.getStats() : null;
+      const draftStats = draftSyncService ? draftSyncService.getStats() : null;
+      
       res.json({
         timestamp: new Date().toISOString(),
-        services: syncStatus,
+        services: {
+          email: {
+            status: emailSyncService?.isRunning ? 'active' : 'idle',
+            lastSync: emailStats?.lastSyncTime,
+            totalSynced: emailStats?.totalSynced || 0,
+            lastSyncedRowId: emailStats?.lastSyncedRowId || 0,
+            isRunning: emailStats?.isRunning || false
+          },
+          automation: {
+            status: automationEngine?.isRunning ? 'active' : 'idle',
+            totalRules: automationStats?.totalRules || 0,
+            activeRules: automationStats?.activeRules || 0,
+            totalExecutions: automationStats?.totalExecutions || 0,
+            successfulExecutions: automationStats?.successfulExecutions || 0,
+            failedExecutions: automationStats?.failedExecutions || 0,
+            lastExecutionTime: automationStats?.lastExecutionTime
+          },
+          drafts: draftStats ? {
+            status: draftStats.isActive ? 'active' : 'idle',
+            lastSync: draftStats.lastSyncTime,
+            pendingDrafts: draftStats.pendingDrafts || 0,
+            syncedDrafts: draftStats.syncedDrafts || 0
+          } : null
+        },
         overall: calculateOverallStatus()
       });
     } catch (error) {
@@ -63,36 +107,116 @@ router.post('/trigger',
   generalLimiter,
   async (req, res) => {
     try {
-      const { service } = req.body;
+      const { service, type = 'incremental' } = req.body;
       
-      if (!service || !['email', 'tasks', 'all'].includes(service)) {
+      if (!service || !['email', 'drafts', 'all'].includes(service)) {
         return res.status(400).json({
-          error: 'Invalid service. Must be: email, tasks, or all'
+          error: 'Invalid service. Must be: email, drafts, or all'
         });
       }
       
-      // Trigger sync based on service
+      const results = {};
+      
+      // Trigger email sync
       if (service === 'all' || service === 'email') {
-        syncStatus.email.status = 'syncing';
-        syncStatus.email.lastSync = new Date().toISOString();
-        // Trigger actual email sync here
+        if (emailSyncService) {
+          if (type === 'full') {
+            results.email = await emailSyncService.performFullSync();
+          } else {
+            results.email = await emailSyncService.performIncrementalSync();
+          }
+        } else {
+          results.email = { error: 'Email sync service not initialized' };
+        }
       }
       
-      if (service === 'all' || service === 'tasks') {
-        syncStatus.tasks.status = 'syncing';
-        syncStatus.tasks.lastSync = new Date().toISOString();
-        // Trigger actual task sync here
+      // Trigger draft sync (Mac only)
+      if (service === 'all' || service === 'drafts') {
+        if (draftSyncService) {
+          results.drafts = await draftSyncService.syncDrafts();
+        } else {
+          results.drafts = { error: 'Draft sync not available (Mac only)' };
+        }
       }
       
       res.json({
         success: true,
         message: `Sync triggered for ${service}`,
-        status: syncStatus
+        type,
+        results
       });
     } catch (error) {
       console.error('❌ Error triggering sync:', error);
       res.status(500).json({ 
         error: 'Failed to trigger sync',
+        message: error.message
+      });
+    }
+  }
+);
+
+/**
+ * Start continuous sync
+ * POST /api/sync/start
+ */
+router.post('/start',
+  authenticateToken,
+  generalLimiter,
+  async (req, res) => {
+    try {
+      const { service } = req.body;
+      
+      if (service === 'email' && emailSyncService) {
+        await emailSyncService.start();
+      } else if (service === 'drafts' && draftSyncService) {
+        await draftSyncService.start();
+      } else if (service === 'all') {
+        if (emailSyncService) await emailSyncService.start();
+        if (draftSyncService) await draftSyncService.start();
+      }
+      
+      res.json({
+        success: true,
+        message: `Continuous sync started for ${service}`
+      });
+    } catch (error) {
+      console.error('❌ Error starting sync:', error);
+      res.status(500).json({ 
+        error: 'Failed to start sync',
+        message: error.message
+      });
+    }
+  }
+);
+
+/**
+ * Stop continuous sync
+ * POST /api/sync/stop
+ */
+router.post('/stop',
+  authenticateToken,
+  generalLimiter,
+  async (req, res) => {
+    try {
+      const { service } = req.body;
+      
+      if (service === 'email' && emailSyncService) {
+        await emailSyncService.stop();
+      } else if (service === 'drafts' && draftSyncService) {
+        await draftSyncService.stop();
+      } else if (service === 'all') {
+        if (emailSyncService) await emailSyncService.stop();
+        if (draftSyncService) await draftSyncService.stop();
+      }
+      
+      res.json({
+        success: true,
+        message: `Continuous sync stopped for ${service}`
+      });
+    } catch (error) {
+      console.error('❌ Error stopping sync:', error);
+      res.status(500).json({ 
+        error: 'Failed to stop sync',
         message: error.message
       });
     }

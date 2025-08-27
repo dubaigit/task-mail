@@ -8,18 +8,102 @@ const api = axios.create({
   },
 });
 
+// API Endpoints matching new backend services
+export const endpoints = {
+  // Email endpoints
+  emails: {
+    list: '/emails',
+    get: (id: string) => `/emails/${id}`,
+    search: '/emails/search',
+    markAsRead: (id: string) => `/emails/${id}/read`,
+    classify: '/ai/classify-email',
+    generateDraft: '/ai/generate-draft',
+    searchWithAI: '/ai/search-emails',
+  },
+  
+  // Task endpoints
+  tasks: {
+    list: '/tasks',
+    create: '/tasks',
+    update: (id: string) => `/tasks/${id}`,
+    delete: (id: string) => `/tasks/${id}`,
+    generateFromEmail: '/ai/generate-tasks',
+  },
+  
+  // Sync endpoints (Enhanced)
+  sync: {
+    status: '/sync/status',
+    trigger: '/sync/trigger',
+    start: '/sync/start',
+    stop: '/sync/stop',
+    history: '/sync/history',
+  },
+  
+  // Automation endpoints (NEW)
+  automation: {
+    rules: '/automation/rules',
+    getRule: (id: string) => `/automation/rules/${id}`,
+    createRule: '/automation/rules',
+    updateRule: (id: string) => `/automation/rules/${id}`,
+    deleteRule: (id: string) => `/automation/rules/${id}`,
+    toggleRule: (id: string) => `/automation/rules/${id}/toggle`,
+    testRule: '/automation/test',
+    processEmail: '/automation/process-email',
+    templates: '/automation/templates',
+    stats: '/automation/stats',
+  },
+  
+  // AI endpoints (Enhanced with GPTService)
+  ai: {
+    classifyEmail: '/ai/classify-email',
+    generateDraft: '/ai/generate-draft',
+    searchEmails: '/ai/search-emails',
+    generateTasks: '/ai/generate-tasks',
+    processAutomation: '/ai/process-automation',
+    usageStats: '/ai/usage-stats',
+  },
+  
+  // Auth endpoints
+  auth: {
+    login: '/auth/login',
+    logout: '/auth/logout',
+    refresh: '/auth/refresh',
+    profile: '/user/profile',
+  },
+  
+  // Health & Stats
+  health: '/health',
+  stats: '/statistics/dashboard',
+};
+
 /**
  * Interceptor to add the Authorization header to every request.
- * The token is retrieved from memory (managed by AuthContext).
+ * The token is retrieved from localStorage and managed by AuthContext.
  */
 api.interceptors.request.use(
   (config) => {
-    // This is a placeholder. The actual token will be set by AuthContext.
-    // We're defining the structure here.
+    // Get token from localStorage
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)
 );
+
+// Function to set auth token (called from AuthContext)
+export const setAuthToken = (token: string) => {
+  localStorage.setItem('accessToken', token);
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+};
+
+// Function to clear auth token
+export const clearAuthToken = () => {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  delete api.defaults.headers.common['Authorization'];
+};
 
 /**
  * Sets up the response interceptor to handle 401 errors (expired tokens).

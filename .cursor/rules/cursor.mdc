@@ -1,0 +1,172 @@
+---
+description: Task Mail development rules with mandatory MCP server usage for Node.js/React/Supabase
+globs: **/*
+---
+
+# CURSOR MUST USE MCP SERVERS - NO NATIVE TOOLS
+
+## MCP Server Requirements
+- File operations: Use Serena MCP (mcp__serena__*) - NEVER use native ls/cat/read
+- Code editing: Use Morphllm MCP (mcp__morphllm-fast-apply__*) - NEVER use native editing
+- Analysis: Use Sequential MCP (mcp__sequential-thinking__*) - NEVER use basic reasoning
+- Browser testing: Use Playwright MCP (mcp__playwright__*) - NEVER use manual testing
+- Documentation: Use Firecrawl MCP (mcp__firecrawl__*) - NEVER use basic web search
+
+## Task Mail Stack
+Node.js/Express + React 18/TypeScript + Supabase + GPT-5
+- EnhancedAppleMailSync: Read-only Apple Mail SQLite
+- GPTService: AI classification/RAG (GPT-5 mini/nano)
+- AutomationEngine: Rule processing
+- DraftSyncService: AppleScript automation (Mac-only)
+
+## Development Standards
+- Complete all implementations - no TODO/stub functions
+- Follow existing patterns and maintain consistency
+- Use PM2 for process management (not manual node/& processes)
+- Feature branches only - never work directly on main
+- Run lint/typecheck before task completion
+
+## File Organization
+- Tests: `tests/`, `__tests__/`, `test/` directories only
+- Scripts: `scripts/`, `tools/`, `bin/` directories
+- No scattered test files or utility scripts
+
+## MCP Tool Commands
+
+**For file operations - Use Serena MCP:**
+```
+mcp__serena__list_dir
+mcp__serena__find_file
+mcp__serena__get_symbols_overview
+mcp__serena__find_symbol
+```
+
+**For code editing - Use Morphllm MCP:**
+```
+mcp__morphllm-fast-apply__edit_file
+mcp__morphllm-fast-apply__read_file
+mcp__morphllm-fast-apply__write_file
+```
+
+**For analysis - Use Sequential MCP:**
+```
+mcp__sequential-thinking__sequentialthinking
+```
+
+**For browser testing - Use Playwright MCP:**
+```
+mcp__playwright__browser_console_messages  # ALWAYS check first - debug errors before proceeding
+mcp__playwright__browser_navigate
+mcp__playwright__browser_click
+mcp__playwright__browser_snapshot
+```
+
+## MCP Tool Usage Workflows - FOLLOW THESE SEQUENCES
+
+### 1. Code Analysis Workflow
+```
+STEP 1: Serena → mcp__serena__get_symbols_overview (understand structure)
+STEP 2: Sequential → mcp__sequential-thinking__sequentialthinking (analyze patterns)
+STEP 3: Serena → mcp__serena__find_symbol (target specific code)
+STEP 4: Morphllm → mcp__morphllm-fast-apply__read_file (examine implementation)
+```
+
+### 2. Code Editing Workflow  
+```
+STEP 1: Serena → mcp__serena__find_symbol (locate target)
+STEP 2: Morphllm → mcp__morphllm-fast-apply__read_file (understand context)
+STEP 3: Morphllm → mcp__morphllm-fast-apply__edit_file (make changes)
+STEP 4: Serena → mcp__serena__find_referencing_symbols (check impacts)
+```
+
+### 3. Multi-File Operations
+```
+STEP 1: Serena → mcp__serena__list_dir (scan project structure)
+STEP 2: Smart-Tree → mcp__smart-tree__find_code_files (identify targets)
+STEP 3: Morphllm → mcp__morphllm-fast-apply__read_multiple_files (batch read)
+STEP 4: Sequential → mcp__sequential-thinking__sequentialthinking (plan changes)
+STEP 5: Morphllm → mcp__morphllm-fast-apply__edit_file (apply systematically)
+```
+
+### 4. Testing Workflow
+```
+STEP 1: Playwright → mcp__playwright__browser_console_messages (MANDATORY FIRST)
+STEP 2: Fix console errors if any exist
+STEP 3: Playwright → mcp__playwright__browser_navigate (go to page)
+STEP 4: Playwright → mcp__playwright__browser_snapshot (understand UI)
+STEP 5: Playwright → mcp__playwright__browser_click (interact)
+STEP 6: Playwright → mcp__playwright__browser_console_messages (verify no errors)
+```
+
+### 5. Research & Documentation
+```
+STEP 1: Firecrawl → mcp__firecrawl__firecrawl_search (find information)
+STEP 2: Firecrawl → mcp__firecrawl__firecrawl_scrape (get specific content)  
+STEP 3: Sequential → mcp__sequential-thinking__sequentialthinking (synthesize)
+STEP 4: Morphllm → mcp__morphllm-fast-apply__write_file (document findings)
+```
+
+### 6. Problem Debugging
+```
+STEP 1: Smart-Tree → mcp__smart-tree__project_overview (understand scope)
+STEP 2: Serena → mcp__serena__search_for_pattern (find error patterns)
+STEP 3: Sequential → mcp__sequential-thinking__sequentialthinking (analyze root cause)
+STEP 4: Zen → mcp__zen__debug (deep investigation if complex)
+STEP 5: Morphllm → mcp__morphllm-fast-apply__edit_file (fix implementation)
+```
+
+## MCP Tool Selection Decision Tree
+
+**File Operations:**
+- Directory listing → Serena mcp__serena__list_dir
+- File searching → Smart-Tree mcp__smart-tree__find_code_files  
+- Reading files → Morphllm mcp__morphllm-fast-apply__read_file
+- Symbol operations → Serena mcp__serena__find_symbol
+
+**Code Changes:**
+- Single file edit → Morphllm mcp__morphllm-fast-apply__edit_file
+- Multiple files → Morphllm batch operations
+- Symbol refactoring → Serena + Morphllm sequence
+- Pattern changes → Morphllm mcp__morphllm-fast-apply__edit_file
+
+**Analysis Tasks:**
+- Simple reasoning → Sequential mcp__sequential-thinking__sequentialthinking
+- Complex debugging → Zen mcp__zen__debug
+- Code review → Zen mcp__zen__codereview
+- Architecture analysis → Zen mcp__zen__analyze
+
+**Testing & Validation:**
+- Browser testing → Playwright (console first!)
+- API testing → Embedded-Jupyter mcp__embedded-jupyter__run_python_code
+- Database testing → Morphllm + Sequential
+
+**Research & External:**
+- Web research → Firecrawl mcp__firecrawl__firecrawl_search
+- Documentation → Firecrawl mcp__firecrawl__firecrawl_scrape
+- API exploration → Embedded-Jupyter Python scripts
+
+## Playwright Testing Workflow
+1. ALWAYS check console first: `mcp__playwright__browser_console_messages`
+2. Fix any console errors before proceeding with tests
+3. Return to testing workflow after errors resolved
+
+## Task Mail Development Commands
+
+```bash
+# Setup
+npm install && npm run install:frontend && npm run build:frontend
+
+# Development
+pm2 start ecosystem.config.js          # Full stack
+node server.js                         # Backend only (port 8000)
+cd dashboard/frontend && npm start     # Frontend only (port 3000)
+
+# Testing
+npm test                               # Backend Jest
+npm run test:database                  # DB integration
+cd dashboard/frontend && npm test      # Frontend React
+npm run test:e2e                       # Playwright E2E
+
+# Database
+npm run db:init                        # Initialize Supabase schema
+```

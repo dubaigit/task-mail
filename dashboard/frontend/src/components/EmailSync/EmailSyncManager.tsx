@@ -1,6 +1,7 @@
 import { TaskStatus, TaskPriority, TaskCategory } from '../../types';
 import React, { useState, useEffect, useCallback } from 'react';
 import { RefreshCw, Play, Pause, Square, AlertCircle, CheckCircle, Clock, Database } from 'lucide-react';
+import api, { endpoints } from '../../services/api';
 import './EmailSyncManager.css';
 
 // Types for sync operations

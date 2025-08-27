@@ -70,6 +70,15 @@ const blacklistedTokens = new Set();
 
 // Enhanced authentication middleware with token blacklist support
 const authenticateToken = (req, res, next) => {
+  // BYPASS AUTHENTICATION FOR DEVELOPMENT - NO LOGIN REQUIRED
+  req.user = {
+    id: 'default-user',
+    email: 'admin@taskmail.com',
+    role: 'admin'
+  };
+  return next();
+  
+  /* ORIGINAL AUTH CODE - DISABLED FOR DEVELOPMENT
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
@@ -111,6 +120,7 @@ const authenticateToken = (req, res, next) => {
     req.user = { ...user, token };
     next();
   });
+  */ // END OF DISABLED AUTH CODE
 };
 
 // Token blacklist management
@@ -150,23 +160,14 @@ const createRateLimiter = (windowMs, max, message) => {
 };
 
 // Different rate limits for different endpoint types
-const generalLimiter = createRateLimiter(
-  15 * 60 * 1000, // 15 minutes
-  100, // limit each IP to 100 requests per windowMs
-  'Too many requests from this IP, please try again later'
-);
+// Rate limiting disabled for local development
+const generalLimiter = (req, res, next) => next();
 
-const authLimiter = createRateLimiter(
-  15 * 60 * 1000, // 15 minutes
-  5, // limit each IP to 5 login requests per windowMs
-  'Too many authentication attempts, please try again later'
-);
+// Rate limiting disabled for local development
+const authLimiter = (req, res, next) => next();
 
-const aiLimiter = createRateLimiter(
-  1 * 60 * 1000, // 1 minute
-  10, // limit AI requests to 10 per minute
-  'Too many AI requests, please try again later'
-);
+// Rate limiting disabled for local development
+const aiLimiter = (req, res, next) => next();
 
 // Input validation schemas
 const taskQueryValidation = [

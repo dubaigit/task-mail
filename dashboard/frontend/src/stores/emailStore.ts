@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { emailApi } from '../utils/apiClient';
+import api, { endpoints } from '../services/api';
 import { createStoreErrorHandler } from '../utils/errorHandler';
 
 export interface Email {
@@ -172,27 +172,28 @@ export const useEmailStore = create<EmailState>()(
           setError(null);
           
           try {
-            const response = await emailApi.getEmails();
-            if (response.error) {
-              throw new Error(response.error);
-            }
+            // Use new enhanced email endpoint
+            const response = await api.get(endpoints.emails.list);
+            const emails = response.data.data || response.data;
             
-            if (Array.isArray(response.data)) {
-              const processedEmails = response.data.map((email: any, index: number) => ({
+            if (Array.isArray(emails)) {
+              const processedEmails = emails.map((email: any, index: number) => ({
                 id: email.id || index,
                 subject: email.subject || 'No Subject',
                 sender: email.sender || 'Unknown Sender',
-                senderEmail: email.senderEmail || email.sender_email || '',
-                date: email.date || new Date().toISOString(),
-                classification: email.classification || 'UNCLASSIFIED',
-                urgency: email.urgency || 'LOW',
-                confidence: email.confidence || 0,
+                senderEmail: email.sender || email.sender_email || '',
+                recipient: email.to_recipients?.[0] || email.recipient || '',
+                date: email.date_received || email.date || new Date().toISOString(),
+                classification: email.category || email.classification || 'general',
+                urgency: email.priority?.toUpperCase() || email.urgency || 'MEDIUM',
+                confidence: email.ai_classification?.confidence || email.confidence || 0.5,
                 has_draft: email.has_draft || false,
-                preview: email.preview || email.content?.substring(0, 150) + '...' || '',
-                content: email.content || '',
-                isRead: email.isRead ?? email.is_read ?? false,
-                isStarred: email.isStarred ?? email.is_starred ?? false,
-                tags: email.tags || [],
+                preview: email.message_content?.substring(0, 150) + '...' || email.preview || '',
+                content: email.message_content || email.content || '',
+                isRead: email.is_read ?? email.isRead ?? false,
+                isStarred: email.is_flagged ?? email.isStarred ?? false,
+                tags: email.labels || email.tags || [],
+                estimatedResponseTime: email.estimated_response_time || '24 hours',
                 processed: email.processed ?? true
               }));
               
@@ -209,9 +210,9 @@ export const useEmailStore = create<EmailState>()(
           const { updateEmail, setError } = get();
           
           try {
-            const response = await emailApi.archiveEmail(id);
-            if (response.error) {
-              throw new Error(response.error);
+            const response = await api.post(`/emails/${id}/archive`);
+            if (response.data?.error) {
+              throw new Error(response.data.error);
             }
             
             // Remove from current view (or mark as archived)
@@ -225,9 +226,9 @@ export const useEmailStore = create<EmailState>()(
           const { updateEmail, setError } = get();
           
           try {
-            const response = await emailApi.markEmailAsRead(id);
-            if (response.error) {
-              throw new Error(response.error);
+            const response = await api.put(endpoints.emails.markAsRead(String(id)));
+            if (response.data?.error) {
+              throw new Error(response.data.error);
             }
             
             updateEmail(id, { isRead: true });
@@ -258,13 +259,36 @@ export const useEmailStore = create<EmailState>()(
           setError(null);
           
           try {
-            const response = await emailApi.searchEmails(query);
-            if (response.error) {
-              throw new Error(response.error);
-            }
+            // Use AI-powered search endpoint
+            const response = await api.post(endpoints.ai.searchEmails, {
+              query,
+              filters: {}
+            });
             
-            if (Array.isArray(response.data)) {
-              setEmails(response.data);
+            const searchResults = response.data.results || [];
+            
+            if (Array.isArray(searchResults)) {
+              const processedEmails = searchResults.map((email: any) => ({
+                id: email.id,
+                subject: email.subject || 'No Subject',
+                sender: email.sender || 'Unknown Sender',
+                senderEmail: email.sender || '',
+                recipient: email.to_recipients?.[0] || '',
+                date: email.date_received || new Date().toISOString(),
+                classification: email.category || 'general',
+                urgency: email.priority?.toUpperCase() || 'MEDIUM',
+                confidence: email.ai_classification?.confidence || 0.5,
+                has_draft: email.has_draft || false,
+                preview: email.message_content?.substring(0, 150) + '...' || '',
+                content: email.message_content || '',
+                isRead: email.is_read ?? false,
+                isStarred: email.is_flagged ?? false,
+                tags: email.labels || [],
+                estimatedResponseTime: email.estimated_response_time || '24 hours',
+                processed: email.processed ?? true
+              }));
+              
+              setEmails(processedEmails);
             }
           } catch (error) {
             setError(handleError(error, 'searchEmails'));

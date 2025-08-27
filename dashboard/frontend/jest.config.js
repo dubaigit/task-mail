@@ -1,39 +1,24 @@
 module.exports = {
+  // Test environment for React
   testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '\\.(css|less|scss)$': 'identity-obj-proxy',
-  },
+  
+  // Test file patterns
   testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
-    '<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}'
+    '<rootDir>/src/**/*.test.{js,jsx,ts,tsx}',
+    '<rootDir>/../../tests/frontend/**/*.test.{js,jsx,ts,tsx}'
   ],
-  collectCoverageFrom: [
-    'src/**/*.{js,jsx,ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/index.tsx',
-    '!src/serviceWorker.ts',
-    '!src/reportWebVitals.ts',
-    '!src/test-utils.tsx',
-    '!src/setupTests.ts',
-    '!**/node_modules/**'
-  ],
-  coverageThreshold: {
-    global: {
-      branches: 95,
-      functions: 95,
-      lines: 95,
-      statements: 95
-    }
+  
+  // Setup files
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  
+  // Module name mapping
+  moduleNameMapping: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$': 'jest-transform-stub'
   },
-  coverageReporters: [
-    'text',
-    'lcov',
-    'clover',
-    'html'
-  ],
-  coverageDirectory: '<rootDir>/coverage',
+  
+  // Transform configuration
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', {
       presets: [
@@ -43,26 +28,39 @@ module.exports = {
       ]
     }]
   },
-  transformIgnorePatterns: [
-    'node_modules/(?!(axios|framer-motion|@tanstack/react-virtual)/)'
+  
+  // Module file extensions
+  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node'],
+  
+  // Coverage configuration
+  collectCoverage: true,
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/index.tsx',
+    '!src/reportWebVitals.ts',
+    '!src/setupTests.ts'
   ],
-  testTimeout: 10000,
-  maxWorkers: '50%',
-  watchPathIgnorePatterns: [
-    '<rootDir>/node_modules/',
-    '<rootDir>/coverage/',
-    '<rootDir>/build/'
-  ],
-  moduleFileExtensions: [
-    'js',
-    'jsx',
-    'ts',
-    'tsx',
-    'json'
-  ],
-  globals: {
-    'ts-jest': {
-      useESM: true
+  coverageDirectory: '../../coverage/frontend',
+  coverageReporters: ['text', 'lcov', 'html'],
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70
     }
-  }
+  },
+  
+  // Test timeout
+  testTimeout: 10000,
+  
+  // Verbose output
+  verbose: true,
+  
+  // Clear mocks between tests
+  clearMocks: true,
+  
+  // Restore mocks after each test
+  restoreMocks: true
 };

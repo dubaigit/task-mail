@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
-import api, { setupInterceptors } from '../services/api';
+import api, { setupInterceptors, setAuthToken, clearAuthToken } from '../services/api';
 
 interface User {
   id: string;
@@ -27,14 +27,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = useCallback(() => {
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken) {
-      api.post('/api/auth/logout', { refreshToken }).catch(_err => {
+      api.post('/auth/logout', { refreshToken }).catch(_err => {
         // Failed to revoke token on server
       });
     }
     setUser(null);
     setAccessToken(null);
-    localStorage.removeItem('refreshToken');
-    delete api.defaults.headers.common['Authorization'];
+    localStorage.removeItem('accessToken'); // Clear access token
+    localStorage.removeItem('refreshToken'); // Clear refresh token
+    clearAuthToken(); // Use the new clearAuthToken function
   }, []);
 
   useEffect(() => {
@@ -44,15 +45,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Try to restore session on initial load
     const restoreSession = async () => {
       const refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken) {
+      const storedAccessToken = localStorage.getItem('accessToken');
+      
+      // If we have both tokens, try to restore session
+      if (refreshToken && storedAccessToken) {
         try {
-          const { data } = await api.post('/api/auth/refresh', { refreshToken });
-          setAccessToken(data.accessToken);
+          // First try to use the stored access token
+          setAuthToken(storedAccessToken);
+          
+          // Verify the token is still valid by making a simple request
+          const { data } = await api.get('/auth/me');
+          setAccessToken(storedAccessToken);
           setUser(data.user);
         } catch (error) {
-          // Could not refresh session. User needs to log in.
-          logout(); // Clear any invalid tokens
+          // Access token invalid, try refresh
+          try {
+            const { data } = await api.post('/auth/refresh', { refreshToken });
+            setAccessToken(data.accessToken);
+            setUser(data.user);
+            setAuthToken(data.accessToken);
+            localStorage.setItem('accessToken', data.accessToken);
+          } catch (refreshError) {
+            // Refresh failed, clear everything
+            logout();
+          }
         }
+      } else {
+        // No tokens available, ensure we're logged out
+        logout();
       }
       setIsLoading(false);
     };
@@ -69,12 +89,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const { data } = await api.post('/api/auth/login', { email, password });
-      const { accessToken, refreshToken, user } = data;
+      const { data } = await api.post('/auth/login', { email, password });
+      const { accessToken, refreshToken, user } = data.data; // Note: response has nested data
       
       setAccessToken(accessToken);
       setUser(user);
+      localStorage.setItem('accessToken', accessToken); // Store access token
       localStorage.setItem('refreshToken', refreshToken);
+      setAuthToken(accessToken); // Use the new setAuthToken function
     } catch (error) {
       // Re-throw the error so the login component can handle it
       throw error;

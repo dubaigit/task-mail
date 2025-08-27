@@ -642,7 +642,7 @@ const TaskDashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-40px)]">
           
           {/* Left Sidebar - Stats and Controls - Fixed/Static */}
-          <div className="lg:col-span-3 space-y-4 overflow-hidden animate-fade-in-left">
+          <div className="lg:col-span-2 space-y-4 overflow-hidden animate-fade-in-left">
             <AccessibleCard variant="glass" className="p-4 sticky top-0 animate-scale-in">
               {/* Task Details and Statistics */}
               <TaskDetailsStats
@@ -697,7 +697,7 @@ const TaskDashboard: React.FC = () => {
           </div>
 
           {/* Main Content Area - Tasks - Scrollable */}
-          <div className="lg:col-span-6 overflow-y-auto animate-fade-in-up">
+          <div className="lg:col-span-8 overflow-y-auto animate-fade-in-up">
             <AccessibleCard variant="glass" className="p-6 h-full animate-scale-in-center animate-stagger-1">
             {/* Default view when no specific content - removed welcome text */}
             {tasks.length === 0 && !loading && (
@@ -912,7 +912,7 @@ const TaskDashboard: React.FC = () => {
           </div>
 
           {/* Right Sidebar - Enhanced Analytics and AI Insights - Fixed/Static */}
-          <div className="lg:col-span-3 space-y-4 overflow-y-auto animate-fade-in-right">
+          <div className="lg:col-span-2 space-y-4 overflow-y-auto animate-fade-in-right">
             <AccessibleCard variant="glass" className="p-4 sticky top-0 animate-scale-in animate-stagger-2">
               
               {/* Task Flow Header */}
@@ -926,9 +926,9 @@ const TaskDashboard: React.FC = () => {
                 </p>
                 {syncStatus && (
                   <div className="flex items-center gap-2 mt-2">
-                    <div className={`w-2 h-2 rounded-full ${syncStatus.syncState.isSyncing ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'}`}></div>
+                    <div className={`w-2 h-2 rounded-full ${syncStatus.syncState?.isSyncing ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'}`}></div>
                     <span className="text-xs text-slate-400">
-                      {syncStatus.syncState.isSyncing ? 'Syncing...' : 'All systems operational'}
+                      {syncStatus.syncState?.isSyncing ? 'Syncing...' : 'All systems operational'}
                     </span>
                   </div>
                 )}
@@ -1060,10 +1060,10 @@ const TaskDashboard: React.FC = () => {
                         handleTaskClick(drafts[0]);
                       }
                     }}
-                    className="w-full p-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/30 rounded-lg text-left transition-colors">
+                    className="w-full p-1 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/30 rounded-lg text-left transition-colors">
                     <div className="flex items-center gap-2">
                       <OptimizedIcon name="link" size={12} className="text-emerald-400" />
-                      <span className="text-xs text-emerald-200">Review Draft Replies</span>
+                      <span className="text-xs text-emerald-100">Review Draft Replies</span>
                     </div>
                   </button>
                   <button className="w-full p-2 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-400/30 rounded-lg text-left transition-colors">

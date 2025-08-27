@@ -29,22 +29,16 @@ class SQLSanitizer {
   }
 }
 
-// Rate limiting configuration
+// Rate limiting disabled for local development
 const createRateLimiter = (windowMs, max, message) => {
-  return rateLimit({
-    windowMs,
-    max,
-    message: { error: message },
-    standardHeaders: true,
-    legacyHeaders: false,
-  });
+  return (req, res, next) => next();
 };
 
-// Database rate limiters
+// Database rate limiters - disabled for local development
 const dbRateLimiters = {
-  general: createRateLimiter(15 * 60 * 1000, 100, 'Too many database requests'),
-  auth: createRateLimiter(15 * 60 * 1000, 5, 'Too many authentication attempts'),
-  search: createRateLimiter(1 * 60 * 1000, 20, 'Too many search requests'),
+  general: (req, res, next) => next(),
+  auth: (req, res, next) => next(),
+  search: (req, res, next) => next(),
 };
 
 module.exports = {

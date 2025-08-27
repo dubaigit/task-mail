@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { emailApi } from '../utils/apiClient';
+import api, { endpoints } from '../services/api';
 import { createStoreErrorHandler } from '../utils/errorHandler';
 
 export interface RefinementAction {
@@ -157,11 +157,14 @@ export const useAIStore = create<AIState>()(
           
           try {
             const mergedOptions = { ...draftOptions, ...options };
-            const response = await emailApi.generateDraft(emailId, mergedOptions);
+            const response = await api.post(endpoints.ai.generateDraft, {
+              email: { id: emailId },
+              context: mergedOptions
+            });
             
-            if (response.error) {
-              throw new Error(response.error);
-            }
+                  if (response.data?.error) {
+        throw new Error(response.data.error);
+      }
             
             if (response.data) {
               const responseData = response.data as any;
@@ -208,11 +211,11 @@ export const useAIStore = create<AIState>()(
               changes: instruction,
             });
             
-            const response = await emailApi.refineDraft(draftId, instruction);
+            const response = await api.post(`/drafts/${draftId}/refine`, { instruction });
             
-            if (response.error) {
-              throw new Error(response.error);
-            }
+                  if (response.data?.error) {
+        throw new Error(response.data.error);
+      }
             
             if (response.data) {
               const responseData = response.data as any;
@@ -248,11 +251,11 @@ export const useAIStore = create<AIState>()(
           const { setError } = get();
           
           try {
-            const response = await emailApi.sendDraft(draftId);
+            const response = await api.post(`/drafts/${draftId}/send`);
             
-            if (response.error) {
-              throw new Error(response.error);
-            }
+                  if (response.data?.error) {
+        throw new Error(response.data.error);
+      }
             
             // Clear the current draft after sending
             set({ currentDraft: null });
