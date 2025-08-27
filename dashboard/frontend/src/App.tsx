@@ -6,7 +6,7 @@ import TaskList from './components/Tasks/TaskListUpdated';
 import DraftList from './components/Drafts/DraftList';
 import Analytics from './components/Analytics/Analytics';
 import TaskDashboard from './components/TaskCentric/TaskDashboard';
-import EmailManagement2025 from './components/EmailManagement2025';
+import MainDashboard from './components/MainDashboard';
 import Login from './components/Auth/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -111,8 +111,8 @@ function App() {
                   
                   {/* Protected Routes */}
                   <Route element={<ProtectedRoute />}>
-                    <Route path="/" element={<EmailManagement2025 />} />
-                    <Route path="/taskmail" element={<EmailManagement2025 />} />
+                    <Route path="/" element={<MainDashboard />} />
+                    <Route path="/taskmail" element={<MainDashboard />} />
                     <Route path="/original" element={<TaskDashboard />} />
                     <Route path="/dashboard" element={<DashboardLayout />}>
                       <Route index element={<Navigate to="/" replace />} />

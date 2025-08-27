@@ -1,634 +1,835 @@
-import React, { Suspense, lazy, useState, useCallback, useEffect, useMemo } from 'react';
-import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import Button from './ui/ModernButton';
-import { StatusBadge as Badge } from './ui/TaskCard/components/StatusBadge';
-import { Skeleton } from './ui/skeleton';
-import { 
-  LayoutDashboard, 
-  CheckSquare, 
-  Mail, 
-  BarChart3, 
-  Settings,
-  Search,
-  Filter,
-  Plus,
-  RefreshCw,
-  Users,
-  Calendar,
-  Target,
-  TrendingUp,
-  Activity,
-  Clock,
-  Star,
-  Archive,
-  AlertTriangle
-} from 'lucide-react';
-import { cn } from '../lib/utils';
-import { useTaskStore } from '../stores/taskStore';
-import { useEmailStore, Email } from '../stores/emailStore';
-import { useAIStore } from '../stores/aiStore';
-import { Task, TaskStatus, TaskPriority } from '../types';
-import { 
-  usePerformanceOptimization, 
-  optimizeComponent, 
-  performanceMeasurement 
-} from '../hooks/usePerformanceOptimization';
-import { 
-  LazyTaskKanbanBoard,
-  LazyAnalytics,
-  LazyEmailList,
-  LazyConversationalAIPanel,
-  LazyDraftGenerationInterface,
-  LazyPerformanceAnalytics,
-  bundleOptimization
-} from './MainDashboard/LazyLoadedPanels';
-import OptimizedTaskList from './MainDashboard/OptimizedTaskList';
+import React, { useState } from 'react';
 
-// Loading component for Suspense fallbacks
-const LoadingFallback = ({ message = "Loading..." }: { message?: string }) => (
-  <div className="flex flex-col space-y-4 p-6">
-    <Skeleton className="h-8 w-1/3" />
-    <div className="space-y-2">
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-5/6" />
-      <Skeleton className="h-4 w-4/6" />
-    </div>
-    <div className="flex items-center justify-center py-8">
-      <RefreshCw className="w-6 h-6 animate-spin mr-2" />
-      <span className="text-muted-foreground">{message}</span>
-    </div>
-  </div>
-);
-
-// Error fallback component
-const ErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => (
-  <Card className="border-red-200 bg-red-50">
-    <CardHeader>
-      <CardTitle className="flex items-center text-red-600">
-        <AlertTriangle className="w-5 h-5 mr-2" />
-        Something went wrong
-      </CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p className="text-sm text-red-700 mb-4">{error.message}</p>
-      <Button onClick={resetErrorBoundary}  variant="outline">
-        Try again
-      </Button>
-    </CardContent>
-  </Card>
-);
-
-// Performance metrics interface
-interface PerformanceMetrics {
-  tasksCompleted: number;
-  emailsProcessed: number;
-  aiInteractions: number;
-  productivity: number;
-  responseTime: number;
-}
-
-// Main dashboard interface
-interface DashboardView {
-  id: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  component: React.ComponentType<any>;
-  badge?: number;
-}
-
-export const MainDashboard: React.FC = optimizeComponent.memo(() => {
-  // Performance optimization hooks
-  const { 
-    useDebouncedSearch, 
-    useMemoryMonitoring, 
-    trackBundleSize 
-  } = usePerformanceOptimization();
-  
-  // Performance measurement
-  const renderTimer = performanceMeasurement.measureRenderTime('MainDashboard');
-
-  // Store hooks
-  const { 
-    tasks, 
-    addTask, 
-    updateTask, 
-    deleteTask,
-    getFilteredTasks,
-    getTasksByStatus,
-    searchTasks,
-    getProductivityMetrics,
-    loading: tasksLoading 
-  } = useTaskStore();
-  
-  // Derive computed values
-  const completedTasks = tasks.filter(t => t.status === "COMPLETED" || t.status === "DONE");
-  const metrics = getProductivityMetrics();
-  const overdueTasks = metrics.overdueTasks;
-  
-  const { 
-    emails, 
-    loading: emailsLoading,
-    fetchEmails
-  } = useEmailStore();
-  
-  const unreadCount = emails.filter(e => !e.isRead).length;
-  
-  const { 
-    drafts, 
-    isGenerating, 
-    currentDraft
-  } = useAIStore();
-
-  // Local state
-  const [activeView, setActiveView] = useState<string>('overview');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState<TaskStatus | 'all'>('all');
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [userInteractionHistory, setUserInteractionHistory] = useState<string[]>([]);
-
-  // Memory monitoring
-  const memoryUsage = useMemoryMonitoring();
-
-  // Performance metrics calculation
-  const performanceMetrics = useMemo<PerformanceMetrics>(() => {
-    return {
-      tasksCompleted: completedTasks.length,
-      emailsProcessed: emails.filter(email => email.tags?.includes('processed')).length,
-      aiInteractions: drafts.length,
-      productivity: Math.round((completedTasks.length / Math.max(tasks.length, 1)) * 100),
-      responseTime: 0 // Placeholder
-    };
-  }, [tasks, completedTasks, emails, drafts]);
-
-  // Task statistics
-  const taskStats = useMemo(() => ({
-    total: tasks.length,
-    completed: completedTasks.length,
-    pending: tasks.filter(t => t.status === "TODO").length,
-    inProgress: tasks.filter(t => t.status === "IN_PROGRESS").length,
-    overdue: overdueTasks
-  }), [tasks, completedTasks, overdueTasks]);
-
-  // Optimized search with debouncing
-  const debouncedSearch = useDebouncedSearch(useCallback((query: string) => {
-    setSearchQuery(query);
-  }, []), 300);
-
-  // Filtered tasks based on search and filter
-  const filteredTasks = useMemo(() => {
-    let result = tasks;
-    
-    if (searchQuery) {
-      result = searchTasks(searchQuery);
+const MainDashboard = () => {
+  // Sample email data with proper task categories
+  const [emails] = useState([
+    {
+      id: 1,
+      subject: 'Project Proposal Review',
+      sender: 'sarah.johnson@company.com',
+      preview: 'Please review the attached proposal for the Q4 marketing campaign...',
+      time: '2 hours ago',
+      isRead: false,
+      category: 'needs-reply',
+      taskType: 'review',
+      priority: 'high',
+      status: 'urgent'
+    },
+    {
+      id: 2,
+      subject: 'Meeting Follow-up',
+      sender: 'mike.chen@startup.io',
+      preview: 'Thanks for the productive meeting today. Here are the action items...',
+      time: '4 hours ago',
+      isRead: true,
+      category: 'follow-up',
+      taskType: 'follow-up',
+      priority: 'medium',
+      status: 'pending'
+    },
+    {
+      id: 3,
+      subject: 'Budget Approval Request',
+      sender: 'finance@company.com',
+      preview: 'Please approve the Q1 budget allocation for the marketing department...',
+      time: '1 day ago',
+      isRead: false,
+      category: 'approval-required',
+      taskType: 'approval',
+      priority: 'high',
+      status: 'action-required'
+    },
+    {
+      id: 4,
+      subject: 'Team Meeting Agenda',
+      sender: 'hr@company.com',
+      preview: 'Weekly team meeting scheduled for Friday at 2 PM...',
+      time: '2 days ago',
+      isRead: true,
+      category: 'meetings',
+      taskType: 'meeting',
+      priority: 'medium',
+      status: 'pending'
+    },
+    {
+      id: 5,
+      subject: 'Task Assignment',
+      sender: 'project.manager@company.com',
+      preview: 'Please delegate the following tasks to your team members...',
+      time: '3 days ago',
+      isRead: false,
+      category: 'delegate',
+      taskType: 'delegation',
+      priority: 'medium',
+      status: 'pending'
+    },
+    {
+      id: 6,
+      subject: 'Company Newsletter',
+      sender: 'newsletter@company.com',
+      preview: 'Monthly company updates and announcements...',
+      time: '1 week ago',
+      isRead: true,
+      category: 'fyi-only',
+      taskType: 'information',
+      priority: 'low',
+      status: 'completed'
     }
-    
-    if (filterStatus !== 'all') {
-      result = getFilteredTasks();
-    }
-    
-    return result;
-  }, [tasks, searchQuery, filterStatus, searchTasks, getFilteredTasks]);
+  ]);
 
-  // Stable refresh callback
-  const handleRefresh = optimizeComponent.useStableCallback(async () => {
-    setIsRefreshing(true);
-    try {
-      await fetchEmails();
-      // Add other refresh logic here
-    } catch (error) {
-      console.error('Failed to refresh data:', error);
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [fetchEmails]);
-
-  // Track view changes for smart preloading
-  const handleViewChange = optimizeComponent.useStableCallback((viewId: string) => {
-    setActiveView(viewId);
-    setUserInteractionHistory(prev => [...prev.slice(-9), viewId]); // Keep last 10 interactions
-  }, []);
-
-  // Performance and bundle optimization effects
-  useEffect(() => {
-    renderTimer.start();
-    
-    // Preload critical components
-    bundleOptimization.preloadCritical();
-    
-    // Smart preload based on user history
-    if (userInteractionHistory.length > 0) {
-      bundleOptimization.smartPreload(userInteractionHistory);
-    }
-
-    return () => {
-      renderTimer.end();
-    };
-  }, []);
-
-  // Auto-refresh effect
-  useEffect(() => {
-    const interval = setInterval(handleRefresh, 300000); // 5 minutes
-    return () => clearInterval(interval);
-  }, [handleRefresh]);
-
-  // Prefetch non-critical components on idle
-  useEffect(() => {
-    bundleOptimization.prefetchOnIdle();
-  }, []);
-
-  // Dashboard views configuration
-  const dashboardViews: DashboardView[] = useMemo(() => [
-    {
-      id: 'overview',
-      label: 'Overview',
-      icon: LayoutDashboard,
-      component: OverviewPanel,
-      badge: overdueTasks ? (Array.isArray(overdueTasks) ? overdueTasks.length : 0) : 0
-    },
-    {
-      id: 'tasks',
-      label: 'Tasks',
-      icon: CheckSquare,
-      component: TasksPanel,
-      badge: filteredTasks.length
-    },
-    {
-      id: 'kanban',
-      label: 'Kanban',
-      icon: Target,
-      component: KanbanPanel
-    },
-    {
-      id: 'emails',
-      label: 'Emails',
-      icon: Mail,
-      component: EmailsPanel,
-      badge: unreadCount > 0 ? unreadCount : undefined
-    },
-    {
-      id: 'analytics',
-      label: 'Analytics',
-      icon: BarChart3,
-      component: AnalyticsPanel
-    },
-    {
-      id: 'ai-assistant',
-      label: 'AI Assistant',
-      icon: Activity,
-      component: AIAssistantPanel,
-      badge: isGenerating ? 1 : undefined
-    },
-    {
-      id: 'performance',
-      label: 'Performance',
-      icon: TrendingUp,
-      component: PerformancePanel
-    }
-  ], [overdueTasks, filteredTasks.length, unreadCount, isGenerating]);
-		
-
-  // Quick actions
-  const quickActions = [
-    {
-      label: 'New Task',
-      icon: Plus,
-      action: () => addTask({
-        id: '',
-        title: 'New Task',
-        description: '',
-        status: "TODO",
-        priority: "MEDIUM",
-        tags: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }),
-      shortcut: 'Ctrl+N'
-    },
-    {
-      label: 'Refresh',
-      icon: RefreshCw,
-      action: handleRefresh,
-      loading: isRefreshing,
-      shortcut: 'Ctrl+R'
-    },
-    {
-      label: 'Search',
-      icon: Search,
-      action: () => document.getElementById('search-input')?.focus(),
-      shortcut: 'Ctrl+K'
-    }
+  // Email task categories based on old design
+  const categories = [
+    { id: 'all', name: 'All Categories', count: emails.length, color: '#3B82F6' },
+    { id: 'needs-reply', name: 'Needs Reply', count: emails.filter(e => e.category === 'needs-reply').length, color: '#EF4444' },
+    { id: 'approval-required', name: 'Approval Required', count: emails.filter(e => e.category === 'approval-required').length, color: '#8B5CF6' },
+    { id: 'delegate', name: 'Delegate', count: emails.filter(e => e.category === 'delegate').length, color: '#6366F1' },
+    { id: 'follow-up', name: 'Follow Up', count: emails.filter(e => e.category === 'follow-up').length, color: '#10B981' },
+    { id: 'meetings', name: 'Meetings', count: emails.filter(e => e.category === 'meetings').length, color: '#06B6D4' },
+    { id: 'fyi-only', name: 'FYI Only', count: emails.filter(e => e.category === 'fyi-only').length, color: '#22C55E' }
   ];
 
+  // State management
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedEmail, setSelectedEmail] = useState<any>(null);
+  const [timeRange, setTimeRange] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [aiMessage, setAiMessage] = useState('');
+  const [showDraftModal, setShowDraftModal] = useState(false);
+  const [showAiChat, setShowAiChat] = useState(false);
+  const [aiChatHistory, setAiChatHistory] = useState([
+    { type: 'ai', message: 'Hello! I can help you manage emails, create drafts, send messages, and automate workflows. What would you like me to do?' }
+  ]);
+
+  // Filter emails based on selected criteria
+  const filteredEmails = emails.filter(email => {
+    const matchesCategory = selectedCategory === 'all' || email.category === selectedCategory;
+    const matchesStatus = statusFilter === 'all' || email.status === statusFilter;
+    const matchesSearch = searchTerm === '' || 
+      email.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      email.sender.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      email.preview.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return matchesCategory && matchesStatus && matchesSearch;
+  });
+
+  // Handle email selection
+  const handleEmailSelect = (email: any) => {
+    setSelectedEmail(email);
+    // Mark as read
+    email.isRead = true;
+  };
+
+  // Get status color
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'urgent': return { backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#F87171', border: '1px solid rgba(239, 68, 68, 0.3)' };
+      case 'pending': return { backgroundColor: 'rgba(245, 158, 11, 0.2)', color: '#FBBF24', border: '1px solid rgba(245, 158, 11, 0.3)' };
+      case 'action-required': return { backgroundColor: 'rgba(249, 115, 22, 0.2)', color: '#FB923C', border: '1px solid rgba(249, 115, 22, 0.3)' };
+      case 'draft': return { backgroundColor: 'rgba(59, 130, 246, 0.2)', color: '#60A5FA', border: '1px solid rgba(59, 130, 246, 0.3)' };
+      case 'completed': return { backgroundColor: 'rgba(34, 197, 94, 0.2)', color: '#4ADE80', border: '1px solid rgba(34, 197, 94, 0.3)' };
+      case 'archived': return { backgroundColor: 'rgba(107, 114, 128, 0.2)', color: '#9CA3AF', border: '1px solid rgba(107, 114, 128, 0.3)' };
+      default: return { backgroundColor: 'rgba(107, 114, 128, 0.2)', color: '#9CA3AF', border: '1px solid rgba(107, 114, 128, 0.3)' };
+    }
+  };
+
+  // Get priority icon
+  const getPriorityIcon = (priority: string) => {
+    switch (priority) {
+      case 'high': return '🔴';
+      case 'medium': return '🟡';
+      case 'low': return '🟢';
+      default: return '⚪';
+    }
+  };
+
+  // Handle AI message
+  const handleAIMessage = () => {
+    if (aiMessage.trim()) {
+      setAiChatHistory([...aiChatHistory, 
+        { type: 'user', message: aiMessage },
+        { type: 'ai', message: 'I\'ll help you create a draft. Opening the draft editor now.' }
+      ]);
+      setAiMessage('');
+      setShowDraftModal(true);
+    }
+  };
+
+  // Handle draft save
+  const handleDraftSave = () => {
+    setShowDraftModal(false);
+    setAiChatHistory([...aiChatHistory, 
+      { type: 'ai', message: 'Draft saved successfully! You can find it in your drafts folder.' }
+    ]);
+  };
+
   return (
-    <div className="flex h-screen bg-background">
-      {/* Performance indicator for development */}
-      {process.env.NODE_ENV === 'development' && memoryUsage > 0.8 && (
-        <div className="fixed top-4 right-4 z-50 bg-yellow-100 border border-yellow-300 rounded-lg p-2 text-xs text-yellow-800">
-          Memory usage: {(memoryUsage * 100).toFixed(1)}%
-        </div>
-      )}
-      
-      {/* Sidebar */}
-      <div className="w-64 border-r bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
-        <div className="p-4 border-b">
-          <div className="flex items-center space-x-2">
-            <LayoutDashboard className="w-6 h-6 text-primary" />
-            <h1 className="text-lg font-semibold">Dashboard</h1>
-          </div>
+    <div style={{ 
+      display: 'flex', 
+      height: '100vh', 
+      backgroundColor: '#121212', 
+      color: '#FFFFFF', 
+      fontFamily: 'Inter, system-ui, sans-serif' 
+    }}>
+      {/* Left Sidebar - Categories */}
+      <div style={{ 
+        width: '280px', 
+        backgroundColor: '#1E1E1E', 
+        borderRight: '1px solid #333333',
+        padding: '20px',
+        overflowY: 'auto'
+      }}>
+        <h2 style={{ 
+          fontSize: '18px', 
+          fontWeight: '600', 
+          marginBottom: '20px',
+          color: '#FFFFFF'
+        }}>Task Mail</h2>
+        
+        {/* Search */}
+        <div style={{ marginBottom: '20px' }}>
+          <input
+            type="text"
+            placeholder="Search emails..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#2A2A2A',
+              border: '1px solid #404040',
+              borderRadius: '6px',
+              color: '#FFFFFF',
+              fontSize: '14px'
+            }}
+          />
         </div>
 
-        {/* Quick Stats */}
-        <div className="p-4 border-b">
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="text-center p-2 rounded bg-primary/10">
-              <div className="font-semibold text-primary">{taskStats.total}</div>
-              <div className="text-muted-foreground">Tasks</div>
-            </div>
-            <div className="text-center p-2 rounded bg-green-100 dark:bg-green-900/20">
-              <div className="font-semibold text-green-700 dark:text-green-300">{performanceMetrics.productivity}%</div>
-              <div className="text-muted-foreground">Complete</div>
-            </div>
-            <div className="text-center p-2 rounded bg-blue-100 dark:bg-blue-900/20">
-              <div className="font-semibold text-blue-700 dark:text-blue-300">{unreadCount}</div>
-              <div className="text-muted-foreground">Emails</div>
-            </div>
-            <div className="text-center p-2 rounded bg-purple-100 dark:bg-purple-900/20">
-              <div className="font-semibold text-purple-700 dark:text-purple-300">{performanceMetrics.aiInteractions}</div>
-              <div className="text-muted-foreground">AI</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <nav className="p-2">
-          {dashboardViews.map((view) => (
+        {/* Categories */}
+        <div style={{ marginBottom: '30px' }}>
+          <h3 style={{ 
+            fontSize: '14px', 
+            fontWeight: '500', 
+            marginBottom: '12px',
+            color: '#9CA3AF',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>Categories</h3>
+          
+          {categories.map(category => (
             <button
-              key={view.id}
-              onClick={() => handleViewChange(view.id)}
-              className={cn(
-                "w-full flex items-center justify-between px-3 py-2 rounded-md text-left transition-colors",
-                activeView === view.id 
-                  ? "bg-primary text-primary-foreground shadow-sm" 
-                  : "hover:bg-muted"
-              )}
+              key={category.id}
+              onClick={() => setSelectedCategory(category.id)}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '12px 16px',
+                marginBottom: '8px',
+                backgroundColor: selectedCategory === category.id ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+                border: selectedCategory === category.id ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid transparent',
+                borderRadius: '8px',
+                color: '#FFFFFF',
+                fontSize: '14px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
             >
-              <div className="flex items-center space-x-3">
-                <view.icon className="w-4 h-4" />
-                <span className="text-sm font-medium">{view.label}</span>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: category.color,
+                  marginRight: '12px'
+                }} />
+                {category.name}
               </div>
-              {view.badge && (
-                <Badge variant={activeView === view.id ? "secondary" : "default"} >
-                  {view.badge}
-                </Badge>
-              )}
+              <span style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                fontSize: '12px',
+                fontWeight: '500'
+              }}>
+                {category.count}
+              </span>
             </button>
           ))}
-        </nav>
+        </div>
 
-        {/* Quick Actions */}
-        <div className="p-4 border-t mt-auto">
-          <div className="space-y-2">
-            {quickActions.map((action, index) => (
-              <Button
-                key={index}
-                onClick={action.action}
-                disabled={action.loading}
-                variant="outline"
-                
-                className="w-full justify-start"
-              >
-                {action.loading ? (
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <action.icon className="w-4 h-4 mr-2" />
-                )}
-                {action.label}
-                <span className="ml-auto text-xs text-muted-foreground">
-                  {action.shortcut}
-                </span>
-              </Button>
-            ))}
+        {/* Filters */}
+        <div style={{ marginBottom: '20px' }}>
+          <h3 style={{ 
+            fontSize: '14px', 
+            fontWeight: '500', 
+            marginBottom: '12px',
+            color: '#9CA3AF',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>Filters</h3>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '4px', display: 'block' }}>Time Range</label>
+            <select
+              value={timeRange}
+              onChange={(e) => setTimeRange(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                backgroundColor: '#2A2A2A',
+                border: '1px solid #404040',
+                borderRadius: '6px',
+                color: '#FFFFFF',
+                fontSize: '14px'
+              }}
+            >
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+            </select>
+          </div>
+
+          <div>
+            <label style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '4px', display: 'block' }}>Status</label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                backgroundColor: '#2A2A2A',
+                border: '1px solid #404040',
+                borderRadius: '6px',
+                color: '#FFFFFF',
+                fontSize: '14px'
+              }}
+            >
+              <option value="all">All Status</option>
+              <option value="urgent">Urgent</option>
+              <option value="pending">Pending</option>
+              <option value="action-required">Action Required</option>
+              <option value="draft">Draft</option>
+              <option value="completed">Completed</option>
+              <option value="archived">Archived</option>
+            </select>
           </div>
         </div>
+
+        {/* AI Assistant Button */}
+        <button
+          onClick={() => setShowAiChat(!showAiChat)}
+          style={{
+            width: '100%',
+            padding: '12px 16px',
+            backgroundColor: '#3B82F6',
+            border: 'none',
+            borderRadius: '8px',
+            color: '#FFFFFF',
+            fontSize: '14px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            marginBottom: '12px'
+          }}
+        >
+          🤖 AI Assistant
+        </button>
+
+        {/* New Draft Button */}
+        <button
+          onClick={() => setShowDraftModal(true)}
+          style={{
+            width: '100%',
+            padding: '12px 16px',
+            backgroundColor: '#10B981',
+            border: 'none',
+            borderRadius: '8px',
+            color: '#FFFFFF',
+            fontSize: '14px',
+            fontWeight: '500',
+            cursor: 'pointer'
+          }}
+        >
+          ✉️ New Draft
+        </button>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h2 className="text-xl font-semibold capitalize">{activeView.replace('-', ' ')}</h2>
-              {(tasksLoading || emailsLoading || isRefreshing) && (
-                <RefreshCw className="w-4 h-4 animate-spin text-muted-foreground" />
-              )}
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                  id="search-input"
-                  type="text"
-                  placeholder="Search tasks, emails..."
-                  value={searchQuery}
-                  onChange={(e) => debouncedSearch(e.target.value)}
-                  className="pl-10 pr-4 py-2 border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary w-80"
-                />
+      {/* Middle Panel - Email List */}
+      <div style={{ 
+        width: '400px', 
+        backgroundColor: '#1A1A1A',
+        borderRight: '1px solid #333333',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        <div style={{ 
+          padding: '20px',
+          borderBottom: '1px solid #333333'
+        }}>
+          <h2 style={{ 
+            fontSize: '16px', 
+            fontWeight: '600', 
+            margin: '0',
+            color: '#FFFFFF'
+          }}>
+            Email Tasks ({filteredEmails.length})
+          </h2>
+        </div>
+
+        <div style={{ 
+          flex: 1, 
+          overflowY: 'auto',
+          padding: '0'
+        }}>
+          {filteredEmails.map(email => (
+            <div
+              key={email.id}
+              onClick={() => handleEmailSelect(email)}
+              style={{
+                padding: '16px 20px',
+                borderBottom: '1px solid #333333',
+                cursor: 'pointer',
+                backgroundColor: selectedEmail?.id === email.id ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+                borderLeft: selectedEmail?.id === email.id ? '3px solid #3B82F6' : '3px solid transparent',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: categories.find(c => c.id === email.category)?.color || '#9CA3AF',
+                  marginRight: '8px'
+                }} />
+                <span style={{ 
+                  fontSize: '14px', 
+                  fontWeight: email.isRead ? '400' : '600',
+                  color: email.isRead ? '#D1D5DB' : '#FFFFFF',
+                  flex: 1
+                }}>
+                  {email.subject}
+                </span>
+                <span style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                  {email.time}
+                </span>
+              </div>
+              
+              <div style={{ 
+                fontSize: '12px', 
+                color: '#9CA3AF',
+                marginBottom: '8px'
+              }}>
+                {email.sender}
+              </div>
+              
+              <div style={{ 
+                fontSize: '13px', 
+                color: '#D1D5DB',
+                marginBottom: '8px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
+                {email.preview}
               </div>
 
-              {/* Filter */}
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as TaskStatus | 'all')}
-                className="px-3 py-2 border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              >
-                <option value="all">All Status</option>
-                <option value="TODO">To Do</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="COMPLETED">Completed</option>
-              </select>
-
-              <Button
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                
-                variant="outline"
-              >
-                <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
-              </Button>
-            </div>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="flex-1 overflow-auto bg-muted/20">
-          <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => window.location.reload()}>
-            <Suspense fallback={<LoadingFallback message="Loading dashboard..." />}>
-              {(() => {
-                const currentView = dashboardViews.find(view => view.id === activeView);
-                if (!currentView) return <div>View not found</div>;
-                
-                const Component = currentView.component;
-                return (
-                  <Component
-                    tasks={filteredTasks}
-                    emails={emails}
-                    performanceMetrics={performanceMetrics}
-                    searchQuery={searchQuery}
-                    onTaskUpdate={updateTask}
-                    onTaskDelete={deleteTask}
-                    onTaskAdd={addTask}
-                  />
-                );
-              })()}
-            </Suspense>
-          </ErrorBoundary>
-        </main>
-      </div>
-    </div>
-  );
-});
-
-// Panel Components
-const OverviewPanel: React.FC<any> = ({ tasks, emails, performanceMetrics }) => (
-  <div className="p-6 space-y-6">
-    {/* Performance Summary Cards */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium flex items-center">
-            <CheckSquare className="w-4 h-4 mr-2 text-green-600" />
-            Tasks Completed
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-green-600">{performanceMetrics.tasksCompleted}</div>
-          <p className="text-xs text-muted-foreground">
-            {performanceMetrics.productivity}% completion rate
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium flex items-center">
-            <Mail className="w-4 h-4 mr-2 text-blue-600" />
-            Emails Processed
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-blue-600">{performanceMetrics.emailsProcessed}</div>
-          <p className="text-xs text-muted-foreground">
-            {emails.length} total emails
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium flex items-center">
-            <Activity className="w-4 h-4 mr-2 text-purple-600" />
-            AI Interactions
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-purple-600">{performanceMetrics.aiInteractions}</div>
-          <p className="text-xs text-muted-foreground">
-            {performanceMetrics.responseTime}ms avg response
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium flex items-center">
-            <TrendingUp className="w-4 h-4 mr-2 text-orange-600" />
-            Productivity
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-orange-600">{performanceMetrics.productivity}%</div>
-          <p className="text-xs text-muted-foreground">
-            Overall efficiency score
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-
-    {/* Recent Activity */}
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          <Clock className="w-5 h-5 mr-2" />
-          Recent Activity
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {tasks.slice(0, 5).map((task: Task) => (
-            <div key={task.id} className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
-              <div className={cn(
-                "w-3 h-3 rounded-full",
-                task.status === TaskStatus.COMPLETED ? 'bg-green-500' :
-                task.status === 'IN_PROGRESS' ? 'bg-blue-500' : 'bg-gray-400'
-              )} />
-              <div className="flex-1">
-                <p className="text-sm font-medium">{task.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {task.priority} priority • {new Date(task.updatedAt).toLocaleDateString()}
-                </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '12px' }}>
+                  {getPriorityIcon(email.priority)}
+                </span>
+                <span style={{
+                  fontSize: '11px',
+                  fontWeight: '500',
+                  padding: '4px 8px', 
+                  borderRadius: '4px',
+                  ...getStatusColor(email.status)
+                }}>
+                  {email.status.replace('-', ' ').toUpperCase()}
+                </span>
+                <span style={{
+                  fontSize: '11px',
+                  backgroundColor: 'rgba(107, 114, 128, 0.2)',
+                  color: '#9CA3AF',
+                  padding: '4px 8px',
+                  borderRadius: '4px'
+                }}>
+                  {email.taskType.toUpperCase()}
+                </span>
               </div>
-              <Badge variant="outline">{task.status}</Badge>
             </div>
           ))}
         </div>
-      </CardContent>
-    </Card>
-  </div>
-);
+      </div>
 
+      {/* Right Panel - Email Details & AI */}
+      <div style={{ 
+        flex: 1, 
+        backgroundColor: '#1E1E1E',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        {selectedEmail ? (
+          <>
+            {/* Email Details */}
+            <div style={{ 
+              padding: '20px',
+              borderBottom: '1px solid #333333'
+            }}>
+              <h2 style={{ 
+                fontSize: '18px', 
+                fontWeight: '600', 
+                marginBottom: '12px',
+                color: '#FFFFFF'
+              }}>
+                {selectedEmail.subject}
+              </h2>
+              
+              <div style={{ 
+                fontSize: '14px', 
+                color: '#9CA3AF',
+                marginBottom: '16px'
+              }}>
+                {selectedEmail.sender}
+              </div>
+              
+              <div style={{ 
+                fontSize: '14px', 
+                color: '#D1D5DB',
+                lineHeight: '1.6',
+                marginBottom: '20px'
+              }}>
+                {selectedEmail.preview}
+              </div>
 
-const TasksPanel: React.FC<any> = optimizeComponent.memo(({ tasks, onTaskUpdate, onTaskDelete, onTaskAdd }) => (
-  <div className="p-6">
-    <OptimizedTaskList 
-      tasks={tasks}
-      onTaskUpdate={onTaskUpdate}
-      onTaskDelete={onTaskDelete}
-      height={600}
-      itemHeight={120}
-    />
-  </div>
-));
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+                <button style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#3B82F6',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: '#FFFFFF',
+                  fontSize: '14px',
+                  cursor: 'pointer'
+                }}>
+                  Reply
+                </button>
+                <button style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#6B7280',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: '#FFFFFF',
+                  fontSize: '14px',
+                  cursor: 'pointer'
+                }}>
+                  Archive
+                </button>
+                <button style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#F59E0B',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: '#FFFFFF',
+                  fontSize: '14px',
+                  cursor: 'pointer'
+                }}>
+                  Star
+                </button>
+              </div>
 
-const KanbanPanel: React.FC<any> = optimizeComponent.memo((props) => (
-  <LazyTaskKanbanBoard {...props} />
-));
+              {/* AI Suggestions */}
+              <div>
+                <h3 style={{ 
+                  fontSize: '14px', 
+                  fontWeight: '500', 
+                  marginBottom: '12px',
+                  color: '#9CA3AF'
+                }}>AI Suggestions</h3>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button style={{
+                    padding: '10px 14px',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    borderRadius: '6px',
+                    color: '#60A5FA',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    textAlign: 'left'
+                  }}>
+                    📝 Draft a professional reply
+                  </button>
+                  <button style={{
+                    padding: '10px 14px',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    borderRadius: '6px',
+                    color: '#A78BFA',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    textAlign: 'left'
+                  }}>
+                    📅 Schedule follow-up reminder
+                  </button>
+                  <button style={{
+                    padding: '10px 14px',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    borderRadius: '6px',
+                    color: '#34D399',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    textAlign: 'left'
+                  }}>
+                    🏷️ Categorize and archive
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div style={{ 
+            flex: 1, 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            color: '#9CA3AF',
+            fontSize: '16px'
+          }}>
+            Select an email to view details
+          </div>
+        )}
 
-const EmailsPanel: React.FC<any> = optimizeComponent.memo((props) => (
-  <LazyEmailList {...props} />
-));
+        {/* AI Chat Panel */}
+        {showAiChat && (
+          <div style={{ 
+            height: '300px',
+            borderTop: '1px solid #333333',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <div style={{ 
+              padding: '16px',
+              borderBottom: '1px solid #333333',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <h3 style={{ 
+                fontSize: '14px', 
+                fontWeight: '500', 
+                margin: '0',
+                color: '#FFFFFF'
+              }}>AI Assistant</h3>
+              <button
+                onClick={() => setShowAiChat(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#9CA3AF',
+                  cursor: 'pointer',
+                  fontSize: '16px'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div style={{ 
+              flex: 1, 
+              padding: '16px',
+              overflowY: 'auto'
+            }}>
+              {aiChatHistory.map((chat, index) => (
+                <div key={index} style={{ 
+                  marginBottom: '12px',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  backgroundColor: chat.type === 'ai' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(107, 114, 128, 0.1)',
+                  fontSize: '13px',
+                  color: '#D1D5DB'
+                }}>
+                  <strong style={{ color: chat.type === 'ai' ? '#60A5FA' : '#9CA3AF' }}>
+                    {chat.type === 'ai' ? 'AI: ' : 'You: '}
+                  </strong>
+                  {chat.message}
+                </div>
+              ))}
+            </div>
+            
+            <div style={{ 
+              padding: '16px',
+              borderTop: '1px solid #333333',
+              display: 'flex',
+              gap: '8px'
+            }}>
+              <input
+                type="text"
+                placeholder="Ask AI to help with emails..."
+                value={aiMessage}
+                onChange={(e) => setAiMessage(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAIMessage()}
+                style={{
+                  flex: 1,
+                  padding: '8px 12px',
+                  backgroundColor: '#2A2A2A',
+                  border: '1px solid #404040',
+                  borderRadius: '6px',
+                  color: '#FFFFFF',
+                  fontSize: '14px'
+                }}
+              />
+              <button
+                onClick={handleAIMessage}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#3B82F6',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: '#FFFFFF',
+                  fontSize: '14px',
+                  cursor: 'pointer'
+                }}
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
-const AnalyticsPanel: React.FC<any> = optimizeComponent.memo((props) => (
-  <LazyAnalytics {...props} />
-));
-
-const AIAssistantPanel: React.FC<any> = optimizeComponent.memo((props) => (
-  <div className="p-6 space-y-6">
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <LazyConversationalAIPanel {...props} />
-      <LazyDraftGenerationInterface {...props} />
+      {/* Draft Modal */}
+      {showDraftModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: '#1E1E1E',
+            borderRadius: '12px',
+            padding: '24px',
+            width: '600px',
+            maxWidth: '90vw',
+            maxHeight: '80vh',
+            border: '1px solid #333333'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: '20px'
+            }}>
+              <h2 style={{ 
+                fontSize: '18px', 
+                fontWeight: '600', 
+                margin: '0',
+                color: '#FFFFFF'
+              }}>Compose Draft</h2>
+              <button
+                onClick={() => setShowDraftModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#9CA3AF',
+                  cursor: 'pointer',
+                  fontSize: '18px'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <input
+                type="text"
+                placeholder="To:"
+                style={{
+                  padding: '12px',
+                  backgroundColor: '#2A2A2A',
+                  border: '1px solid #404040',
+                  borderRadius: '6px',
+                  color: '#FFFFFF',
+                  fontSize: '14px'
+                }}
+              />
+              
+              <input
+                type="text"
+                placeholder="Subject:"
+                style={{
+                  padding: '12px',
+                  backgroundColor: '#2A2A2A',
+                  border: '1px solid #404040',
+                  borderRadius: '6px',
+                  color: '#FFFFFF',
+                  fontSize: '14px'
+                }}
+              />
+              
+              <textarea
+                placeholder="Compose your message..."
+                rows={8}
+                style={{
+                  padding: '12px',
+                  backgroundColor: '#2A2A2A',
+                  border: '1px solid #404040',
+                  borderRadius: '6px',
+                  color: '#FFFFFF',
+                  fontSize: '14px',
+                  resize: 'vertical',
+                  fontFamily: 'inherit'
+                }}
+              />
+              
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setShowDraftModal(false)}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#6B7280',
+                    border: 'none',
+                    borderRadius: '6px',
+                    color: '#FFFFFF',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDraftSave}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#3B82F6',
+                    border: 'none',
+                    borderRadius: '6px',
+                    color: '#FFFFFF',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Save Draft
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-));
-
-const PerformancePanel: React.FC<any> = optimizeComponent.memo((props) => (
-  <LazyPerformanceAnalytics {...props} />
-));
-
-MainDashboard.displayName = 'MainDashboard';
+  );
+};
 
 export default MainDashboard;
+
