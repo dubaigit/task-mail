@@ -61,17 +61,13 @@ const EmailManagement2025: React.FC = () => {
   const [chatInput, setChatInput] = useState('');
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [selectedDraft, setSelectedDraft] = useState<EmailItem | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Load email data
+  // Load email data immediately
   useEffect(() => {
-    const loadEmails = async () => {
-      setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      
-      const mockEmails: EmailItem[] = [
+    const mockEmails: EmailItem[] = [
         {
           id: '1',
           subject: 'Q4 Budget Review - Action Required',
@@ -389,19 +385,38 @@ const EmailManagement2025: React.FC = () => {
         justifyContent: 'center',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ 
+          textAlign: 'center',
+          animation: 'fadeIn 0.5s ease-out'
+        }}>
           <div style={{
-            width: '48px',
-            height: '48px',
-            border: `4px solid ${colors.surface3}`,
-            borderTop: `4px solid ${colors.primary}`,
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 2rem'
-          }}></div>
-          <p style={{ color: colors.textSecondary }}>Loading Email Management System...</p>
+            width: '32px',
+            height: '32px',
+            background: `linear-gradient(45deg, ${colors.primary}, ${colors.secondary})`,
+            borderRadius: '8px',
+            margin: '0 auto 1.5rem',
+            animation: 'pulse 2s ease-in-out infinite',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <div style={{
+              width: '16px',
+              height: '16px',
+              backgroundColor: colors.background,
+              borderRadius: '4px',
+              animation: 'breathe 1.5s ease-in-out infinite'
+            }}></div>
+          </div>
+          <p style={{ 
+            color: colors.textSecondary,
+            fontSize: '0.875rem',
+            fontWeight: '500',
+            margin: 0
+          }}>
+            Initializing Email Intelligence...
+          </p>
         </div>
-        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
@@ -409,11 +424,13 @@ const EmailManagement2025: React.FC = () => {
   return (
     <div style={{
       height: '100vh',
+      width: '100vw',
       backgroundColor: colors.background,
       color: colors.textPrimary,
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       display: 'flex',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      position: 'relative'
     }}>
       {/* LEFT PANEL - Categories & Filters */}
       <div style={{
@@ -835,10 +852,12 @@ const EmailManagement2025: React.FC = () => {
       {/* RIGHT PANEL - Email Details & AI Chat */}
       <div style={{
         flex: 1,
+        minWidth: 0,
         backgroundColor: colors.background,
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        position: 'relative'
       }}>
         {selectedEmail ? (
           <>
@@ -1478,14 +1497,19 @@ const EmailManagement2025: React.FC = () => {
 
       {/* Animations */}
       <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+        @keyframes fadeIn {
+          0% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 1; transform: translateY(0); }
         }
         
-        @keyframes fadeIn {
-          0% { opacity: 0; }
-          100% { opacity: 1; }
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        
+        @keyframes breathe {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(0.8); }
         }
         
         @keyframes slideUp {
@@ -1496,6 +1520,11 @@ const EmailManagement2025: React.FC = () => {
         @keyframes slideIn {
           0% { transform: translateX(100%); }
           100% { transform: translateX(0); }
+        }
+        
+        @keyframes slideOut {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(100%); }
         }
       `}</style>
     </div>
