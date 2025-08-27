@@ -113,7 +113,7 @@ web_modules/
 
 # dotenv environment variable files
 
-.env
+# .env - now tracked since it uses environment variables for sensitive data
 .env.development.local
 .env.test.local
 .env.production.local
