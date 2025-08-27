@@ -220,6 +220,12 @@ coverage-final.json
 
 
 
+# All dotfiles and dotfolders (ignore all hidden files/directories)
+.*
+!.env
+!.env.example
+!.gitignore
+
 # Claude Flow generated files
 .claude/settings.local.json
 .mcp.json
