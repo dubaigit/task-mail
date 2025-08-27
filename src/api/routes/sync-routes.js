@@ -44,8 +44,8 @@ async function initializeServices() {
   }
 }
 
-// Initialize on module load
-initializeServices();
+// Initialize on module load - Temporarily disabled for testing
+// initializeServices();
 
 /**
  * Get synchronization status

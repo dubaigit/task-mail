@@ -96,10 +96,10 @@ validateEnvironment();
 initializeTokenCleanup();
 console.log('✅ Environment validated and token cleanup initialized');
 
-// Import performance optimization modules
-const { WebSocketManager } = require('./src/websocket/WebSocketManager');
-const { BatchOperationManager } = require('./src/services/AppleMailSyncEngine');
-const { AsyncAIProcessor } = require('./src/ai/AsyncAIProcessor');
+// Import performance optimization modules - Temporarily disabled for testing
+// const { WebSocketManager } = require('./src/websocket/WebSocketManager');
+// const { BatchOperationManager } = require('./src/services/AppleMailSyncEngine'); // Temporarily disabled for testing
+// const { AsyncAIProcessor } = require('./src/ai/AsyncAIProcessor');
 
 // Optimized database agent is now initialized in its constructor
 
@@ -167,15 +167,15 @@ async function initializeOptimizations() {
     webSocketManager = new WebSocketManager();
     console.log('✅ WebSocket Manager initialized');
 
-    // Initialize Batch Operations
-    if (optimizedDatabaseAgent) {
-      batchOperations = new BatchOperationManager(optimizedDatabaseAgent, {
-        maxConcurrency: 5,
-        defaultTimeout: 30000,
-        enableTransactions: true
-      });
-      console.log('✅ Batch Operations initialized');
-    }
+    // Initialize Batch Operations - Temporarily disabled for testing
+    // if (optimizedDatabaseAgent) {
+    //   batchOperations = new BatchOperationManager(optimizedDatabaseAgent, {
+    //     maxConcurrency: 5,
+    //     defaultTimeout: 30000,
+    //     enableTransactions: true
+    //   });
+    //   console.log('✅ Batch Operations initialized');
+    // }
 
     // Initialize Async AI Processor
     asyncAIProcessor = new AsyncAIProcessor(aiService, {

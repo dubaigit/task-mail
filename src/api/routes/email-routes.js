@@ -6,9 +6,9 @@ const DraftSyncService = require('../../services/DraftSyncService');
 const AIChatBotService = require('../../services/AIChatBotService');
 const logger = require('../../utils/logger');
 
-// Initialize services
-const emailSyncService = new EmailSyncService();
-const draftSyncService = new DraftSyncService();
+// Initialize services - Temporarily disabled for testing
+// const emailSyncService = new EmailSyncService();
+// const draftSyncService = new DraftSyncService();
 const aiChatBotService = new AIChatBotService();
 
 // Initialize services on startup - COMMENTED OUT TO PREVENT BLOCKING
