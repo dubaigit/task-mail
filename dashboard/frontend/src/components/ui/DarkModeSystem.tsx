@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { } from 'animejs';
 
 interface DarkModeSystemProps {
   children: React.ReactNode;
@@ -15,18 +14,15 @@ export const DarkModeSystem: React.FC<DarkModeSystemProps> = ({
   useEffect(() => {
     if (!enableAnimations || !containerRef.current) return;
 
-    // Initialize entrance animations
     const elements = containerRef.current.querySelectorAll('.animate-entrance');
     
     if (elements.length > 0) {
-      // Animation removed - incompatible with current anime.js version
+      elements.forEach((element, index) => {
+        (element as HTMLElement).style.opacity = '1';
+        (element as HTMLElement).style.transform = 'translateY(0)';
+        (element as HTMLElement).style.transition = `opacity 0.3s ease ${index * 0.1}s, transform 0.3s ease ${index * 0.1}s`;
+      });
     }
-
-    // Floating animation for glass cards
-    // const _glassCards = containerRef.current.querySelectorAll('.glass-card'); // Currently unused
-    
-    // Floating animation removed - incompatible with current anime.js version
-
   }, [enableAnimations]);
 
   return (
@@ -54,13 +50,6 @@ export const GlassCard: React.FC<GlassCardProps> = ({
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // const handleMouseEnter = () => {
-  //   // Hover animation removed - incompatible with current anime.js version
-  // };
-
-  // const handleMouseLeave = () => {
-  //   // Hover animation removed - incompatible with current anime.js version
-  // };
 
   const variantClasses = {
     default: '',
@@ -106,9 +95,6 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
 
   const handleClick = () => {
     if (!buttonRef.current || disabled) return;
-
-    // Ripple effect removed - incompatible with current anime.js version
-
     onClick?.();
   };
 
@@ -154,7 +140,10 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   const badgeRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    // Pulse animation removed - incompatible with current anime.js version
+    if (!pulse || !badgeRef.current) return;
+    
+    const element = badgeRef.current;
+    element.style.animation = 'pulse 2s infinite';
   }, [pulse]);
 
   const statusClasses = {
@@ -199,7 +188,15 @@ export const ModernInput: React.FC<ModernInputProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFocus = () => {
-    // Focus animation removed - incompatible with current anime.js version
+    if (!inputRef.current) return;
+    
+    const element = inputRef.current;
+    element.style.transform = 'scale(1.02)';
+    element.style.transition = 'transform 0.2s ease';
+    
+    setTimeout(() => {
+      element.style.transform = 'scale(1)';
+    }, 200);
   };
 
   return (

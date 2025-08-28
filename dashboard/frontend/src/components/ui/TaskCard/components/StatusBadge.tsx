@@ -1,9 +1,9 @@
 import React from 'react';
-import { Badge } from '../../SimpleComponents';
+import { Badge } from '../../../ui';
 
 export interface StatusBadgeProps {
   text?: string;
-  variant?: 'default' | 'secondary' | 'destructive' | 'outline';
+  variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'outline';
   className?: string;
   children?: React.ReactNode;
 }

@@ -313,19 +313,9 @@ class ConfigurationMigrator {
    */
   identifyObsoleteVariables(currentVariables, codeUsage) {
     const obsoleteVariables = [];
-    const knownObsolete = [
-      'OVERRIDE_DEVELOPMENT',
-      'DEBUG',
-      'VOICE_USER_NAME',
-      'VOICE_GREETING_PREFIX',
-      'VOICE_SIGNATURE',
-      'VOICE_TONE',
-      'APPLE_MAIL_DB_PATH',
-      'APPLE_MAIL_BACKUP_PATH'
-    ];
     
     for (const variable of currentVariables) {
-      if (knownObsolete.includes(variable) || !codeUsage.has(variable)) {
+      if (!codeUsage.has(variable)) {
         obsoleteVariables.push(variable);
       }
     }

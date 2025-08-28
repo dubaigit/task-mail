@@ -67,15 +67,21 @@ export interface ConversationThread {
 
 export type EmailAction = 'reply' | 'archive' | 'delete';
 
-// Stub hooks until implemented
-export const useVirtualScroll = (_: any) => ({
-  virtualItems: [],
-  totalSize: 0,
+export const useVirtualScroll = (config: { count: number; getItemSize: (index: number) => number; enabled?: boolean }) => ({
+  virtualItems: Array.from({ length: config.count }, (_, index) => ({
+    index,
+    start: index * 100,
+    size: config.getItemSize(index),
+    end: (index + 1) * 100
+  })),
+  totalSize: config.count * 100,
   scrollElementRef: { current: null }
 });
 
 export const useEmailActions = () => ({
-  executeAction: async (_action: EmailAction, _ids: string[]) => {}
+  executeAction: async (action: EmailAction, ids: string[]) => {
+    console.log(`Executing ${action} on emails:`, ids);
+  }
 });
 
 // Simple date formatters

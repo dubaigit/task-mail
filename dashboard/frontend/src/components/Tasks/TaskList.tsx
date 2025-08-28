@@ -440,7 +440,7 @@ const TaskList: React.FC = () => {
                   <Button
                     variant="secondary"
                     className="w-full border-2 border-dashed border-border hover:border-primary/50"
-                    onClick={() => {/* TODO: Implement add task */}}
+                    onClick={() => console.log('Add task clicked')}
                   >
                     <Icons.plus className="w-4 h-4 mr-2" />
                     Add Task
