@@ -59,6 +59,20 @@ for i in $(seq 1 $ATTEMPTS); do
     break
   fi
   sleep $SLEEP
+echo "Waiting for Supabase REST and Auth to be reachable..."
+for port in 3001 9999; do
+  ok=0
+  for i in $(seq 1 60); do
+    if curl -sSf "http://127.0.0.1:${port}" -o /dev/null; then ok=1; break; fi
+    sleep 2
+  done
+  if [ $ok -ne 1 ]; then
+    echo "Service on port ${port} not reachable."
+    docker compose ps || true
+    exit 1
+  fi
+done
+
 done
 if [ $ok_db -ne 1 ] || [ $ok_redis -ne 1 ]; then
   echo "Infrastructure not healthy. Current status:"

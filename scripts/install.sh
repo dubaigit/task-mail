@@ -132,6 +132,21 @@ if [[ -z "$PRODUCTION_VAL" ]]; then
   echo "Initializing database..."
   npm run db:init || true
 
+  echo "Waiting for Supabase REST and Auth to be reachable..."
+  for svc in rest:3001 auth:9999; do
+    host_port=$(echo "$svc" | awk -F: '{print $2}')
+    ok=0
+    for i in $(seq 1 60); do
+      if curl -sSf "http://127.0.0.1:${host_port}" -o /dev/null; then ok=1; break; fi
+      sleep 2
+    done
+    if [[ $ok -ne 1 ]]; then
+      echo "Service on port ${host_port} not reachable."
+      docker compose ps || true
+      exit 1
+    fi
+  done
+
   echo "Starting PM2 apps..."
   npx pm2 start ecosystem.config.js || npx pm2 restart ecosystem.config.js --update-env
 fi
