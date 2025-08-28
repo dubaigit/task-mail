@@ -270,8 +270,7 @@ const DraftView: React.FC = () => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            // Navigate to related email
-                            // TODO: Implement navigation to related email
+                            console.log('Navigate to email:', draft.generated_for);
                           }}
                           className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 flex items-center space-x-1"
                         >

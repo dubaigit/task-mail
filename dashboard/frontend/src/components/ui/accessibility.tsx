@@ -7,7 +7,6 @@
 import React from 'react';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import * as FocusScope from '@radix-ui/react-focus-scope';
-// import * as FocusGuards from '@radix-ui/react-focus-guards'; // Currently unused
 
 /**
  * VisuallyHidden - Hides content visually but keeps it accessible to screen readers

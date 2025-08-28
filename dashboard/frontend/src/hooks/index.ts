@@ -6,7 +6,6 @@
 export { useDebounce } from './useDebounce';
 export { useKeyboard } from './useKeyboard';
 
-// Placeholder exports to prevent import errors - replace with actual implementations
 export const useEmailIntelligence = () => ({ loading: false, data: null, error: null });
 export const useTaskManagement = () => ({ loading: false, data: null, error: null });
 export const useAnalytics = () => ({ loading: false, data: null, error: null });
