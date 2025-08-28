@@ -5,17 +5,9 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../../middleware/auth');
-const { Pool } = require('pg');
 const Redis = require('redis');
+const dbAgent = require('../../database/OptimizedDatabaseAgent');
 
-// Database connection
-const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || 'email_management',
-  user: process.env.DB_USER || 'email_admin',
-  password: process.env.DB_PASSWORD,
-});
 
 /**
  * Basic health check (public)
@@ -23,21 +15,26 @@ const pool = new Pool({
  */
 router.get('/', async (req, res) => {
   try {
-    // Basic database connectivity check
-    await pool.query('SELECT 1');
-    
+    const health = await dbAgent.performHealthCheck();
+    if (!health.sqlite && !health.supabase) {
+      return res.status(503).json({
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        error: 'No database backends available'
+      });
+    }
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
       service: 'apple-mcp-backend',
-      environment: process.env.NODE_ENV || 'development'
+      environment: process.env.NODE_ENV || 'development',
+      backends: health
     });
   } catch (error) {
-    console.error('❌ Health check failed:', error);
     res.status(503).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
-      error: 'Database connection failed'
+      error: 'Health check failed'
     });
   }
 });
@@ -57,18 +54,17 @@ router.get('/detailed',
       services: {}
     };
 
-    // Check PostgreSQL
     try {
-      const dbResult = await pool.query('SELECT version()');
-      health.services.postgresql = {
-        status: 'healthy',
-        version: dbResult.rows[0].version,
-        activeConnections: pool.totalCount,
-        idleConnections: pool.idleCount,
-        waitingConnections: pool.waitingCount
+      const metrics = dbAgent.getConnectionMetrics();
+      health.services.database = {
+        status: metrics.sqlite.isReady || metrics.supabase.isReady ? 'healthy' : 'unhealthy',
+        backends: metrics
       };
+      if (!(metrics.sqlite.isReady || metrics.supabase.isReady)) {
+        health.status = 'degraded';
+      }
     } catch (error) {
-      health.services.postgresql = {
+      health.services.database = {
         status: 'unhealthy',
         error: error.message
       };

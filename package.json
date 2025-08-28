@@ -9,6 +9,7 @@
     "dev": "nodemon server.js",
     "dev:full": "./start.sh",
     "start:unified": "./scripts/start-unified.sh",
+    "bootstrap": "bash scripts/dev-start.sh",
     "build": "npm run build:frontend",
     "build:frontend": "cd dashboard/frontend && npm run build",
     "install:frontend": "cd dashboard/frontend && npm install",

@@ -151,8 +151,10 @@ PORT=8000
 NODE_ENV=development
 CORS_ORIGIN=http://localhost:3000
 
-# Apple Mail Configuration (using fake database for testing)
+# Apple Mail Configuration (using fake database for testing - default)
 APPLE_MAIL_DB_PATH=/home/ubuntu/task-mail/database/fake-apple-mail/fake-envelope-index.sqlite
+# Optional (macOS only): use the real Apple Mail database path instead of the fake DB by uncommenting and adjusting the version if needed
+# APPLE_MAIL_DB_PATH=/Users/username/Library/Mail/V10/MailData/Envelope Index
 
 # Security Configuration
 BCRYPT_ROUNDS=12
@@ -232,9 +234,9 @@ You should see:
 ### 10. Start Main Application
 
 ```bash
-# Set OpenAI API key and start main server
+# Set OpenAI API key and start full stack (infra + backend + frontend via PM2)
 export OPENAI_API_KEY="your_openai_api_key_here"
-node server.js
+npm run bootstrap
 ```
 
 ### 11. Build and Start Frontend

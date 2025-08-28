@@ -7,16 +7,10 @@
 
 ## 🚀 Quick Start
 
-### Option 1: Docker Setup (Recommended)
+### Option 1: One-Command Bootstrap (Recommended)
 ```bash
-# Start infrastructure services (Supabase + Redis)
-docker-compose up -d
-
-# Start backend server
-node server.js
-
-# Start frontend (in another terminal)
-cd dashboard/frontend && npm start
+# Installs deps, starts Docker (Supabase + Redis), initializes DB, and starts PM2 (backend + frontend)
+npm run bootstrap
 ```
 
 ### Option 2: PM2 Production Setup
@@ -55,9 +49,9 @@ postgrest postgrest.conf &
 # Create fake Apple Mail database for testing
 npm run fake:db
 
-# Set OpenAI API key and start
-export OPENAI_API_KEY="your_openai_api_key_here"
-node server.js
+# Set OpenAI API key in .env, then bootstrap
+# echo 'OPENAI_API_KEY=your_openai_api_key_here' >> .env
+npm run bootstrap
 ```
 
 **Access the application:**
@@ -303,19 +297,18 @@ PORT=8000
 CORS_ORIGIN=http://localhost:3000
 ```
 
-### 4. Start Infrastructure Services
+### 4. Start Everything
 ```bash
-# Start Supabase + Redis
-docker-compose up -d
+# Single command: installs, starts Docker services, initializes DB, and starts PM2
+npm run bootstrap
 ```
 
-### 5. Start Application
+### 5. Advanced (optional)
 ```bash
-# Terminal 1: Start backend
-node server.js
-
-# Terminal 2: Start frontend
-cd dashboard/frontend && npm start
+# If you prefer manual control:
+docker compose up -d            # Start Supabase + Redis
+npm run db:init                 # Initialize database
+npx pm2 start ecosystem.config.js
 ```
 
 ## 🐧 Ubuntu Testing Setup (Alternative to Docker)
@@ -351,9 +344,9 @@ postgrest postgrest.conf &
 # Create fake Apple Mail database for testing
 npm run fake:db
 
-# Set OpenAI API key and start server
-export OPENAI_API_KEY="your_openai_api_key_here"
-node server.js
+# Set OPENAI in .env and use bootstrap instead of direct node
+# echo 'OPENAI_API_KEY=your_openai_api_key_here' >> .env
+npm run bootstrap
 ```
 
 ### 📚 Detailed Ubuntu Setup Documentation
