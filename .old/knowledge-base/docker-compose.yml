@@ -1,0 +1,130 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with pgvector extension
+  postgres:
+    image: pgvector/pgvector:pg15
+    environment:
+      POSTGRES_DB: knowledge_base
+      POSTGRES_USER: kb_user
+      POSTGRES_PASSWORD: kb_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../../database/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kb_user -d knowledge_base"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and job queues
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://kb_user:kb_password@postgres:5432/knowledge_base
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Crawler Service
+  crawler-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.crawler
+    ports:
+      - "8081:8081"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://kb_user:kb_password@postgres:5432/knowledge_base
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Search Service
+  search-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.search
+    ports:
+      - "8082:8082"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://kb_user:kb_password@postgres:5432/knowledge_base
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Processing Service
+  processing-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.processing
+    ports:
+      - "8083:8083"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://kb_user:kb_password@postgres:5432/knowledge_base
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Bull Dashboard for job monitoring
+  bull-dashboard:
+    image: deadly0/bull-board
+    ports:
+      - "3000:3000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: knowledge-base-network
