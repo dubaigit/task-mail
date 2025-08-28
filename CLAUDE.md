@@ -30,6 +30,17 @@ npx pm2 stop all
 # Infrastructure
 docker-compose up -d                   # Supabase + Redis containers
 
+# Smart Install (auto-runs when PRODUCTION is not set)
+# - Detects macOS/Ubuntu
+# - Prompts for OPENAI_API_KEY if missing
+# - Generates secrets
+# - Sets APPLE_MAIL_DB_PATH (fake DB on Ubuntu, real path on macOS)
+# - Validates services and health
+npm run install:all
+
+# Reset mode (recreate env, regenerate secrets, reset fake DB, reinstall deps)
+npm run install:all -- --reset
+
 # Testing (Comprehensive Suite Implemented)
 npm run test:all                       # Run all tests (backend + frontend + e2e)
 npm run test:backend                   # Backend Jest tests with coverage
