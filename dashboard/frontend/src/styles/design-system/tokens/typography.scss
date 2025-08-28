@@ -1,0 +1,247 @@
+/* 
+ * Design System - Typography Tokens
+ * Consistent typography scale and font definitions
+ */
+
+:root {
+  /* Font Families */
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-family-serif: 'Georgia', 'Times New Roman', Times, serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --font-family-display: 'Inter Display', var(--font-family-sans);
+  
+  /* Font Sizes - Type Scale (1.250 - Major Third) */
+  --font-size-xs: 0.75rem;      /* 12px */
+  --font-size-sm: 0.875rem;     /* 14px */
+  --font-size-base: 1rem;       /* 16px */
+  --font-size-lg: 1.125rem;     /* 18px */
+  --font-size-xl: 1.25rem;      /* 20px */
+  --font-size-2xl: 1.5rem;      /* 24px */
+  --font-size-3xl: 1.875rem;    /* 30px */
+  --font-size-4xl: 2.25rem;     /* 36px */
+  --font-size-5xl: 3rem;        /* 48px */
+  --font-size-6xl: 3.75rem;     /* 60px */
+  --font-size-7xl: 4.5rem;      /* 72px */
+  --font-size-8xl: 6rem;        /* 96px */
+  --font-size-9xl: 8rem;        /* 128px */
+  
+  /* Font Weights */
+  --font-weight-thin: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+  
+  /* Line Heights */
+  --line-height-none: 1;
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+  
+  /* Letter Spacing */
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
+  
+  /* Text Sizes for Components */
+  --text-caption: var(--font-size-xs);
+  --text-body-sm: var(--font-size-sm);
+  --text-body: var(--font-size-base);
+  --text-body-lg: var(--font-size-lg);
+  --text-subtitle: var(--font-size-xl);
+  --text-title: var(--font-size-2xl);
+  --text-headline: var(--font-size-3xl);
+  --text-display: var(--font-size-4xl);
+  
+  /* Semantic Typography Tokens */
+  --text-ui-xs: var(--font-size-xs);        /* UI labels, captions */
+  --text-ui-sm: var(--font-size-sm);        /* UI text, form labels */
+  --text-ui-base: var(--font-size-base);    /* UI buttons, links */
+  
+  --text-content-sm: var(--font-size-sm);   /* Small content text */
+  --text-content-base: var(--font-size-base); /* Body content */
+  --text-content-lg: var(--font-size-lg);   /* Large content text */
+  
+  --text-heading-sm: var(--font-size-lg);   /* Small headings */
+  --text-heading-md: var(--font-size-xl);   /* Medium headings */
+  --text-heading-lg: var(--font-size-2xl);  /* Large headings */
+  --text-heading-xl: var(--font-size-3xl);  /* Extra large headings */
+  
+  /* Component-specific typography */
+  --text-task-title: var(--font-size-base);
+  --text-task-description: var(--font-size-sm);
+  --text-task-meta: var(--font-size-xs);
+  
+  --text-email-subject: var(--font-size-base);
+  --text-email-preview: var(--font-size-sm);
+  --text-email-sender: var(--font-size-sm);
+  --text-email-timestamp: var(--font-size-xs);
+  
+  --text-nav-item: var(--font-size-sm);
+  --text-nav-label: var(--font-size-xs);
+  
+  --text-button-sm: var(--font-size-sm);
+  --text-button-md: var(--font-size-base);
+  --text-button-lg: var(--font-size-lg);
+  
+  --text-form-label: var(--font-size-sm);
+  --text-form-input: var(--font-size-base);
+  --text-form-help: var(--font-size-xs);
+  --text-form-error: var(--font-size-xs);
+}
+
+/* Typography Utility Classes */
+.text-style-h1 {
+  font-size: var(--text-heading-xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  font-family: var(--font-family-display);
+}
+
+.text-style-h2 {
+  font-size: var(--text-heading-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  font-family: var(--font-family-display);
+}
+
+.text-style-h3 {
+  font-size: var(--text-heading-md);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+}
+
+.text-style-h4 {
+  font-size: var(--text-heading-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+}
+
+.text-style-body-lg {
+  font-size: var(--text-content-lg);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-relaxed);
+}
+
+.text-style-body {
+  font-size: var(--text-content-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+.text-style-body-sm {
+  font-size: var(--text-content-sm);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+.text-style-caption {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.text-style-code {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.text-style-link {
+  color: var(--color-primary-600);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.2s ease-in-out;
+}
+
+.text-style-link:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Task-specific typography styles */
+.text-style-task-title {
+  font-size: var(--text-task-title);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+}
+
+.text-style-task-description {
+  font-size: var(--text-task-description);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+}
+
+.text-style-task-meta {
+  font-size: var(--text-task-meta);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-tertiary);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+/* Email-specific typography styles */
+.text-style-email-subject {
+  font-size: var(--text-email-subject);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+}
+
+.text-style-email-preview {
+  font-size: var(--text-email-preview);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+}
+
+.text-style-email-sender {
+  font-size: var(--text-email-sender);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
+}
+
+.text-style-email-timestamp {
+  font-size: var(--text-email-timestamp);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-tertiary);
+}
+
+/* Responsive typography */
+@media (max-width: 640px) {
+  :root {
+    --text-heading-xl: var(--font-size-2xl);
+    --text-heading-lg: var(--font-size-xl);
+    --text-heading-md: var(--font-size-lg);
+    --text-display: var(--font-size-3xl);
+  }
+}
+
+/* Accessibility considerations */
+@media (prefers-reduced-motion: no-preference) {
+  .text-style-link {
+    transition: text-decoration-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  }
+}
+
+/* Print styles */
+@media print {
+  :root {
+    --font-family-sans: 'Times New Roman', Times, serif;
+    --font-family-display: 'Times New Roman', Times, serif;
+  }
+}

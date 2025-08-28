@@ -1,0 +1,393 @@
+/* 
+ * Design System - Color Utilities
+ * Utility classes for consistent color application
+ */
+
+/* Text Color Utilities */
+.u-text-primary { 
+  color: var(--color-text-primary) !important; 
+}
+
+.u-text-secondary { 
+  color: var(--color-text-secondary) !important; 
+}
+
+.u-text-tertiary { 
+  color: var(--color-text-tertiary) !important; 
+}
+
+.u-text-muted { 
+  color: var(--color-text-muted) !important; 
+}
+
+.u-text-inverse { 
+  color: var(--color-text-inverse) !important; 
+}
+
+/* Brand Text Colors */
+.u-text-brand-primary { 
+  color: var(--color-primary-600) !important; 
+}
+
+.u-text-brand-secondary { 
+  color: var(--color-primary-500) !important; 
+}
+
+/* Semantic Text Colors */
+.u-text-success { 
+  color: var(--color-success-600) !important; 
+}
+
+.u-text-warning { 
+  color: var(--color-warning-600) !important; 
+}
+
+.u-text-error { 
+  color: var(--color-error-600) !important; 
+}
+
+.u-text-info { 
+  color: var(--color-info-600) !important; 
+}
+
+/* Priority Text Colors */
+.u-text-priority-low { 
+  color: var(--color-priority-low) !important; 
+}
+
+.u-text-priority-medium { 
+  color: var(--color-priority-medium) !important; 
+}
+
+.u-text-priority-high { 
+  color: var(--color-priority-high) !important; 
+}
+
+.u-text-priority-critical { 
+  color: var(--color-priority-critical) !important; 
+}
+
+/* Status Text Colors */
+.u-text-status-todo { 
+  color: var(--color-status-todo) !important; 
+}
+
+.u-text-status-in-progress { 
+  color: var(--color-status-in-progress) !important; 
+}
+
+.u-text-status-waiting { 
+  color: var(--color-status-waiting) !important; 
+}
+
+.u-text-status-review { 
+  color: var(--color-status-review) !important; 
+}
+
+.u-text-status-completed { 
+  color: var(--color-status-completed) !important; 
+}
+
+.u-text-status-cancelled { 
+  color: var(--color-status-cancelled) !important; 
+}
+
+.u-text-status-blocked { 
+  color: var(--color-status-blocked) !important; 
+}
+
+/* Email Status Text Colors */
+.u-text-email-unread { 
+  color: var(--color-email-unread) !important; 
+}
+
+.u-text-email-read { 
+  color: var(--color-email-read) !important; 
+}
+
+.u-text-email-archived { 
+  color: var(--color-email-archived) !important; 
+}
+
+.u-text-email-flagged { 
+  color: var(--color-email-flagged) !important; 
+}
+
+.u-text-email-important { 
+  color: var(--color-email-important) !important; 
+}
+
+/* AI Processing Text Colors */
+.u-text-ai-processing { 
+  color: var(--color-ai-processing) !important; 
+}
+
+.u-text-ai-completed { 
+  color: var(--color-ai-completed) !important; 
+}
+
+.u-text-ai-error { 
+  color: var(--color-ai-error) !important; 
+}
+
+.u-text-ai-waiting { 
+  color: var(--color-ai-waiting) !important; 
+}
+
+/* Background Color Utilities */
+.u-bg-primary { 
+  background-color: var(--color-background) !important; 
+}
+
+.u-bg-secondary { 
+  background-color: var(--color-background-secondary) !important; 
+}
+
+.u-bg-tertiary { 
+  background-color: var(--color-background-tertiary) !important; 
+}
+
+.u-bg-muted { 
+  background-color: var(--color-background-muted) !important; 
+}
+
+/* Surface Background Colors */
+.u-bg-surface { 
+  background-color: var(--color-surface) !important; 
+}
+
+.u-bg-surface-secondary { 
+  background-color: var(--color-surface-secondary) !important; 
+}
+
+.u-bg-surface-tertiary { 
+  background-color: var(--color-surface-tertiary) !important; 
+}
+
+/* Component Background Colors */
+.u-bg-card { 
+  background-color: var(--color-card-background) !important; 
+}
+
+.u-bg-card-hover { 
+  background-color: var(--color-card-hover) !important; 
+}
+
+.u-bg-input { 
+  background-color: var(--color-input-background) !important; 
+}
+
+.u-bg-button { 
+  background-color: var(--color-button-background) !important; 
+}
+
+.u-bg-dropdown { 
+  background-color: var(--color-dropdown-background) !important; 
+}
+
+.u-bg-modal { 
+  background-color: var(--color-modal-background) !important; 
+}
+
+/* Semantic Background Colors */
+.u-bg-success { 
+  background-color: var(--color-success-50) !important; 
+}
+
+.u-bg-success-solid { 
+  background-color: var(--color-success-600) !important; 
+}
+
+.u-bg-warning { 
+  background-color: var(--color-warning-50) !important; 
+}
+
+.u-bg-warning-solid { 
+  background-color: var(--color-warning-600) !important; 
+}
+
+.u-bg-error { 
+  background-color: var(--color-error-50) !important; 
+}
+
+.u-bg-error-solid { 
+  background-color: var(--color-error-600) !important; 
+}
+
+.u-bg-info { 
+  background-color: var(--color-info-50) !important; 
+}
+
+.u-bg-info-solid { 
+  background-color: var(--color-info-600) !important; 
+}
+
+/* Priority Background Colors */
+.u-bg-priority-low { 
+  background-color: color-mix(in srgb, var(--color-priority-low) 10%, transparent) !important; 
+}
+
+.u-bg-priority-medium { 
+  background-color: color-mix(in srgb, var(--color-priority-medium) 10%, transparent) !important; 
+}
+
+.u-bg-priority-high { 
+  background-color: color-mix(in srgb, var(--color-priority-high) 10%, transparent) !important; 
+}
+
+.u-bg-priority-critical { 
+  background-color: color-mix(in srgb, var(--color-priority-critical) 10%, transparent) !important; 
+}
+
+/* Status Background Colors */
+.u-bg-status-todo { 
+  background-color: color-mix(in srgb, var(--color-status-todo) 10%, transparent) !important; 
+}
+
+.u-bg-status-in-progress { 
+  background-color: color-mix(in srgb, var(--color-status-in-progress) 10%, transparent) !important; 
+}
+
+.u-bg-status-waiting { 
+  background-color: color-mix(in srgb, var(--color-status-waiting) 10%, transparent) !important; 
+}
+
+.u-bg-status-review { 
+  background-color: color-mix(in srgb, var(--color-status-review) 10%, transparent) !important; 
+}
+
+.u-bg-status-completed { 
+  background-color: color-mix(in srgb, var(--color-status-completed) 10%, transparent) !important; 
+}
+
+.u-bg-status-cancelled { 
+  background-color: color-mix(in srgb, var(--color-status-cancelled) 10%, transparent) !important; 
+}
+
+.u-bg-status-blocked { 
+  background-color: color-mix(in srgb, var(--color-status-blocked) 10%, transparent) !important; 
+}
+
+/* Border Color Utilities */
+.u-border-primary { 
+  border-color: var(--color-border-primary) !important; 
+}
+
+.u-border-secondary { 
+  border-color: var(--color-border-secondary) !important; 
+}
+
+.u-border-tertiary { 
+  border-color: var(--color-border-tertiary) !important; 
+}
+
+.u-border-muted { 
+  border-color: var(--color-border-muted) !important; 
+}
+
+/* Semantic Border Colors */
+.u-border-success { 
+  border-color: var(--color-success-600) !important; 
+}
+
+.u-border-warning { 
+  border-color: var(--color-warning-600) !important; 
+}
+
+.u-border-error { 
+  border-color: var(--color-error-600) !important; 
+}
+
+.u-border-info { 
+  border-color: var(--color-info-600) !important; 
+}
+
+/* Priority Border Colors */
+.u-border-priority-low { 
+  border-color: var(--color-priority-low) !important; 
+}
+
+.u-border-priority-medium { 
+  border-color: var(--color-priority-medium) !important; 
+}
+
+.u-border-priority-high { 
+  border-color: var(--color-priority-high) !important; 
+}
+
+.u-border-priority-critical { 
+  border-color: var(--color-priority-critical) !important; 
+}
+
+/* Interactive State Colors */
+.u-hover-bg:hover { 
+  background-color: var(--color-hover) !important; 
+}
+
+.u-active-bg:active { 
+  background-color: var(--color-active) !important; 
+}
+
+.u-focus-ring:focus { 
+  outline: 2px solid var(--color-focus) !important;
+  outline-offset: 2px !important;
+}
+
+.u-focus-ring:focus:not(:focus-visible) {
+  outline: none !important;
+}
+
+.u-disabled {
+  background-color: var(--color-disabled) !important;
+  color: var(--color-disabled-text) !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+/* Gradient Utilities */
+.u-gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700)) !important;
+}
+
+.u-gradient-success {
+  background: linear-gradient(135deg, var(--color-success-500), var(--color-success-700)) !important;
+}
+
+.u-gradient-warning {
+  background: linear-gradient(135deg, var(--color-warning-500), var(--color-warning-700)) !important;
+}
+
+.u-gradient-error {
+  background: linear-gradient(135deg, var(--color-error-500), var(--color-error-700)) !important;
+}
+
+/* Color overlay utilities */
+.u-overlay-dark {
+  position: relative;
+}
+
+.u-overlay-dark::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.u-overlay-light {
+  position: relative;
+}
+
+.u-overlay-light::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}

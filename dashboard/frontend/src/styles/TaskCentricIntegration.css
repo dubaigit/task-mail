@@ -1,0 +1,159 @@
+/* TaskCentricIntegration.css - Integration-specific styles */
+
+.task-integration-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: hsl(var(--background));
+  padding: var(--space-2xl);
+}
+
+.integration-notice {
+  text-align: center;
+  max-width: 400px;
+  padding: var(--space-2xl);
+  background: hsl(var(--muted) / 0.3);
+  border-radius: var(--radius-lg);
+  border: var(--panel-border);
+}
+
+.integration-notice h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin: 0 0 var(--space-md);
+}
+
+.integration-notice p {
+  color: hsl(var(--muted-foreground));
+  margin: 0 0 var(--space-lg);
+  line-height: 1.5;
+}
+
+.enable-task-mode-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.enable-task-mode-button:hover {
+  background: hsl(var(--primary) / 0.9);
+}
+
+.task-centric-integration {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: hsl(var(--background));
+}
+
+.integration-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: var(--panel-border);
+  background: hsl(var(--muted) / 0.3);
+}
+
+.mode-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.mode-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: hsl(var(--primary));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.exit-task-mode-button {
+  padding: var(--space-sm) var(--space-md);
+  border: var(--panel-border);
+  border-radius: var(--radius-sm);
+  background: hsl(var(--background));
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.exit-task-mode-button:hover {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+
+.integration-stats {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  font-size: 13px;
+  color: hsl(var(--muted-foreground));
+}
+
+.integration-stats span {
+  padding: var(--space-xs) var(--space-sm);
+  background: hsl(var(--muted) / 0.5);
+  border-radius: var(--radius-sm);
+}
+
+.integrated-task-layout {
+  flex: 1;
+  overflow: hidden;
+}
+
+.integration-debug {
+  position: fixed;
+  bottom: var(--space-md);
+  left: var(--space-md);
+  background: hsl(var(--background));
+  border: var(--panel-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-card);
+  z-index: 100;
+}
+
+.integration-debug h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin: 0 0 var(--space-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.integration-debug button {
+  display: block;
+  width: 100%;
+  padding: var(--space-xs) var(--space-sm);
+  margin-bottom: var(--space-xs);
+  border: var(--panel-border);
+  border-radius: var(--radius-sm);
+  background: hsl(var(--background));
+  color: hsl(var(--muted-foreground));
+  font-size: 11px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.integration-debug button:hover {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+
+.integration-debug button:last-child {
+  margin-bottom: 0;
+}

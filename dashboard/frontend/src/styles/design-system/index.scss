@@ -1,0 +1,401 @@
+/* 
+ * Design System - Main Entry Point
+ * Imports all design system tokens, utilities, and component styles
+ */
+
+/* Reset and Base Styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Import Design Tokens */
+@import './tokens/colors.scss';
+@import './tokens/spacing.scss';
+@import './tokens/typography.scss';
+@import './tokens/layout.scss';
+
+/* Import Utility Classes */
+@import './utilities/color.scss';
+@import './utilities/spacing.scss';
+@import './utilities/typography.scss';
+@import './utilities/layout.scss';
+
+/* Import Component Styles */
+@import './components/task-card.scss';
+@import './components/chat.scss';
+
+/* Global Accessibility Enhancements */
+
+/* Focus visible styles for keyboard navigation */
+*:focus {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Skip to content link */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  z-index: var(--z-index-skiplink);
+  padding: 8px;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all var(--duration-200) var(--ease-out);
+}
+
+.skip-to-content:focus {
+  top: 6px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Form elements base styles */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Link styles */
+a {
+  color: var(--color-primary-600);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 2px;
+  transition: text-decoration-color var(--duration-200) var(--ease-in-out);
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+a:focus {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Selection styles */
+::selection {
+  background-color: color-mix(in srgb, var(--color-primary-600) 20%, transparent);
+  color: var(--color-text-primary);
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--color-background-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-primary);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-border-secondary);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-primary) var(--color-background-secondary);
+}
+
+/* High contrast mode adjustments */
+@media (prefers-contrast: high) {
+  :root {
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+  }
+  
+  * {
+    outline-width: 2px !important;
+  }
+  
+  button,
+  input,
+  select,
+  textarea {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .skip-to-content {
+    transition: none;
+  }
+  
+  a {
+    transition: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  :root {
+    --color-background: white;
+    --color-text-primary: black;
+    --color-text-secondary: #333;
+    --color-border-primary: #ccc;
+  }
+  
+  * {
+    box-shadow: none !important;
+  }
+  
+  a {
+    color: black;
+    text-decoration: underline;
+  }
+  
+  button {
+    display: none;
+  }
+  
+  .skip-to-content {
+    display: none;
+  }
+}
+
+/* Dark mode specific adjustments */
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Density adjustments for specific elements */
+[data-density="compact"] {
+  --task-card-min-height: 80px;
+  --task-card-padding: var(--space-3);
+  --task-card-gap: var(--space-2);
+}
+
+[data-density="spacious"] {
+  --task-card-min-height: 160px;
+  --task-card-padding: var(--space-6);
+  --task-card-gap: var(--space-5);
+}
+
+/* Border radius preferences */
+[data-border-radius="none"] {
+  --radius-button: var(--radius-none);
+  --radius-input: var(--radius-none);
+  --radius-card: var(--radius-none);
+  --radius-modal: var(--radius-none);
+}
+
+[data-border-radius="sm"] {
+  --radius-button: var(--radius-xs);
+  --radius-input: var(--radius-xs);
+  --radius-card: var(--radius-sm);
+  --radius-modal: var(--radius-md);
+}
+
+[data-border-radius="lg"] {
+  --radius-button: var(--radius-md);
+  --radius-input: var(--radius-md);
+  --radius-card: var(--radius-xl);
+  --radius-modal: var(--radius-2xl);
+}
+
+[data-border-radius="xl"] {
+  --radius-button: var(--radius-lg);
+  --radius-input: var(--radius-lg);
+  --radius-card: var(--radius-2xl);
+  --radius-modal: var(--radius-3xl);
+}
+
+/* Loading states */
+.loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--color-border-primary);
+  border-top-color: var(--color-primary-600);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error states */
+.error {
+  color: var(--color-error-600);
+  border-color: var(--color-error-600);
+}
+
+/* Success states */
+.success {
+  color: var(--color-success-600);
+  border-color: var(--color-success-600);
+}
+
+/* Warning states */
+.warning {
+  color: var(--color-warning-600);
+  border-color: var(--color-warning-600);
+}
+
+/* Common layout patterns */
+.container {
+  width: 100%;
+  max-width: var(--container-7xl);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-layout-padding-md);
+  padding-right: var(--space-layout-padding-md);
+}
+
+.container--sm { max-width: var(--container-sm); }
+.container--md { max-width: var(--container-md); }
+.container--lg { max-width: var(--container-lg); }
+.container--xl { max-width: var(--container-xl); }
+.container--2xl { max-width: var(--container-2xl); }
+.container--3xl { max-width: var(--container-3xl); }
+.container--4xl { max-width: var(--container-4xl); }
+.container--5xl { max-width: var(--container-5xl); }
+.container--6xl { max-width: var(--container-6xl); }
+.container--full { max-width: none; }
+
+/* Stack layout (vertical spacing) */
+.stack > * + * {
+  margin-top: var(--space-4);
+}
+
+.stack--sm > * + * {
+  margin-top: var(--space-2);
+}
+
+.stack--lg > * + * {
+  margin-top: var(--space-6);
+}
+
+.stack--xl > * + * {
+  margin-top: var(--space-8);
+}
+
+/* Cluster layout (horizontal spacing) */
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.cluster--sm {
+  gap: var(--space-2);
+}
+
+.cluster--lg {
+  gap: var(--space-6);
+}
+
+.cluster--xl {
+  gap: var(--space-8);
+}
+
+/* Sidebar layout */
+.sidebar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+}
+
+.sidebar > :first-child {
+  flex-basis: 20rem;
+  flex-grow: 1;
+}
+
+.sidebar > :last-child {
+  flex-basis: 0;
+  flex-grow: 999;
+  min-width: 50%;
+}

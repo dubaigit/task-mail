@@ -1,0 +1,381 @@
+/* Optimized Global Styles for Email Intelligence Dashboard */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Import unified design tokens */
+@import './design-system/unified-design-tokens.css';
+
+/* Global resets and base styles */
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: hsl(var(--border-primary));
+}
+
+html {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
+  font-family: var(--font-sans);
+  font-feature-settings: normal;
+  font-variation-settings: normal;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  line-height: inherit;
+  background: #0f1419;
+  color: #e5e7eb;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  overflow-x: hidden;
+}
+
+/* Focus management */
+:focus-visible {
+  outline: 2px solid hsl(var(--focus));
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Remove default form styling */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+button,
+select {
+  text-transform: none;
+}
+
+/* Button reset */
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  -webkit-appearance: button;
+  background-color: transparent;
+  background-image: none;
+}
+
+/* Remove default button styling */
+:-moz-focusring {
+  outline: auto;
+}
+
+:-moz-ui-invalid {
+  box-shadow: none;
+}
+
+/* Progress element styling */
+progress {
+  vertical-align: baseline;
+}
+
+/* Make sure disabled buttons don't get the pointer cursor */
+:disabled {
+  cursor: default;
+}
+
+/* === UTILITY ANIMATIONS === */
+
+/* Shimmer animation for AI processing indicator */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Pulse animation for urgent items */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Spin animation for loading states */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Bounce animation for notifications */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Slide in from left */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+/* === COMPONENT UTILITIES === */
+
+/* Scrollbar styling */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border-secondary)) hsl(var(--surface));
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: hsl(var(--surface));
+  border-radius: var(--radius-sm);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--border-secondary));
+  border-radius: var(--radius-sm);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--border-tertiary));
+}
+
+/* Text selection styling */
+::selection {
+  background-color: hsl(var(--primary-500) / 0.2);
+  color: hsl(var(--text-primary));
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all var(--duration-200) var(--ease-out);
+}
+
+/* Glass effect utility */
+.glass-effect {
+  background: hsl(var(--surface) / 0.8);
+  backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid hsl(var(--border-primary) / 0.18);
+}
+
+/* Gradient text effect */
+.gradient-text {
+  background: linear-gradient(135deg, hsl(var(--primary-500)), hsl(var(--primary-700)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* === ACCESSIBILITY IMPROVEMENTS === */
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border-width: 0 !important;
+}
+
+.sr-only:focus {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: inherit !important;
+  margin: inherit !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: inherit !important;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border-width-default: 2px;
+    --border-width-thick: 3px;
+  }
+  
+  button, 
+  input, 
+  select, 
+  textarea {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  html {
+    scroll-behavior: auto;
+  }
+  
+  .animate-shimmer,
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce,
+  .animate-fade-in,
+  .animate-slide-in-left {
+    animation: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  * {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+  
+  blockquote, table, pre {
+    page-break-inside: avoid;
+  }
+  
+  img {
+    max-width: 100% !important;
+  }
+  
+  @page {
+    margin: 0.5in;
+  }
+}
+
+/* === DARK MODE SPECIFIC ADJUSTMENTS === */
+
+[data-theme="dark"] {
+  /* Enhanced dark mode scrollbar */
+  .custom-scrollbar {
+    scrollbar-color: hsl(var(--border-secondary)) hsl(var(--surface-secondary));
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--surface-secondary));
+  }
+  
+  /* Glass effect for dark mode */
+  .glass-effect {
+    background: hsl(var(--surface-secondary) / 0.8);
+    backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid hsl(var(--border-primary) / 0.18);
+    box-shadow: 0 8px 32px 0 hsl(220 10% 20% / 0.37);
+  }
+}
+
+/* === LEGACY SUPPORT === */
+
+/* Maintain compatibility with existing Tailwind classes that depend on these variables */
+:root {
+  /* Tailwind color compatibility */
+  --tw-prose-body: hsl(var(--text-primary));
+  --tw-prose-headings: hsl(var(--text-primary));
+  --tw-prose-lead: hsl(var(--text-secondary));
+  --tw-prose-links: hsl(var(--primary-600));
+  --tw-prose-bold: hsl(var(--text-primary));
+  --tw-prose-counters: hsl(var(--text-tertiary));
+  --tw-prose-bullets: hsl(var(--text-tertiary));
+  --tw-prose-hr: hsl(var(--border-primary));
+  --tw-prose-quotes: hsl(var(--text-primary));
+  --tw-prose-quote-borders: hsl(var(--border-primary));
+  --tw-prose-captions: hsl(var(--text-tertiary));
+  --tw-prose-code: hsl(var(--text-primary));
+  --tw-prose-pre-code: hsl(var(--text-inverse));
+  --tw-prose-pre-bg: hsl(var(--surface-tertiary));
+  --tw-prose-th-borders: hsl(var(--border-primary));
+  --tw-prose-td-borders: hsl(var(--border-secondary));
+}

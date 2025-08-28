@@ -1,0 +1,357 @@
+/* 
+ * Unified Design System Tokens - 2025 Edition
+ * Consolidates conflicting CSS variables from darkmode-2025.css and globals.css
+ * Uses HSL space-separated format for Tailwind compatibility with opacity modifiers
+ */
+
+:root {
+  /* === CORE DESIGN TOKENS === */
+  
+  /* Color Space Format: HSL space-separated (H S% L%) for Tailwind compatibility */
+  /* Usage: hsl(var(--primary-500)) or hsl(var(--primary-500) / 0.5) for opacity */
+  
+  /* Primary Brand Colors */
+  --primary-50: 220 100% 97%;
+  --primary-100: 220 88% 93%;
+  --primary-200: 220 84% 85%;
+  --primary-300: 220 79% 75%;
+  --primary-400: 220 81% 67%;
+  --primary-500: 220 88% 60%;
+  --primary-600: 220 92% 52%;
+  --primary-700: 220 87% 45%;
+  --primary-800: 220 82% 39%;
+  --primary-900: 220 75% 33%;
+  
+  /* Semantic Status Colors */
+  --success-50: 142 71% 95%;
+  --success-100: 142 71% 90%;
+  --success-200: 142 71% 80%;
+  --success-300: 142 71% 70%;
+  --success-400: 142 71% 60%;
+  --success-500: 142 71% 45%;
+  --success-600: 142 71% 35%;
+  --success-700: 142 71% 25%;
+  --success-800: 142 71% 20%;
+  --success-900: 142 71% 15%;
+  
+  --warning-50: 38 92% 95%;
+  --warning-100: 38 92% 90%;
+  --warning-200: 38 92% 80%;
+  --warning-300: 38 92% 70%;
+  --warning-400: 38 92% 60%;
+  --warning-500: 38 92% 50%;
+  --warning-600: 38 92% 40%;
+  --warning-700: 38 92% 30%;
+  --warning-800: 38 92% 25%;
+  --warning-900: 38 92% 20%;
+  
+  --error-50: 0 72% 95%;
+  --error-100: 0 72% 90%;
+  --error-200: 0 72% 80%;
+  --error-300: 0 72% 70%;
+  --error-400: 0 72% 60%;
+  --error-500: 0 72% 51%;
+  --error-600: 0 72% 41%;
+  --error-700: 0 72% 31%;
+  --error-800: 0 72% 25%;
+  --error-900: 0 72% 20%;
+  
+  --info-50: 200 98% 95%;
+  --info-100: 200 98% 90%;
+  --info-200: 200 98% 80%;
+  --info-300: 200 98% 70%;
+  --info-400: 200 98% 50%;
+  --info-500: 200 98% 39%;
+  --info-600: 200 98% 29%;
+  --info-700: 200 98% 25%;
+  --info-800: 200 98% 20%;
+  --info-900: 200 98% 15%;
+  
+  /* Neutral Gray Scale */
+  --neutral-50: 220 20% 98%;
+  --neutral-100: 220 15% 95%;
+  --neutral-200: 220 12% 88%;
+  --neutral-300: 220 10% 78%;
+  --neutral-400: 220 8% 58%;
+  --neutral-500: 220 7% 46%;
+  --neutral-600: 220 9% 34%;
+  --neutral-700: 220 12% 24%;
+  --neutral-800: 220 15% 16%;
+  --neutral-900: 220 20% 10%;
+  --neutral-950: 220 25% 6%;
+  
+  /* === SEMANTIC ALIASES === */
+  
+  /* Light Mode Defaults */
+  --background: var(--neutral-50);
+  --foreground: var(--neutral-900);
+  --surface: 0 0% 100%;
+  --surface-secondary: var(--neutral-100);
+  --surface-tertiary: var(--neutral-200);
+  
+  /* Text Colors */
+  --text-primary: var(--neutral-900);
+  --text-secondary: var(--neutral-600);
+  --text-tertiary: var(--neutral-500);
+  --text-muted: var(--neutral-400);
+  --text-disabled: var(--neutral-300);
+  --text-inverse: var(--neutral-50);
+  
+  /* Border Colors */
+  --border-primary: var(--neutral-200);
+  --border-secondary: var(--neutral-300);
+  --border-tertiary: var(--neutral-400);
+  --border-muted: var(--neutral-100);
+  
+  /* Interactive States */
+  --hover: var(--neutral-100);
+  --active: var(--neutral-200);
+  --focus: var(--primary-500);
+  --disabled: var(--neutral-100);
+  --disabled-text: var(--neutral-400);
+  
+  /* Component Backgrounds */
+  --card-background: var(--surface);
+  --card-hover: var(--surface-secondary);
+  --input-background: var(--surface);
+  --button-background: var(--primary-500);
+  --dropdown-background: var(--surface);
+  --modal-background: var(--surface);
+  
+  /* Priority Colors (Task Management) */
+  --priority-low: var(--neutral-500);
+  --priority-medium: var(--warning-500);
+  --priority-high: var(--error-500);
+  --priority-critical: 0 100% 50%;
+  
+  /* Status Colors (Task Management) */
+  --status-todo: var(--neutral-500);
+  --status-in-progress: var(--info-500);
+  --status-waiting: var(--warning-500);
+  --status-review: var(--primary-500);
+  --status-completed: var(--success-500);
+  --status-cancelled: var(--neutral-400);
+  --status-blocked: var(--error-500);
+  
+  /* Email Status Colors */
+  --email-unread: var(--primary-600);
+  --email-read: var(--neutral-500);
+  --email-archived: var(--neutral-400);
+  --email-flagged: var(--error-500);
+  --email-important: var(--warning-500);
+  
+  /* AI Processing Colors */
+  --ai-processing: var(--info-500);
+  --ai-completed: var(--success-500);
+  --ai-error: var(--error-500);
+  --ai-waiting: var(--warning-500);
+  
+  /* === SPACING SYSTEM === */
+  
+  /* Component Spacing */
+  --space-component-padding-sm: 0.75rem;  /* 12px */
+  --space-component-padding: 1rem;        /* 16px */
+  --space-component-padding-lg: 1.5rem;   /* 24px */
+  --space-component-gap-sm: 0.5rem;       /* 8px */
+  --space-component-gap: 0.75rem;         /* 12px */
+  --space-component-gap-lg: 1rem;         /* 16px */
+  
+  /* Task Card Spacing */
+  --space-task-padding: 1rem;             /* 16px */
+  --space-task-gap: 0.75rem;              /* 12px */
+  
+  /* Layout Spacing */
+  --space-layout-gutter: 1.5rem;          /* 24px */
+  --space-layout-section: 2rem;           /* 32px */
+  
+  /* === TYPOGRAPHY SYSTEM === */
+  
+  /* Font Families */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+  
+  /* Letter Spacing */
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+  
+  /* Task Card Typography */
+  --text-task-title: var(--font-size-lg);
+  --text-task-description: var(--font-size-sm);
+  --text-task-meta: var(--font-size-xs);
+  
+  /* === BORDER RADIUS SYSTEM === */
+  
+  --radius-none: 0;
+  --radius-sm: 0.25rem;    /* 4px */
+  --radius: 0.375rem;      /* 6px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;
+  
+  /* Component Border Radius */
+  --radius-card: var(--radius-lg);
+  --radius-button: var(--radius);
+  --radius-input: var(--radius);
+  
+  /* === BORDER WIDTH SYSTEM === */
+  
+  --border-width-default: 1px;
+  --border-width-thick: 2px;
+  --border-width-priority: 4px;
+  
+  /* === SHADOW SYSTEM === */
+  
+  --shadow-xs: 0 1px 2px 0 hsl(var(--neutral-900) / 0.05);
+  --shadow-sm: 0 1px 3px 0 hsl(var(--neutral-900) / 0.1), 0 1px 2px -1px hsl(var(--neutral-900) / 0.1);
+  --shadow-md: 0 4px 6px -1px hsl(var(--neutral-900) / 0.1), 0 2px 4px -2px hsl(var(--neutral-900) / 0.1);
+  --shadow-lg: 0 10px 15px -3px hsl(var(--neutral-900) / 0.1), 0 4px 6px -4px hsl(var(--neutral-900) / 0.1);
+  --shadow-xl: 0 20px 25px -5px hsl(var(--neutral-900) / 0.1), 0 8px 10px -6px hsl(var(--neutral-900) / 0.1);
+  --shadow-2xl: 0 25px 50px -12px hsl(var(--neutral-900) / 0.25);
+  
+  /* Component Shadows */
+  --shadow-card: var(--shadow-sm);
+  --shadow-card-hover: var(--shadow-md);
+  --shadow-modal: var(--shadow-xl);
+  --shadow-dropdown: var(--shadow-lg);
+  
+  /* === ANIMATION SYSTEM === */
+  
+  /* Animation Durations */
+  --duration-75: 75ms;
+  --duration-100: 100ms;
+  --duration-150: 150ms;
+  --duration-200: 200ms;
+  --duration-300: 300ms;
+  --duration-500: 500ms;
+  --duration-700: 700ms;
+  --duration-1000: 1000ms;
+  
+  /* Animation Timing Functions */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* === DARK MODE OVERRIDES === */
+
+[data-theme="dark"] {
+  /* Background Colors - Archon Standard Dark Theme */
+  --background: 0 0% 8%;              /* #141414 - proper dark gray */
+  --foreground: 0 0% 90%;             /* #e5e5e5 - clean white text */
+  --surface: 0 0% 12%;                /* #1f1f1f - surface elements */
+  --surface-secondary: 0 0% 16%;      /* #292929 - secondary surfaces */
+  --surface-tertiary: 0 0% 20%;       /* #333333 - tertiary surfaces */
+  
+  /* Text Colors - Archon Standard */
+  --text-primary: 0 0% 90%;           /* #e5e5e5 - primary text */
+  --text-secondary: 0 0% 65%;         /* #a6a6a6 - secondary text */
+  --text-tertiary: 0 0% 55%;          /* #8c8c8c - tertiary text */
+  --text-muted: 0 0% 45%;             /* #737373 - muted text */
+  --text-disabled: 0 0% 35%;          /* #595959 - disabled text */
+  --text-inverse: var(--neutral-900);
+  
+  /* Border Colors - Archon Standard */
+  --border-primary: 0 0% 25%;         /* #404040 - primary borders */
+  --border-secondary: 0 0% 20%;       /* #333333 - secondary borders */  
+  --border-tertiary: 0 0% 30%;        /* #4d4d4d - tertiary borders */
+  --border-muted: 0 0% 18%;           /* #2e2e2e - muted borders */
+  
+  /* Interactive States - Archon Standard */
+  --hover: 0 0% 18%;              /* #2e2e2e - hover state */
+  --active: 0 0% 22%;             /* #383838 - active state */
+  --focus: var(--primary-400);    /* Keep primary color for focus */
+  --disabled: 0 0% 15%;           /* #262626 - disabled state */
+  --disabled-text: 0 0% 34%;      /* #575757 - disabled text */
+  
+  /* Component Backgrounds */
+  --card-background: var(--surface);
+  --card-hover: var(--surface-secondary);
+  --input-background: var(--surface-secondary);
+  --button-background: var(--primary-600);
+  --dropdown-background: var(--surface-tertiary);
+  --modal-background: var(--surface);
+  
+  /* Adjusted Shadows for Dark Mode */
+  --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
+  --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.4), 0 1px 2px -1px hsl(0 0% 0% / 0.4);
+  --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.4);
+  --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.5), 0 4px 6px -4px hsl(0 0% 0% / 0.5);
+  --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.6), 0 8px 10px -6px hsl(0 0% 0% / 0.6);
+  --shadow-2xl: 0 25px 50px -12px hsl(0 0% 0% / 0.7);
+}
+
+/* === GLASSMORPHISM UTILITIES (DARK MODE ENHANCED) === */
+
+[data-theme="dark"] {
+  /* Glassmorphism Properties */
+  --glass-background: hsl(var(--surface-secondary) / 0.8);
+  --glass-border: 1px solid hsl(var(--border-primary) / 0.18);
+  --glass-backdrop-filter: blur(40px) saturate(180%);
+  --glass-shadow: 0 8px 32px 0 hsl(31 38% 53% / 0.37);
+  
+  /* Glass Gradient Overlays */
+  --gradient-glass: linear-gradient(135deg, hsl(var(--primary-500) / 0.1) 0%, hsl(var(--primary-700) / 0.1) 100%);
+  --gradient-glass-success: linear-gradient(135deg, hsl(var(--success-500) / 0.1) 0%, hsl(var(--success-700) / 0.1) 100%);
+  --gradient-glass-warning: linear-gradient(135deg, hsl(var(--warning-500) / 0.1) 0%, hsl(var(--warning-700) / 0.1) 100%);
+  --gradient-glass-error: linear-gradient(135deg, hsl(var(--error-500) / 0.1) 0%, hsl(var(--error-700) / 0.1) 100%);
+}
+
+/* === RESPONSIVE BREAKPOINTS (Reference - for CSS-in-JS usage) === */
+
+/* 
+ * Mobile First Breakpoints:
+ * sm: 640px
+ * md: 768px  
+ * lg: 1024px
+ * xl: 1280px
+ * 2xl: 1536px
+ */
+
+/* === LEGACY COMPATIBILITY === */
+
+/* Maintain backwards compatibility with existing CSS custom properties */
+:root {
+  /* Old darkmode-2025.css compatibility */
+  --color-bg-primary: hsl(var(--background));
+  --color-bg-secondary: hsl(var(--surface));
+  --color-bg-tertiary: hsl(var(--surface-secondary));
+  --color-text-primary: hsl(var(--text-primary));
+  --color-text-secondary: hsl(var(--text-secondary));
+  --color-border-primary: hsl(var(--border-primary));
+  
+  /* Old globals.css compatibility */
+  --primary: var(--primary-500);
+  --primary-foreground: var(--neutral-50);
+  --success: var(--success-500);
+  --warning: var(--warning-500);
+  --destructive: var(--error-500);
+  --info: var(--info-500);
+}

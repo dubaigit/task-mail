@@ -1,0 +1,309 @@
+import { create } from 'zustand';
+import { devtools, persist } from 'zustand/middleware';
+import api, { endpoints } from '../services/api';
+import { createStoreErrorHandler } from '../utils/errorHandler';
+
+export interface Email {
+  id: number;
+  subject: string;
+  sender: string;
+  senderEmail: string;
+  recipient?: string;
+  date: string;
+  classification: string;
+  urgency: string;
+  confidence: number;
+  has_draft: boolean;
+  preview?: string;
+  content?: string;
+  isRead?: boolean;
+  isStarred?: boolean;
+  tags?: string[];
+  estimatedResponseTime?: string;
+  processed: boolean;
+}
+
+interface EmailState {
+  unreadCount: number;
+  syncEmails: () => Promise<void>;
+  isLoading: boolean;
+  // State
+  emails: Email[];
+  selectedEmail: Email | null;
+  loading: boolean;
+  error: string | null;
+  searchQuery: string;
+  filterBy: 'all' | 'unread' | 'starred' | 'urgent';
+  selectedCategory: string;
+  
+  // Computed values
+  filteredEmails: Email[];
+  
+  // Actions
+  setEmails: (emails: Email[]) => void;
+  selectEmail: (email: Email | null) => void;
+  updateEmail: (id: number, updates: Partial<Email>) => void;
+  deleteEmail: (id: number) => void;
+  setSearchQuery: (query: string) => void;
+  setFilterBy: (filter: EmailState['filterBy']) => void;
+  setSelectedCategory: (category: string) => void;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  
+  // Async actions
+  fetchEmails: () => Promise<void>;
+  archiveEmail: (id: number) => Promise<void>;
+  markAsRead: (id: number) => Promise<void>;
+  toggleStar: (id: number) => void;
+  searchEmails: (query: string) => Promise<void>;
+}
+
+const filterEmails = (
+  emails: Email[],
+  searchQuery: string,
+  filterBy: EmailState['filterBy'],
+  selectedCategory: string
+): Email[] => {
+  let filtered = [...emails];
+  
+  // Apply category filter
+  if (selectedCategory !== 'inbox') {
+    // This would need more sophisticated filtering based on category
+    // For now, we'll keep all emails for non-inbox categories
+  }
+  
+  // Apply search filter
+  if (searchQuery) {
+    const query = searchQuery.toLowerCase();
+    filtered = filtered.filter(email =>
+      email.subject.toLowerCase().includes(query) ||
+      email.sender.toLowerCase().includes(query) ||
+      email.preview?.toLowerCase().includes(query) ||
+      email.content?.toLowerCase().includes(query)
+    );
+  }
+  
+  // Apply status filter
+  switch (filterBy) {
+    case 'unread':
+      filtered = filtered.filter(email => !email.isRead);
+      break;
+    case 'starred':
+      filtered = filtered.filter(email => email.isStarred);
+      break;
+    case 'urgent':
+      filtered = filtered.filter(email => 
+        email.urgency === 'CRITICAL' || email.urgency === 'HIGH'
+      );
+      break;
+    case 'all':
+    default:
+      // No additional filtering
+      break;
+  }
+  
+  return filtered;
+};
+
+const handleError = createStoreErrorHandler('emailStore');
+
+export const useEmailStore = create<EmailState>()(
+  devtools(
+    persist(
+      (set, get) => ({
+        // Initial state
+        emails: [],
+        selectedEmail: null,
+        loading: false,
+        error: null,
+        searchQuery: '',
+        filterBy: 'all',
+        selectedCategory: 'inbox',
+        isLoading: false,
+        
+        // Computed values
+        get filteredEmails() {
+          const { emails, searchQuery, filterBy, selectedCategory } = get();
+          return filterEmails(emails, searchQuery, filterBy, selectedCategory);
+        },
+        
+        get unreadCount() {
+          const { emails } = get();
+          return emails.filter(email => !email.isRead).length;
+        },
+        
+        // Actions
+        setEmails: (emails) => set({ emails }),
+        
+        selectEmail: (email) => set({ selectedEmail: email }),
+        
+        updateEmail: (id, updates) => set((state) => ({
+          emails: state.emails.map(email =>
+            email.id === id ? { ...email, ...updates } : email
+          ),
+          selectedEmail: state.selectedEmail?.id === id
+            ? { ...state.selectedEmail, ...updates }
+            : state.selectedEmail,
+        })),
+        
+        deleteEmail: (id) => set((state) => ({
+          emails: state.emails.filter(email => email.id !== id),
+          selectedEmail: state.selectedEmail?.id === id ? null : state.selectedEmail,
+        })),
+        
+        setSearchQuery: (query) => set({ searchQuery: query }),
+        
+        setFilterBy: (filter) => set({ filterBy: filter }),
+        
+        setSelectedCategory: (category) => set({ selectedCategory: category }),
+        
+        setLoading: (loading) => set({ loading }),
+        
+        setError: (error) => set({ error }),
+        
+        syncEmails: async () => {
+          await get().fetchEmails();
+        },
+        
+        // Async actions
+        fetchEmails: async () => {
+          const { setLoading, setError, setEmails } = get();
+          setLoading(true);
+          setError(null);
+          
+          try {
+            // Use new enhanced email endpoint
+            const response = await api.get(endpoints.emails.list);
+            const emails = response.data.data || response.data;
+            
+            if (Array.isArray(emails)) {
+              const processedEmails = emails.map((email: any, index: number) => ({
+                id: email.id || index,
+                subject: email.subject || 'No Subject',
+                sender: email.sender || 'Unknown Sender',
+                senderEmail: email.sender || email.sender_email || '',
+                recipient: email.to_recipients?.[0] || email.recipient || '',
+                date: email.date_received || email.date || new Date().toISOString(),
+                classification: email.category || email.classification || 'general',
+                urgency: email.priority?.toUpperCase() || email.urgency || 'MEDIUM',
+                confidence: email.ai_classification?.confidence || email.confidence || 0.5,
+                has_draft: email.has_draft || false,
+                preview: email.message_content?.substring(0, 150) + '...' || email.preview || '',
+                content: email.message_content || email.content || '',
+                isRead: email.is_read ?? email.isRead ?? false,
+                isStarred: email.is_flagged ?? email.isStarred ?? false,
+                tags: email.labels || email.tags || [],
+                estimatedResponseTime: email.estimated_response_time || '24 hours',
+                processed: email.processed ?? true
+              }));
+              
+              setEmails(processedEmails);
+            }
+          } catch (error) {
+            setError(handleError(error, 'fetchEmails'));
+          } finally {
+            setLoading(false);
+          }
+        },
+        
+        archiveEmail: async (id) => {
+          const { updateEmail, setError } = get();
+          
+          try {
+            const response = await api.post(`/emails/${id}/archive`);
+            if (response.data?.error) {
+              throw new Error(response.data.error);
+            }
+            
+            // Remove from current view (or mark as archived)
+            updateEmail(id, { tags: ['archived'] });
+          } catch (error) {
+            setError(handleError(error, 'archiveEmail'));
+          }
+        },
+        
+        markAsRead: async (id) => {
+          const { updateEmail, setError } = get();
+          
+          try {
+            const response = await api.put(endpoints.emails.markAsRead(String(id)));
+            if (response.data?.error) {
+              throw new Error(response.data.error);
+            }
+            
+            updateEmail(id, { isRead: true });
+          } catch (error) {
+            setError(handleError(error, 'markAsRead'));
+          }
+        },
+        
+        toggleStar: (id) => {
+          const { emails, updateEmail } = get();
+          const email = emails.find(e => e.id === id);
+          if (email) {
+            updateEmail(id, { isStarred: !email.isStarred });
+          }
+        },
+        
+        searchEmails: async (query) => {
+          const { setLoading, setError, setEmails, setSearchQuery } = get();
+          setSearchQuery(query);
+          
+          if (!query) {
+            // If query is empty, fetch all emails
+            await get().fetchEmails();
+            return;
+          }
+          
+          setLoading(true);
+          setError(null);
+          
+          try {
+            // Use AI-powered search endpoint
+            const response = await api.post(endpoints.ai.searchEmails, {
+              query,
+              filters: {}
+            });
+            
+            const searchResults = response.data.results || [];
+            
+            if (Array.isArray(searchResults)) {
+              const processedEmails = searchResults.map((email: any) => ({
+                id: email.id,
+                subject: email.subject || 'No Subject',
+                sender: email.sender || 'Unknown Sender',
+                senderEmail: email.sender || '',
+                recipient: email.to_recipients?.[0] || '',
+                date: email.date_received || new Date().toISOString(),
+                classification: email.category || 'general',
+                urgency: email.priority?.toUpperCase() || 'MEDIUM',
+                confidence: email.ai_classification?.confidence || 0.5,
+                has_draft: email.has_draft || false,
+                preview: email.message_content?.substring(0, 150) + '...' || '',
+                content: email.message_content || '',
+                isRead: email.is_read ?? false,
+                isStarred: email.is_flagged ?? false,
+                tags: email.labels || [],
+                estimatedResponseTime: email.estimated_response_time || '24 hours',
+                processed: email.processed ?? true
+              }));
+              
+              setEmails(processedEmails);
+            }
+          } catch (error) {
+            setError(handleError(error, 'searchEmails'));
+          } finally {
+            setLoading(false);
+          }
+        },
+      }),
+      {
+        name: 'email-store',
+        partialize: (state) => ({
+          selectedCategory: state.selectedCategory,
+          filterBy: state.filterBy,
+        }),
+      }
+    )
+  )
+);
