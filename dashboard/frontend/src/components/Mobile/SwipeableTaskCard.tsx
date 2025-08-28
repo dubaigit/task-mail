@@ -164,7 +164,7 @@ const SwipeableTaskCard: React.FC<SwipeableTaskCardProps> = ({
                     </Badge>
 
                     {isOverdue && (
-                      <Badge variant="destructive" className="text-xs px-2 py-0.5">
+                      <Badge variant="danger" className="text-xs px-2 py-0.5">
                         Overdue
                       </Badge>
                     )}

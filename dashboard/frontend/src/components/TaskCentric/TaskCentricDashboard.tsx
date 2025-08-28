@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { ModernButton } from "../ui/ModernButton";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/Avatar";
-import { Badge } from "../ui/SimpleComponents";
+import { Badge } from "../ui";
 import { ScrollArea } from "../ui/ScrollArea";
 import { Separator } from "../ui/Separator";
 import {
