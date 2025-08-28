@@ -111,9 +111,9 @@ else
 fi
 
 # Check Apple Mail database path
-APPLE_MAIL_PATH="/Users/iamomen/Library/Mail/V10/MailData/Envelope Index"
-if [ -f "$APPLE_MAIL_PATH" ]; then
-    print_success "Apple Mail database found at: $APPLE_MAIL_PATH"
+APPLE_MAIL_PATH_DEFAULT="$ROOT_DIR/database/fake-apple-mail/fake-envelope-index.sqlite"
+if [ -f "$APPLE_MAIL_PATH_DEFAULT" ]; then
+    print_success "Using fake Apple Mail database at: $APPLE_MAIL_PATH_DEFAULT"
 else
     print_warning "Apple Mail database not found at expected path: $APPLE_MAIL_PATH"
     print_warning "Please update the APPLE_MAIL_DB_PATH in your .env file"
