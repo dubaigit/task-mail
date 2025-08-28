@@ -11,87 +11,87 @@ const MainDashboard: React.FC = () => {
     { role: 'ai', content: 'Hello! I can help you manage emails, create drafts, and automate workflows. What would you like me to do?' }
   ]);
 
-  // Design System Tokens - Professional 2025 Standards
+  // Design System Integration - Using CSS Custom Properties
   const designTokens = {
-    // Color System - Sophisticated Dark Mode Palette
+    // Color System - Using CSS Custom Properties
     colors: {
       // Base Colors
-      background: '#0A0E1A',      // Deep navy base
-      surface: '#111827',         // Card backgrounds
-      surfaceHover: '#1F2937',    // Hover states
-      border: '#374151',          // Subtle borders
-      borderLight: '#4B5563',     // Lighter borders
+      background: 'hsl(var(--background))',
+      surface: 'hsl(var(--surface))',
+      surfaceHover: 'hsl(var(--surface-secondary))',
+      border: 'hsl(var(--border-primary))',
+      borderLight: 'hsl(var(--border-secondary))',
       
       // Text Colors
-      textPrimary: '#F9FAFB',     // Primary text
-      textSecondary: '#D1D5DB',   // Secondary text
-      textMuted: '#9CA3AF',       // Muted text
+      textPrimary: 'hsl(var(--text-primary))',
+      textSecondary: 'hsl(var(--text-secondary))',
+      textMuted: 'hsl(var(--text-muted))',
       
       // Brand Colors
-      primary: '#3B82F6',         // Primary blue
-      primaryHover: '#2563EB',    // Primary hover
+      primary: 'hsl(var(--primary-500))',
+      primaryHover: 'hsl(var(--primary-600))',
       
-      // Status Colors - Refined & Professional
-      success: '#059669',         // Success green
-      warning: '#D97706',         // Warning amber
-      error: '#DC2626',           // Error red
-      info: '#0891B2',            // Info cyan
+      // Status Colors - Using CSS Custom Properties
+      success: 'hsl(var(--success-600))',
+      warning: 'hsl(var(--warning-500))',
+      error: 'hsl(var(--error-500))',
+      info: 'hsl(var(--info-500))',
       
       // Status Light Variants
-      successLight: '#065F46',
-      warningLight: '#92400E',
-      errorLight: '#991B1B',
-      infoLight: '#155E75',
+      successLight: 'hsl(var(--success-700))',
+      warningLight: 'hsl(var(--warning-700))',
+      errorLight: 'hsl(var(--error-700))',
+      infoLight: 'hsl(var(--info-700))',
     },
     
-    // Typography Scale - Perfect Hierarchy
+    // Typography Scale - Using CSS Custom Properties
     typography: {
-      // Font Sizes (rem)
-      xs: '0.75rem',      // 12px
-      sm: '0.875rem',     // 14px
-      base: '1rem',       // 16px
-      lg: '1.125rem',     // 18px
-      xl: '1.25rem',      // 20px
-      '2xl': '1.5rem',    // 24px
-      '3xl': '1.875rem',  // 30px
+      // Font Sizes
+      xs: 'var(--font-size-xs)',
+      sm: 'var(--font-size-sm)',
+      base: 'var(--font-size-base)',
+      lg: 'var(--font-size-lg)',
+      xl: 'var(--font-size-xl)',
+      '2xl': 'var(--font-size-2xl)',
+      '3xl': 'var(--font-size-3xl)',
       
       // Line Heights
-      tight: '1.25',
-      normal: '1.5',
-      relaxed: '1.625',
+      tight: 'var(--line-height-tight)',
+      normal: 'var(--line-height-normal)',
+      relaxed: 'var(--line-height-relaxed)',
       
       // Font Weights
-      fontNormal: '400',
-      medium: '500',
-      semibold: '600',
-      bold: '700',
+      fontNormal: 'var(--font-weight-normal)',
+      medium: 'var(--font-weight-medium)',
+      semibold: 'var(--font-weight-semibold)',
+      bold: 'var(--font-weight-bold)',
     },
     
-    // Spacing System - 8pt Grid
+    // Spacing System - Using CSS Custom Properties
     spacing: {
-      xs: '0.25rem',    // 4px
-      sm: '0.5rem',     // 8px
-      md: '0.75rem',    // 12px
-      lg: '1rem',       // 16px
-      xl: '1.5rem',     // 24px
-      '2xl': '2rem',    // 32px
-      '3xl': '3rem',    // 48px
+      xs: '0.25rem',    // 4px - fallback for very small spacing
+      sm: 'var(--space-component-gap-sm)',     // 8px
+      md: 'var(--space-component-gap)',        // 12px
+      lg: 'var(--space-component-gap-lg)',     // 16px
+      xl: 'var(--space-component-padding-lg)', // 24px
+      '2xl': 'var(--space-layout-section)',    // 32px
+      '3xl': '3rem',    // 48px - fallback for large spacing
     },
     
-    // Border Radius - Consistent System
+    // Border Radius - Using CSS Custom Properties
     radius: {
-      sm: '0.25rem',    // 4px
-      md: '0.375rem',   // 6px
-      lg: '0.5rem',     // 8px
-      xl: '0.75rem',    // 12px
+      sm: 'var(--radius-sm)',
+      md: 'var(--radius-md)',
+      lg: 'var(--radius-lg)',
+      xl: 'var(--radius-xl)',
     },
     
-    // Shadows - Proper Elevation
+    // Shadows - Using CSS Custom Properties
     shadows: {
-      sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-      md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-      lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-      xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+      sm: 'var(--shadow-sm)',
+      md: 'var(--shadow-md)',
+      lg: 'var(--shadow-lg)',
+      xl: 'var(--shadow-xl)',
     }
   };
 
@@ -438,9 +438,9 @@ const MainDashboard: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: `${designTokens.spacing.md} ${designTokens.spacing.lg}`,
+                    padding: `${designTokens.spacing.lg} ${designTokens.spacing.xl}`,
                     backgroundColor: selectedCategory === category.id ? designTokens.colors.surfaceHover : 'transparent',
-                    border: 'none',
+                    border: `1px solid ${selectedCategory === category.id ? designTokens.colors.borderLight : 'transparent'}`,
                     borderRadius: designTokens.radius.lg,
                     color: selectedCategory === category.id ? designTokens.colors.textPrimary : designTokens.colors.textSecondary,
                     cursor: 'pointer',
@@ -449,22 +449,35 @@ const MainDashboard: React.FC = () => {
                     transition: 'all 0.2s ease',
                     borderLeft: `3px solid ${selectedCategory === category.id ? category.color : 'transparent'}`,
                     lineHeight: designTokens.typography.normal,
-                    textAlign: 'left'
+                    textAlign: 'left',
+                    gap: designTokens.spacing.lg,
+                    minHeight: '44px', // Consistent button height
+                    boxSizing: 'border-box'
                   }}
                   onMouseEnter={(e) => {
                     if (selectedCategory !== category.id) {
                       e.currentTarget.style.backgroundColor = designTokens.colors.surfaceHover;
                       e.currentTarget.style.color = designTokens.colors.textPrimary;
+                      e.currentTarget.style.borderColor = designTokens.colors.border;
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (selectedCategory !== category.id) {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = designTokens.colors.textSecondary;
+                      e.currentTarget.style.borderColor = 'transparent';
                     }
                   }}
                 >
-                  <span>{category.name}</span>
+                  <span style={{
+                    flex: 1,
+                    textAlign: 'left',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}>
+                    {category.name}
+                  </span>
                   <span style={{
                     backgroundColor: category.color,
                     color: 'white',
@@ -473,8 +486,13 @@ const MainDashboard: React.FC = () => {
                     fontSize: designTokens.typography.xs,
                     fontWeight: designTokens.typography.semibold,
                     lineHeight: '1',
-                    minWidth: '20px',
-                    textAlign: 'center'
+                    minWidth: '24px',
+                    height: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginLeft: designTokens.spacing.xl // Increased spacing
                   }}>
                     {category.count}
                   </span>
@@ -500,17 +518,34 @@ const MainDashboard: React.FC = () => {
               borderRadius: designTokens.radius.xl,
               padding: designTokens.spacing.xl,
               border: `1px solid ${designTokens.colors.border}`,
-              boxShadow: designTokens.shadows.md,
-              transition: 'all 0.2s ease'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
+              boxShadow: designTokens.shadows.lg,
+              transition: 'all 0.2s ease',
+              minHeight: '120px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = designTokens.shadows.xl;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = designTokens.shadows.lg;
+            }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
+                <div style={{ flex: 1 }}>
                   <p style={{ 
                     color: designTokens.colors.textMuted, 
                     fontSize: designTokens.typography.sm, 
-                    fontWeight: designTokens.typography.medium,
+                    fontWeight: designTokens.typography.semibold,
                     margin: 0,
-                    lineHeight: designTokens.typography.normal
+                    lineHeight: designTokens.typography.normal,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
                   }}>
                     Total Emails
                   </p>
@@ -525,14 +560,16 @@ const MainDashboard: React.FC = () => {
                   </p>
                 </div>
                 <div style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: designTokens.radius.lg,
+                  width: '52px',
+                  height: '52px',
+                  borderRadius: designTokens.radius.xl,
                   backgroundColor: designTokens.colors.primary,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'white'
+                  color: 'white',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                  flexShrink: 0
                 }}>
                   {icons.email}
                 </div>
@@ -546,16 +583,33 @@ const MainDashboard: React.FC = () => {
               padding: designTokens.spacing.xl,
               border: `1px solid ${designTokens.colors.border}`,
               boxShadow: designTokens.shadows.md,
-              transition: 'all 0.2s ease'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
+              transition: 'all 0.2s ease',
+              minHeight: '120px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = designTokens.shadows.lg;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = designTokens.shadows.md;
+            }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
+                <div style={{ flex: 1 }}>
                   <p style={{ 
                     color: designTokens.colors.textMuted, 
                     fontSize: designTokens.typography.sm, 
-                    fontWeight: designTokens.typography.medium,
+                    fontWeight: designTokens.typography.semibold,
                     margin: 0,
-                    lineHeight: designTokens.typography.normal
+                    lineHeight: designTokens.typography.normal,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
                   }}>
                     Urgent
                   </p>
@@ -570,14 +624,16 @@ const MainDashboard: React.FC = () => {
                   </p>
                 </div>
                 <div style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: designTokens.radius.lg,
+                  width: '52px',
+                  height: '52px',
+                  borderRadius: designTokens.radius.xl,
                   backgroundColor: designTokens.colors.error,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'white'
+                  color: 'white',
+                  boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)',
+                  flexShrink: 0
                 }}>
                   {icons.alert}
                 </div>
@@ -591,16 +647,33 @@ const MainDashboard: React.FC = () => {
               padding: designTokens.spacing.xl,
               border: `1px solid ${designTokens.colors.border}`,
               boxShadow: designTokens.shadows.md,
-              transition: 'all 0.2s ease'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
+              transition: 'all 0.2s ease',
+              minHeight: '120px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = designTokens.shadows.lg;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = designTokens.shadows.md;
+            }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
+                <div style={{ flex: 1 }}>
                   <p style={{ 
                     color: designTokens.colors.textMuted, 
                     fontSize: designTokens.typography.sm, 
-                    fontWeight: designTokens.typography.medium,
+                    fontWeight: designTokens.typography.semibold,
                     margin: 0,
-                    lineHeight: designTokens.typography.normal
+                    lineHeight: designTokens.typography.normal,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
                   }}>
                     Response Rate
                   </p>
@@ -615,14 +688,16 @@ const MainDashboard: React.FC = () => {
                   </p>
                 </div>
                 <div style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: designTokens.radius.lg,
+                  width: '52px',
+                  height: '52px',
+                  borderRadius: designTokens.radius.xl,
                   backgroundColor: designTokens.colors.success,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'white'
+                  color: 'white',
+                  boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)',
+                  flexShrink: 0
                 }}>
                   {icons.chart}
                 </div>
@@ -636,16 +711,33 @@ const MainDashboard: React.FC = () => {
               padding: designTokens.spacing.xl,
               border: `1px solid ${designTokens.colors.border}`,
               boxShadow: designTokens.shadows.md,
-              transition: 'all 0.2s ease'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
+              transition: 'all 0.2s ease',
+              minHeight: '120px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = designTokens.shadows.lg;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = designTokens.shadows.md;
+            }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
+                <div style={{ flex: 1 }}>
                   <p style={{ 
                     color: designTokens.colors.textMuted, 
                     fontSize: designTokens.typography.sm, 
-                    fontWeight: designTokens.typography.medium,
+                    fontWeight: designTokens.typography.semibold,
                     margin: 0,
-                    lineHeight: designTokens.typography.normal
+                    lineHeight: designTokens.typography.normal,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
                   }}>
                     Avg Response Time
                   </p>
@@ -660,14 +752,16 @@ const MainDashboard: React.FC = () => {
                   </p>
                 </div>
                 <div style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: designTokens.radius.lg,
+                  width: '52px',
+                  height: '52px',
+                  borderRadius: designTokens.radius.xl,
                   backgroundColor: designTokens.colors.warning,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'white'
+                  color: 'white',
+                  boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)',
+                  flexShrink: 0
                 }}>
                   {icons.clock}
                 </div>
@@ -783,33 +877,42 @@ const MainDashboard: React.FC = () => {
                           {email.time}
                         </span>
                         
-                        <div style={{ display: 'flex', gap: designTokens.spacing.xs }}>
+                        <div style={{ 
+                          display: 'flex', 
+                          gap: designTokens.spacing.sm,
+                          flexWrap: 'wrap',
+                          alignItems: 'center'
+                        }}>
                           <span style={{
                             backgroundColor: email.status === 'urgent' ? designTokens.colors.error : 
                                            email.status === 'pending' ? designTokens.colors.warning : 
                                            email.status === 'action_required' ? '#8B5CF6' : designTokens.colors.success,
                             color: 'white',
                             fontSize: designTokens.typography.xs,
-                            fontWeight: designTokens.typography.semibold,
-                            padding: `${designTokens.spacing.xs} ${designTokens.spacing.sm}`,
-                            borderRadius: designTokens.radius.sm,
+                            fontWeight: designTokens.typography.bold,
+                            padding: `${designTokens.spacing.sm} ${designTokens.spacing.md}`,
+                            borderRadius: designTokens.radius.md,
                             textTransform: 'uppercase',
                             lineHeight: '1',
-                            whiteSpace: 'nowrap'
+                            whiteSpace: 'nowrap',
+                            letterSpacing: '0.025em',
+                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
                           }}>
                             {email.status.replace('_', ' ')}
                           </span>
                           
                           <span style={{
                             backgroundColor: designTokens.colors.surfaceHover,
-                            color: designTokens.colors.textMuted,
+                            color: designTokens.colors.textSecondary,
                             fontSize: designTokens.typography.xs,
                             fontWeight: designTokens.typography.semibold,
-                            padding: `${designTokens.spacing.xs} ${designTokens.spacing.sm}`,
-                            borderRadius: designTokens.radius.sm,
+                            padding: `${designTokens.spacing.sm} ${designTokens.spacing.md}`,
+                            borderRadius: designTokens.radius.md,
                             textTransform: 'uppercase',
                             lineHeight: '1',
-                            whiteSpace: 'nowrap'
+                            whiteSpace: 'nowrap',
+                            letterSpacing: '0.025em',
+                            border: `1px solid ${designTokens.colors.border}`
                           }}>
                             {email.taskType}
                           </span>
@@ -913,13 +1016,106 @@ const MainDashboard: React.FC = () => {
                 <div style={{
                   flex: 1,
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: designTokens.colors.textMuted,
-                  fontSize: designTokens.typography.sm,
-                  lineHeight: designTokens.typography.normal
+                  padding: designTokens.spacing.xl,
+                  textAlign: 'center'
                 }}>
-                  Select an email to view details
+                  <div style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '50%',
+                    backgroundColor: designTokens.colors.surfaceHover,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: designTokens.spacing.xl,
+                    border: `2px solid ${designTokens.colors.border}`
+                  }}>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: designTokens.colors.textMuted }}>
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                  </div>
+                  
+                  <h3 style={{
+                    fontSize: designTokens.typography.lg,
+                    fontWeight: designTokens.typography.semibold,
+                    color: designTokens.colors.textPrimary,
+                    margin: `0 0 ${designTokens.spacing.sm} 0`,
+                    lineHeight: designTokens.typography.tight
+                  }}>
+                    No Email Selected
+                  </h3>
+                  
+                  <p style={{
+                    fontSize: designTokens.typography.sm,
+                    color: designTokens.colors.textMuted,
+                    lineHeight: designTokens.typography.relaxed,
+                    margin: `0 0 ${designTokens.spacing.xl} 0`,
+                    maxWidth: '280px'
+                  }}>
+                    Choose an email from the list to view its details, reply, or take action on the task.
+                  </p>
+                  
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: designTokens.spacing.md,
+                    width: '100%',
+                    maxWidth: '240px'
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: designTokens.spacing.sm,
+                      padding: designTokens.spacing.md,
+                      backgroundColor: designTokens.colors.surfaceHover,
+                      borderRadius: designTokens.radius.lg,
+                      border: `1px solid ${designTokens.colors.border}`
+                    }}>
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: designTokens.colors.error,
+                        flexShrink: 0
+                      }}></div>
+                      <span style={{
+                        fontSize: designTokens.typography.xs,
+                        color: designTokens.colors.textSecondary,
+                        fontWeight: designTokens.typography.medium
+                      }}>
+                        {emailMetrics.urgentEmails} urgent emails need attention
+                      </span>
+                    </div>
+                    
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: designTokens.spacing.sm,
+                      padding: designTokens.spacing.md,
+                      backgroundColor: designTokens.colors.surfaceHover,
+                      borderRadius: designTokens.radius.lg,
+                      border: `1px solid ${designTokens.colors.border}`
+                    }}>
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: designTokens.colors.success,
+                        flexShrink: 0
+                      }}></div>
+                      <span style={{
+                        fontSize: designTokens.typography.xs,
+                        color: designTokens.colors.textSecondary,
+                        fontWeight: designTokens.typography.medium
+                      }}>
+                        {emailMetrics.responseRate}% response rate this week
+                      </span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
