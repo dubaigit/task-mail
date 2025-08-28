@@ -204,7 +204,7 @@ PORT=8000
 CORS_ORIGIN=http://localhost:3000
 
 # Frontend (.env in dashboard/frontend/)
-REACT_APP_API_URL=http://localhost:8000/api
+REACT_APP_API_URL=http://localhost:8000
 REACT_APP_SUPABASE_URL=http://127.0.0.1:54321
 REACT_APP_SUPABASE_ANON_KEY=...
 
