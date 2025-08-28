@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-// Modern Email Dashboard with 2025 Design Standards
+// Professional Email Dashboard with Pixel-Perfect 2025 Design Standards
 const MainDashboard: React.FC = () => {
   const [selectedEmail, setSelectedEmail] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -11,13 +11,97 @@ const MainDashboard: React.FC = () => {
     { role: 'ai', content: 'Hello! I can help you manage emails, create drafts, and automate workflows. What would you like me to do?' }
   ]);
 
-  // Sample email data with metrics
+  // Design System Tokens - Professional 2025 Standards
+  const designTokens = {
+    // Color System - Sophisticated Dark Mode Palette
+    colors: {
+      // Base Colors
+      background: '#0A0E1A',      // Deep navy base
+      surface: '#111827',         // Card backgrounds
+      surfaceHover: '#1F2937',    // Hover states
+      border: '#374151',          // Subtle borders
+      borderLight: '#4B5563',     // Lighter borders
+      
+      // Text Colors
+      textPrimary: '#F9FAFB',     // Primary text
+      textSecondary: '#D1D5DB',   // Secondary text
+      textMuted: '#9CA3AF',       // Muted text
+      
+      // Brand Colors
+      primary: '#3B82F6',         // Primary blue
+      primaryHover: '#2563EB',    // Primary hover
+      
+      // Status Colors - Refined & Professional
+      success: '#059669',         // Success green
+      warning: '#D97706',         // Warning amber
+      error: '#DC2626',           // Error red
+      info: '#0891B2',            // Info cyan
+      
+      // Status Light Variants
+      successLight: '#065F46',
+      warningLight: '#92400E',
+      errorLight: '#991B1B',
+      infoLight: '#155E75',
+    },
+    
+    // Typography Scale - Perfect Hierarchy
+    typography: {
+      // Font Sizes (rem)
+      xs: '0.75rem',      // 12px
+      sm: '0.875rem',     // 14px
+      base: '1rem',       // 16px
+      lg: '1.125rem',     // 18px
+      xl: '1.25rem',      // 20px
+      '2xl': '1.5rem',    // 24px
+      '3xl': '1.875rem',  // 30px
+      
+      // Line Heights
+      tight: '1.25',
+      normal: '1.5',
+      relaxed: '1.625',
+      
+      // Font Weights
+      fontNormal: '400',
+      medium: '500',
+      semibold: '600',
+      bold: '700',
+    },
+    
+    // Spacing System - 8pt Grid
+    spacing: {
+      xs: '0.25rem',    // 4px
+      sm: '0.5rem',     // 8px
+      md: '0.75rem',    // 12px
+      lg: '1rem',       // 16px
+      xl: '1.5rem',     // 24px
+      '2xl': '2rem',    // 32px
+      '3xl': '3rem',    // 48px
+    },
+    
+    // Border Radius - Consistent System
+    radius: {
+      sm: '0.25rem',    // 4px
+      md: '0.375rem',   // 6px
+      lg: '0.5rem',     // 8px
+      xl: '0.75rem',    // 12px
+    },
+    
+    // Shadows - Proper Elevation
+    shadows: {
+      sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+      md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+      xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+    }
+  };
+
+  // Sample email data
   const emails = [
     {
       id: 1,
       subject: 'Project Proposal Review',
       sender: 'sarah.johnson@company.com',
-      preview: 'Please review the attached proposal for the Q4 marketing campaign...',
+      preview: 'Please review the attached proposal for the Q4 marketing campaign and provide feedback by end of week.',
       time: '2 hours ago',
       status: 'urgent',
       category: 'needs_reply',
@@ -28,7 +112,7 @@ const MainDashboard: React.FC = () => {
       id: 2,
       subject: 'Meeting Follow-up',
       sender: 'mike.chen@startup.io',
-      preview: 'Thanks for the productive meeting today. Here are the action items...',
+      preview: 'Thanks for the productive meeting today. Here are the action items we discussed and next steps.',
       time: '4 hours ago',
       status: 'pending',
       category: 'follow_up',
@@ -39,7 +123,7 @@ const MainDashboard: React.FC = () => {
       id: 3,
       subject: 'Budget Approval Request',
       sender: 'finance@company.com',
-      preview: 'Please approve the Q1 budget allocation for the marketing department...',
+      preview: 'Please approve the Q1 budget allocation for the marketing department. Requires executive sign-off.',
       time: '1 day ago',
       status: 'action_required',
       category: 'approval_required',
@@ -50,7 +134,7 @@ const MainDashboard: React.FC = () => {
       id: 4,
       subject: 'Team Meeting Agenda',
       sender: 'hr@company.com',
-      preview: 'Weekly team meeting scheduled for Friday at 2 PM...',
+      preview: 'Weekly team meeting scheduled for Friday at 2 PM. Please review the agenda and prepare updates.',
       time: '2 days ago',
       status: 'pending',
       category: 'meetings',
@@ -61,7 +145,7 @@ const MainDashboard: React.FC = () => {
       id: 5,
       subject: 'Task Assignment',
       sender: 'project.manager@company.com',
-      preview: 'Please delegate the following tasks to your team members...',
+      preview: 'Please delegate the following tasks to your team members and confirm completion timeline.',
       time: '3 days ago',
       status: 'pending',
       category: 'delegate',
@@ -72,7 +156,7 @@ const MainDashboard: React.FC = () => {
       id: 6,
       subject: 'Company Newsletter',
       sender: 'newsletter@company.com',
-      preview: 'Monthly company updates and announcements...',
+      preview: 'Monthly company updates and announcements. New product launches and team achievements.',
       time: '1 week ago',
       status: 'completed',
       category: 'fyi_only',
@@ -81,18 +165,18 @@ const MainDashboard: React.FC = () => {
     }
   ];
 
-  // Email categories with counts
+  // Email categories with refined colors
   const categories = [
-    { id: 'all', name: 'All Categories', count: emails.length, color: '#3B82F6' },
-    { id: 'needs_reply', name: 'Needs Reply', count: emails.filter(e => e.category === 'needs_reply').length, color: '#EF4444' },
+    { id: 'all', name: 'All Categories', count: emails.length, color: designTokens.colors.primary },
+    { id: 'needs_reply', name: 'Needs Reply', count: emails.filter(e => e.category === 'needs_reply').length, color: designTokens.colors.error },
     { id: 'approval_required', name: 'Approval Required', count: emails.filter(e => e.category === 'approval_required').length, color: '#8B5CF6' },
-    { id: 'delegate', name: 'Delegate', count: emails.filter(e => e.category === 'delegate').length, color: '#06B6D4' },
-    { id: 'follow_up', name: 'Follow Up', count: emails.filter(e => e.category === 'follow_up').length, color: '#10B981' },
-    { id: 'meetings', name: 'Meetings', count: emails.filter(e => e.category === 'meetings').length, color: '#F59E0B' },
-    { id: 'fyi_only', name: 'FYI Only', count: emails.filter(e => e.category === 'fyi_only').length, color: '#6B7280' }
+    { id: 'delegate', name: 'Delegate', count: emails.filter(e => e.category === 'delegate').length, color: designTokens.colors.info },
+    { id: 'follow_up', name: 'Follow Up', count: emails.filter(e => e.category === 'follow_up').length, color: designTokens.colors.success },
+    { id: 'meetings', name: 'Meetings', count: emails.filter(e => e.category === 'meetings').length, color: designTokens.colors.warning },
+    { id: 'fyi_only', name: 'FYI Only', count: emails.filter(e => e.category === 'fyi_only').length, color: designTokens.colors.textMuted }
   ];
 
-  // Filter emails based on category and search
+  // Filter emails
   const filteredEmails = emails.filter(email => {
     const matchesCategory = selectedCategory === 'all' || email.category === selectedCategory;
     const matchesSearch = email.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -101,7 +185,7 @@ const MainDashboard: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
-  // Email metrics for dashboard cards
+  // Email metrics
   const emailMetrics = {
     totalEmails: emails.length,
     urgentEmails: emails.filter(e => e.status === 'urgent').length,
@@ -118,7 +202,6 @@ const MainDashboard: React.FC = () => {
   const handleAIMessage = (message: string) => {
     setAiMessages([...aiMessages, { role: 'user', content: message }]);
     
-    // Simulate AI response
     setTimeout(() => {
       if (message.toLowerCase().includes('draft') || message.toLowerCase().includes('reply')) {
         setAiMessages(prev => [...prev, { role: 'ai', content: "I'll help you create a draft. Opening the draft editor now." }]);
@@ -129,100 +212,170 @@ const MainDashboard: React.FC = () => {
     }, 1000);
   };
 
+  // Professional SVG Icons
+  const icons = {
+    email: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+        <polyline points="22,6 12,13 2,6"/>
+      </svg>
+    ),
+    alert: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    ),
+    chart: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+      </svg>
+    ),
+    clock: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12,6 12,12 16,14"/>
+      </svg>
+    ),
+    search: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+      </svg>
+    ),
+    close: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    )
+  };
+
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#0F172A', // Dark slate background
-      color: '#E2E8F0',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      backgroundColor: designTokens.colors.background,
+      color: designTokens.colors.textPrimary,
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
     }}>
-      {/* Modern Header */}
+      {/* Professional Header with Perfect Spacing */}
       <header style={{
-        backgroundColor: '#1E293B',
-        borderBottom: '1px solid #334155',
-        padding: '1rem 2rem',
+        backgroundColor: designTokens.colors.surface,
+        borderBottom: `1px solid ${designTokens.colors.border}`,
+        padding: `${designTokens.spacing.lg} ${designTokens.spacing['2xl']}`,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        height: '72px', // Fixed height for consistency
+        boxSizing: 'border-box'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.lg }}>
           <h1 style={{ 
-            fontSize: '1.5rem', 
-            fontWeight: '700', 
+            fontSize: designTokens.typography['2xl'],
+            fontWeight: designTokens.typography.bold,
             margin: 0,
-            background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
+            background: `linear-gradient(135deg, ${designTokens.colors.primary}, #8B5CF6)`,
             WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
+            WebkitTextFillColor: 'transparent',
+            lineHeight: designTokens.typography.tight
           }}>
             TaskMail Dashboard
           </h1>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {/* Search Bar */}
-          <div style={{ position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.xl }}>
+          {/* Professional Search Bar */}
+          <div style={{ 
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            <div style={{
+              position: 'absolute',
+              left: designTokens.spacing.md,
+              color: designTokens.colors.textMuted,
+              pointerEvents: 'none'
+            }}>
+              {icons.search}
+            </div>
             <input
               type="text"
               placeholder="Search emails..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
-                backgroundColor: '#334155',
-                border: '1px solid #475569',
-                borderRadius: '0.5rem',
-                padding: '0.5rem 1rem',
-                color: '#E2E8F0',
-                width: '300px',
-                fontSize: '0.875rem'
+                backgroundColor: designTokens.colors.surfaceHover,
+                border: `1px solid ${designTokens.colors.border}`,
+                borderRadius: designTokens.radius.lg,
+                padding: `${designTokens.spacing.md} ${designTokens.spacing.lg} ${designTokens.spacing.md} ${designTokens.spacing['2xl']}`,
+                color: designTokens.colors.textPrimary,
+                width: '320px',
+                fontSize: designTokens.typography.sm,
+                lineHeight: designTokens.typography.normal,
+                outline: 'none',
+                transition: 'all 0.2s ease',
+                boxSizing: 'border-box'
               }}
             />
           </div>
           
-          {/* User Profile */}
+          {/* User Avatar */}
           <div style={{
-            width: '2.5rem',
-            height: '2.5rem',
+            width: '40px',
+            height: '40px',
             borderRadius: '50%',
-            backgroundColor: '#3B82F6',
+            backgroundColor: designTokens.colors.primary,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: 'white',
-            fontWeight: '600'
+            fontWeight: designTokens.typography.semibold,
+            fontSize: designTokens.typography.sm
           }}>
             JD
           </div>
         </div>
       </header>
 
-      <div style={{ display: 'flex', height: 'calc(100vh - 80px)' }}>
-        {/* Left Sidebar - Navigation */}
+      <div style={{ display: 'flex', height: 'calc(100vh - 72px)' }}>
+        {/* Left Sidebar - Perfect Spacing & Typography */}
         <aside style={{
           width: '280px',
-          backgroundColor: '#1E293B',
-          borderRight: '1px solid #334155',
-          padding: '1.5rem',
-          overflowY: 'auto'
+          backgroundColor: designTokens.colors.surface,
+          borderRight: `1px solid ${designTokens.colors.border}`,
+          padding: designTokens.spacing.xl,
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: designTokens.spacing.xl
         }}>
           {/* Quick Actions */}
-          <div style={{ marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: designTokens.spacing.sm }}>
             <button
               onClick={() => setShowDraftModal(true)}
               style={{
                 width: '100%',
-                backgroundColor: '#3B82F6',
+                backgroundColor: designTokens.colors.primary,
                 color: 'white',
                 border: 'none',
-                borderRadius: '0.5rem',
-                padding: '0.75rem 1rem',
-                fontSize: '0.875rem',
-                fontWeight: '600',
+                borderRadius: designTokens.radius.lg,
+                padding: `${designTokens.spacing.md} ${designTokens.spacing.lg}`,
+                fontSize: designTokens.typography.sm,
+                fontWeight: designTokens.typography.semibold,
                 cursor: 'pointer',
-                marginBottom: '0.5rem',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: designTokens.spacing.sm,
+                lineHeight: designTokens.typography.normal
               }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = designTokens.colors.primaryHover}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = designTokens.colors.primary}
             >
-              ✉️ New Draft
+              {icons.email}
+              New Draft
             </button>
             
             <button
@@ -232,256 +385,369 @@ const MainDashboard: React.FC = () => {
                 backgroundColor: '#8B5CF6',
                 color: 'white',
                 border: 'none',
-                borderRadius: '0.5rem',
-                padding: '0.75rem 1rem',
-                fontSize: '0.875rem',
-                fontWeight: '600',
+                borderRadius: designTokens.radius.lg,
+                padding: `${designTokens.spacing.md} ${designTokens.spacing.lg}`,
+                fontSize: designTokens.typography.sm,
+                fontWeight: designTokens.typography.semibold,
                 cursor: 'pointer',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: designTokens.spacing.sm,
+                lineHeight: designTokens.typography.normal
               }}
             >
               🤖 AI Assistant
             </button>
           </div>
 
-          {/* Categories */}
+          {/* Categories with Perfect Typography Hierarchy */}
           <div>
             <h3 style={{ 
-              fontSize: '0.875rem', 
-              fontWeight: '600', 
-              color: '#94A3B8', 
-              marginBottom: '1rem',
+              fontSize: designTokens.typography.xs,
+              fontWeight: designTokens.typography.semibold,
+              color: designTokens.colors.textMuted,
+              marginBottom: designTokens.spacing.lg,
               textTransform: 'uppercase',
-              letterSpacing: '0.05em'
+              letterSpacing: '0.05em',
+              lineHeight: designTokens.typography.tight,
+              margin: `0 0 ${designTokens.spacing.lg} 0`
             }}>
               Categories
             </h3>
             
-            {categories.map(category => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.75rem 1rem',
-                  backgroundColor: selectedCategory === category.id ? '#334155' : 'transparent',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  color: selectedCategory === category.id ? '#E2E8F0' : '#94A3B8',
-                  cursor: 'pointer',
-                  marginBottom: '0.25rem',
-                  fontSize: '0.875rem',
-                  transition: 'all 0.2s',
-                  borderLeft: `3px solid ${selectedCategory === category.id ? category.color : 'transparent'}`
-                }}
-              >
-                <span>{category.name}</span>
-                <span style={{
-                  backgroundColor: category.color,
-                  color: 'white',
-                  borderRadius: '1rem',
-                  padding: '0.125rem 0.5rem',
-                  fontSize: '0.75rem',
-                  fontWeight: '600'
-                }}>
-                  {category.count}
-                </span>
-              </button>
-            ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: designTokens.spacing.xs }}>
+              {categories.map(category => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: `${designTokens.spacing.md} ${designTokens.spacing.lg}`,
+                    backgroundColor: selectedCategory === category.id ? designTokens.colors.surfaceHover : 'transparent',
+                    border: 'none',
+                    borderRadius: designTokens.radius.lg,
+                    color: selectedCategory === category.id ? designTokens.colors.textPrimary : designTokens.colors.textSecondary,
+                    cursor: 'pointer',
+                    fontSize: designTokens.typography.sm,
+                    fontWeight: designTokens.typography.medium,
+                    transition: 'all 0.2s ease',
+                    borderLeft: `3px solid ${selectedCategory === category.id ? category.color : 'transparent'}`,
+                    lineHeight: designTokens.typography.normal,
+                    textAlign: 'left'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedCategory !== category.id) {
+                      e.currentTarget.style.backgroundColor = designTokens.colors.surfaceHover;
+                      e.currentTarget.style.color = designTokens.colors.textPrimary;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedCategory !== category.id) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = designTokens.colors.textSecondary;
+                    }
+                  }}
+                >
+                  <span>{category.name}</span>
+                  <span style={{
+                    backgroundColor: category.color,
+                    color: 'white',
+                    borderRadius: designTokens.radius.md,
+                    padding: `${designTokens.spacing.xs} ${designTokens.spacing.sm}`,
+                    fontSize: designTokens.typography.xs,
+                    fontWeight: designTokens.typography.semibold,
+                    lineHeight: '1',
+                    minWidth: '20px',
+                    textAlign: 'center'
+                  }}>
+                    {category.count}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         </aside>
 
         {/* Main Content Area */}
-        <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* Dashboard Metrics Cards */}
+        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: designTokens.colors.background }}>
+          {/* Dashboard Metrics Cards - Perfect Grid System */}
           <div style={{
-            padding: '1.5rem',
+            padding: designTokens.spacing.xl,
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '1rem',
-            backgroundColor: '#0F172A'
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: designTokens.spacing.xl,
+            backgroundColor: designTokens.colors.background
           }}>
             {/* Total Emails Card */}
             <div style={{
-              backgroundColor: '#1E293B',
-              borderRadius: '0.75rem',
-              padding: '1.5rem',
-              border: '1px solid #334155',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              backgroundColor: designTokens.colors.surface,
+              borderRadius: designTokens.radius.xl,
+              padding: designTokens.spacing.xl,
+              border: `1px solid ${designTokens.colors.border}`,
+              boxShadow: designTokens.shadows.md,
+              transition: 'all 0.2s ease'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <p style={{ color: '#94A3B8', fontSize: '0.875rem', margin: 0 }}>Total Emails</p>
-                  <p style={{ fontSize: '2rem', fontWeight: '700', margin: '0.5rem 0', color: '#E2E8F0' }}>
+                  <p style={{ 
+                    color: designTokens.colors.textMuted, 
+                    fontSize: designTokens.typography.sm, 
+                    fontWeight: designTokens.typography.medium,
+                    margin: 0,
+                    lineHeight: designTokens.typography.normal
+                  }}>
+                    Total Emails
+                  </p>
+                  <p style={{ 
+                    fontSize: designTokens.typography['3xl'], 
+                    fontWeight: designTokens.typography.bold, 
+                    margin: `${designTokens.spacing.sm} 0 0 0`, 
+                    color: designTokens.colors.textPrimary,
+                    lineHeight: designTokens.typography.tight
+                  }}>
                     {emailMetrics.totalEmails}
                   </p>
                 </div>
                 <div style={{
-                  width: '3rem',
-                  height: '3rem',
-                  borderRadius: '0.5rem',
-                  backgroundColor: '#3B82F6',
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: designTokens.radius.lg,
+                  backgroundColor: designTokens.colors.primary,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.5rem'
+                  color: 'white'
                 }}>
-                  📧
+                  {icons.email}
                 </div>
               </div>
             </div>
 
             {/* Urgent Emails Card */}
             <div style={{
-              backgroundColor: '#1E293B',
-              borderRadius: '0.75rem',
-              padding: '1.5rem',
-              border: '1px solid #334155',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              backgroundColor: designTokens.colors.surface,
+              borderRadius: designTokens.radius.xl,
+              padding: designTokens.spacing.xl,
+              border: `1px solid ${designTokens.colors.border}`,
+              boxShadow: designTokens.shadows.md,
+              transition: 'all 0.2s ease'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <p style={{ color: '#94A3B8', fontSize: '0.875rem', margin: 0 }}>Urgent</p>
-                  <p style={{ fontSize: '2rem', fontWeight: '700', margin: '0.5rem 0', color: '#EF4444' }}>
+                  <p style={{ 
+                    color: designTokens.colors.textMuted, 
+                    fontSize: designTokens.typography.sm, 
+                    fontWeight: designTokens.typography.medium,
+                    margin: 0,
+                    lineHeight: designTokens.typography.normal
+                  }}>
+                    Urgent
+                  </p>
+                  <p style={{ 
+                    fontSize: designTokens.typography['3xl'], 
+                    fontWeight: designTokens.typography.bold, 
+                    margin: `${designTokens.spacing.sm} 0 0 0`, 
+                    color: designTokens.colors.error,
+                    lineHeight: designTokens.typography.tight
+                  }}>
                     {emailMetrics.urgentEmails}
                   </p>
                 </div>
                 <div style={{
-                  width: '3rem',
-                  height: '3rem',
-                  borderRadius: '0.5rem',
-                  backgroundColor: '#EF4444',
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: designTokens.radius.lg,
+                  backgroundColor: designTokens.colors.error,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.5rem'
+                  color: 'white'
                 }}>
-                  🚨
+                  {icons.alert}
                 </div>
               </div>
             </div>
 
             {/* Response Rate Card */}
             <div style={{
-              backgroundColor: '#1E293B',
-              borderRadius: '0.75rem',
-              padding: '1.5rem',
-              border: '1px solid #334155',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              backgroundColor: designTokens.colors.surface,
+              borderRadius: designTokens.radius.xl,
+              padding: designTokens.spacing.xl,
+              border: `1px solid ${designTokens.colors.border}`,
+              boxShadow: designTokens.shadows.md,
+              transition: 'all 0.2s ease'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <p style={{ color: '#94A3B8', fontSize: '0.875rem', margin: 0 }}>Response Rate</p>
-                  <p style={{ fontSize: '2rem', fontWeight: '700', margin: '0.5rem 0', color: '#10B981' }}>
+                  <p style={{ 
+                    color: designTokens.colors.textMuted, 
+                    fontSize: designTokens.typography.sm, 
+                    fontWeight: designTokens.typography.medium,
+                    margin: 0,
+                    lineHeight: designTokens.typography.normal
+                  }}>
+                    Response Rate
+                  </p>
+                  <p style={{ 
+                    fontSize: designTokens.typography['3xl'], 
+                    fontWeight: designTokens.typography.bold, 
+                    margin: `${designTokens.spacing.sm} 0 0 0`, 
+                    color: designTokens.colors.success,
+                    lineHeight: designTokens.typography.tight
+                  }}>
                     {emailMetrics.responseRate}%
                   </p>
                 </div>
                 <div style={{
-                  width: '3rem',
-                  height: '3rem',
-                  borderRadius: '0.5rem',
-                  backgroundColor: '#10B981',
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: designTokens.radius.lg,
+                  backgroundColor: designTokens.colors.success,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.5rem'
+                  color: 'white'
                 }}>
-                  📈
+                  {icons.chart}
                 </div>
               </div>
             </div>
 
             {/* Avg Response Time Card */}
             <div style={{
-              backgroundColor: '#1E293B',
-              borderRadius: '0.75rem',
-              padding: '1.5rem',
-              border: '1px solid #334155',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              backgroundColor: designTokens.colors.surface,
+              borderRadius: designTokens.radius.xl,
+              padding: designTokens.spacing.xl,
+              border: `1px solid ${designTokens.colors.border}`,
+              boxShadow: designTokens.shadows.md,
+              transition: 'all 0.2s ease'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <p style={{ color: '#94A3B8', fontSize: '0.875rem', margin: 0 }}>Avg Response Time</p>
-                  <p style={{ fontSize: '2rem', fontWeight: '700', margin: '0.5rem 0', color: '#F59E0B' }}>
+                  <p style={{ 
+                    color: designTokens.colors.textMuted, 
+                    fontSize: designTokens.typography.sm, 
+                    fontWeight: designTokens.typography.medium,
+                    margin: 0,
+                    lineHeight: designTokens.typography.normal
+                  }}>
+                    Avg Response Time
+                  </p>
+                  <p style={{ 
+                    fontSize: designTokens.typography['3xl'], 
+                    fontWeight: designTokens.typography.bold, 
+                    margin: `${designTokens.spacing.sm} 0 0 0`, 
+                    color: designTokens.colors.warning,
+                    lineHeight: designTokens.typography.tight
+                  }}>
                     {emailMetrics.avgResponseTime}
                   </p>
                 </div>
                 <div style={{
-                  width: '3rem',
-                  height: '3rem',
-                  borderRadius: '0.5rem',
-                  backgroundColor: '#F59E0B',
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: designTokens.radius.lg,
+                  backgroundColor: designTokens.colors.warning,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.5rem'
+                  color: 'white'
                 }}>
-                  ⏱️
+                  {icons.clock}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Email List and Details */}
-          <div style={{ flex: 1, display: 'flex', padding: '0 1.5rem 1.5rem' }}>
+          {/* Email List and Details - Perfect Layout */}
+          <div style={{ 
+            flex: 1, 
+            display: 'flex', 
+            padding: `0 ${designTokens.spacing.xl} ${designTokens.spacing.xl}`,
+            gap: designTokens.spacing.xl
+          }}>
             {/* Email List */}
             <div style={{
               flex: 1,
-              backgroundColor: '#1E293B',
-              borderRadius: '0.75rem',
-              border: '1px solid #334155',
-              marginRight: '1rem',
-              overflow: 'hidden'
+              backgroundColor: designTokens.colors.surface,
+              borderRadius: designTokens.radius.xl,
+              border: `1px solid ${designTokens.colors.border}`,
+              overflow: 'hidden',
+              boxShadow: designTokens.shadows.md
             }}>
               <div style={{
-                padding: '1.5rem',
-                borderBottom: '1px solid #334155',
+                padding: designTokens.spacing.xl,
+                borderBottom: `1px solid ${designTokens.colors.border}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between'
               }}>
-                <h2 style={{ fontSize: '1.125rem', fontWeight: '600', margin: 0 }}>
+                <h2 style={{ 
+                  fontSize: designTokens.typography.lg, 
+                  fontWeight: designTokens.typography.semibold, 
+                  margin: 0,
+                  color: designTokens.colors.textPrimary,
+                  lineHeight: designTokens.typography.tight
+                }}>
                   Email Tasks ({filteredEmails.length})
                 </h2>
               </div>
               
               <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                {filteredEmails.map(email => (
+                {filteredEmails.map((email, index) => (
                   <div
                     key={email.id}
                     onClick={() => handleEmailSelect(email)}
                     style={{
-                      padding: '1rem 1.5rem',
-                      borderBottom: '1px solid #334155',
+                      padding: designTokens.spacing.xl,
+                      borderBottom: index < filteredEmails.length - 1 ? `1px solid ${designTokens.colors.border}` : 'none',
                       cursor: 'pointer',
-                      backgroundColor: selectedEmail?.id === email.id ? '#334155' : 'transparent',
-                      transition: 'all 0.2s'
+                      backgroundColor: selectedEmail?.id === email.id ? designTokens.colors.surfaceHover : 'transparent',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedEmail?.id !== email.id) {
+                        e.currentTarget.style.backgroundColor = designTokens.colors.surfaceHover;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedEmail?.id !== email.id) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                      <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: designTokens.spacing.lg }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
                         <h3 style={{ 
-                          fontSize: '0.875rem', 
-                          fontWeight: '600', 
-                          margin: '0 0 0.25rem 0',
-                          color: '#E2E8F0'
+                          fontSize: designTokens.typography.base,
+                          fontWeight: designTokens.typography.semibold,
+                          margin: `0 0 ${designTokens.spacing.xs} 0`,
+                          color: designTokens.colors.textPrimary,
+                          lineHeight: designTokens.typography.tight,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
                         }}>
                           {email.subject}
                         </h3>
                         <p style={{ 
-                          fontSize: '0.75rem', 
-                          color: '#94A3B8', 
-                          margin: '0 0 0.5rem 0' 
+                          fontSize: designTokens.typography.sm,
+                          color: designTokens.colors.textMuted,
+                          margin: `0 0 ${designTokens.spacing.sm} 0`,
+                          lineHeight: designTokens.typography.normal
                         }}>
                           {email.sender}
                         </p>
                         <p style={{ 
-                          fontSize: '0.75rem', 
-                          color: '#64748B', 
+                          fontSize: designTokens.typography.sm,
+                          color: designTokens.colors.textSecondary,
                           margin: 0,
+                          lineHeight: designTokens.typography.normal,
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap'
@@ -490,34 +756,49 @@ const MainDashboard: React.FC = () => {
                         </p>
                       </div>
                       
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                        <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'flex-end', 
+                        gap: designTokens.spacing.sm,
+                        flexShrink: 0
+                      }}>
+                        <span style={{ 
+                          fontSize: designTokens.typography.xs, 
+                          color: designTokens.colors.textMuted,
+                          fontWeight: designTokens.typography.medium,
+                          lineHeight: designTokens.typography.normal
+                        }}>
                           {email.time}
                         </span>
                         
-                        <div style={{ display: 'flex', gap: '0.25rem' }}>
+                        <div style={{ display: 'flex', gap: designTokens.spacing.xs }}>
                           <span style={{
-                            backgroundColor: email.status === 'urgent' ? '#EF4444' : 
-                                           email.status === 'pending' ? '#F59E0B' : 
-                                           email.status === 'action_required' ? '#8B5CF6' : '#10B981',
+                            backgroundColor: email.status === 'urgent' ? designTokens.colors.error : 
+                                           email.status === 'pending' ? designTokens.colors.warning : 
+                                           email.status === 'action_required' ? '#8B5CF6' : designTokens.colors.success,
                             color: 'white',
-                            fontSize: '0.625rem',
-                            fontWeight: '600',
-                            padding: '0.125rem 0.5rem',
-                            borderRadius: '0.25rem',
-                            textTransform: 'uppercase'
+                            fontSize: designTokens.typography.xs,
+                            fontWeight: designTokens.typography.semibold,
+                            padding: `${designTokens.spacing.xs} ${designTokens.spacing.sm}`,
+                            borderRadius: designTokens.radius.sm,
+                            textTransform: 'uppercase',
+                            lineHeight: '1',
+                            whiteSpace: 'nowrap'
                           }}>
                             {email.status.replace('_', ' ')}
                           </span>
                           
                           <span style={{
-                            backgroundColor: '#334155',
-                            color: '#94A3B8',
-                            fontSize: '0.625rem',
-                            fontWeight: '600',
-                            padding: '0.125rem 0.5rem',
-                            borderRadius: '0.25rem',
-                            textTransform: 'uppercase'
+                            backgroundColor: designTokens.colors.surfaceHover,
+                            color: designTokens.colors.textMuted,
+                            fontSize: designTokens.typography.xs,
+                            fontWeight: designTokens.typography.semibold,
+                            padding: `${designTokens.spacing.xs} ${designTokens.spacing.sm}`,
+                            borderRadius: designTokens.radius.sm,
+                            textTransform: 'uppercase',
+                            lineHeight: '1',
+                            whiteSpace: 'nowrap'
                           }}>
                             {email.taskType}
                           </span>
@@ -532,60 +813,86 @@ const MainDashboard: React.FC = () => {
             {/* Email Details Panel */}
             <div style={{
               width: '400px',
-              backgroundColor: '#1E293B',
-              borderRadius: '0.75rem',
-              border: '1px solid #334155',
+              backgroundColor: designTokens.colors.surface,
+              borderRadius: designTokens.radius.xl,
+              border: `1px solid ${designTokens.colors.border}`,
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              boxShadow: designTokens.shadows.md,
+              flexShrink: 0
             }}>
               {selectedEmail ? (
                 <>
                   <div style={{
-                    padding: '1.5rem',
-                    borderBottom: '1px solid #334155'
+                    padding: designTokens.spacing.xl,
+                    borderBottom: `1px solid ${designTokens.colors.border}`
                   }}>
-                    <h2 style={{ fontSize: '1.125rem', fontWeight: '600', margin: '0 0 0.5rem 0' }}>
+                    <h2 style={{ 
+                      fontSize: designTokens.typography.lg, 
+                      fontWeight: designTokens.typography.semibold, 
+                      margin: `0 0 ${designTokens.spacing.sm} 0`,
+                      color: designTokens.colors.textPrimary,
+                      lineHeight: designTokens.typography.tight
+                    }}>
                       {selectedEmail.subject}
                     </h2>
-                    <p style={{ fontSize: '0.875rem', color: '#94A3B8', margin: 0 }}>
+                    <p style={{ 
+                      fontSize: designTokens.typography.sm, 
+                      color: designTokens.colors.textMuted, 
+                      margin: 0,
+                      lineHeight: designTokens.typography.normal
+                    }}>
                       {selectedEmail.sender}
                     </p>
                   </div>
                   
-                  <div style={{ padding: '1.5rem', flex: 1 }}>
-                    <p style={{ fontSize: '0.875rem', lineHeight: '1.5', color: '#E2E8F0' }}>
+                  <div style={{ 
+                    padding: designTokens.spacing.xl, 
+                    flex: 1,
+                    overflowY: 'auto'
+                  }}>
+                    <p style={{ 
+                      fontSize: designTokens.typography.sm, 
+                      lineHeight: designTokens.typography.relaxed, 
+                      color: designTokens.colors.textSecondary,
+                      margin: 0
+                    }}>
                       {selectedEmail.preview}
                     </p>
                   </div>
                   
                   <div style={{
-                    padding: '1.5rem',
-                    borderTop: '1px solid #334155',
+                    padding: designTokens.spacing.xl,
+                    borderTop: `1px solid ${designTokens.colors.border}`,
                     display: 'flex',
-                    gap: '0.5rem'
+                    gap: designTokens.spacing.sm
                   }}>
                     <button style={{
-                      backgroundColor: '#3B82F6',
+                      backgroundColor: designTokens.colors.primary,
                       color: 'white',
                       border: 'none',
-                      borderRadius: '0.375rem',
-                      padding: '0.5rem 1rem',
-                      fontSize: '0.875rem',
-                      fontWeight: '600',
+                      borderRadius: designTokens.radius.lg,
+                      padding: `${designTokens.spacing.md} ${designTokens.spacing.lg}`,
+                      fontSize: designTokens.typography.sm,
+                      fontWeight: designTokens.typography.semibold,
                       cursor: 'pointer',
-                      flex: 1
+                      flex: 1,
+                      transition: 'all 0.2s ease',
+                      lineHeight: designTokens.typography.normal
                     }}>
                       Reply
                     </button>
                     <button style={{
-                      backgroundColor: '#334155',
-                      color: '#94A3B8',
+                      backgroundColor: designTokens.colors.surfaceHover,
+                      color: designTokens.colors.textMuted,
                       border: 'none',
-                      borderRadius: '0.375rem',
-                      padding: '0.5rem 1rem',
-                      fontSize: '0.875rem',
-                      fontWeight: '600',
-                      cursor: 'pointer'
+                      borderRadius: designTokens.radius.lg,
+                      padding: `${designTokens.spacing.md} ${designTokens.spacing.lg}`,
+                      fontSize: designTokens.typography.sm,
+                      fontWeight: designTokens.typography.semibold,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      lineHeight: designTokens.typography.normal
                     }}>
                       Archive
                     </button>
@@ -597,8 +904,9 @@ const MainDashboard: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#64748B',
-                  fontSize: '0.875rem'
+                  color: designTokens.colors.textMuted,
+                  fontSize: designTokens.typography.sm,
+                  lineHeight: designTokens.typography.normal
                 }}>
                   Select an email to view details
                 </div>
@@ -608,60 +916,94 @@ const MainDashboard: React.FC = () => {
         </main>
       </div>
 
-      {/* AI Chat Panel */}
+      {/* AI Chat Panel - Professional Design */}
       {showAIChat && (
         <div style={{
           position: 'fixed',
-          bottom: '1rem',
-          right: '1rem',
-          width: '350px',
-          height: '400px',
-          backgroundColor: '#1E293B',
-          borderRadius: '0.75rem',
-          border: '1px solid #334155',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+          bottom: designTokens.spacing.xl,
+          right: designTokens.spacing.xl,
+          width: '380px',
+          height: '480px',
+          backgroundColor: designTokens.colors.surface,
+          borderRadius: designTokens.radius.xl,
+          border: `1px solid ${designTokens.colors.border}`,
+          boxShadow: designTokens.shadows.xl,
           display: 'flex',
           flexDirection: 'column',
           zIndex: 1000
         }}>
           <div style={{
-            padding: '1rem',
-            borderBottom: '1px solid #334155',
+            padding: designTokens.spacing.xl,
+            borderBottom: `1px solid ${designTokens.colors.border}`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between'
           }}>
-            <h3 style={{ fontSize: '0.875rem', fontWeight: '600', margin: 0 }}>AI Assistant</h3>
+            <h3 style={{ 
+              fontSize: designTokens.typography.base, 
+              fontWeight: designTokens.typography.semibold, 
+              margin: 0,
+              color: designTokens.colors.textPrimary,
+              lineHeight: designTokens.typography.tight
+            }}>
+              AI Assistant
+            </h3>
             <button
               onClick={() => setShowAIChat(false)}
               style={{
                 backgroundColor: 'transparent',
                 border: 'none',
-                color: '#94A3B8',
+                color: designTokens.colors.textMuted,
                 cursor: 'pointer',
-                fontSize: '1.25rem'
+                padding: designTokens.spacing.xs,
+                borderRadius: designTokens.radius.md,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease'
               }}
             >
-              ×
+              {icons.close}
             </button>
           </div>
           
-          <div style={{ flex: 1, padding: '1rem', overflowY: 'auto' }}>
+          <div style={{ 
+            flex: 1, 
+            padding: designTokens.spacing.xl, 
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: designTokens.spacing.lg
+          }}>
             {aiMessages.map((msg, index) => (
               <div key={index} style={{
-                marginBottom: '1rem',
-                padding: '0.75rem',
-                borderRadius: '0.5rem',
-                backgroundColor: msg.role === 'ai' ? '#334155' : '#3B82F6',
-                color: 'white',
-                fontSize: '0.875rem'
+                padding: designTokens.spacing.lg,
+                borderRadius: designTokens.radius.lg,
+                backgroundColor: msg.role === 'ai' ? designTokens.colors.surfaceHover : designTokens.colors.primary,
+                color: msg.role === 'ai' ? designTokens.colors.textPrimary : 'white',
+                fontSize: designTokens.typography.sm,
+                lineHeight: designTokens.typography.relaxed,
+                maxWidth: '85%',
+                alignSelf: msg.role === 'ai' ? 'flex-start' : 'flex-end'
               }}>
-                <strong>{msg.role === 'ai' ? 'AI:' : 'You:'}</strong> {msg.content}
+                <div style={{ 
+                  fontWeight: designTokens.typography.semibold, 
+                  marginBottom: designTokens.spacing.xs,
+                  fontSize: designTokens.typography.xs,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>
+                  {msg.role === 'ai' ? 'AI Assistant' : 'You'}
+                </div>
+                {msg.content}
               </div>
             ))}
           </div>
           
-          <div style={{ padding: '1rem', borderTop: '1px solid #334155' }}>
+          <div style={{ 
+            padding: designTokens.spacing.xl, 
+            borderTop: `1px solid ${designTokens.colors.border}` 
+          }}>
             <input
               type="text"
               placeholder="Ask AI to help with emails..."
@@ -673,19 +1015,23 @@ const MainDashboard: React.FC = () => {
               }}
               style={{
                 width: '100%',
-                backgroundColor: '#334155',
-                border: '1px solid #475569',
-                borderRadius: '0.375rem',
-                padding: '0.5rem',
-                color: '#E2E8F0',
-                fontSize: '0.875rem'
+                backgroundColor: designTokens.colors.surfaceHover,
+                border: `1px solid ${designTokens.colors.border}`,
+                borderRadius: designTokens.radius.lg,
+                padding: `${designTokens.spacing.md} ${designTokens.spacing.lg}`,
+                color: designTokens.colors.textPrimary,
+                fontSize: designTokens.typography.sm,
+                lineHeight: designTokens.typography.normal,
+                outline: 'none',
+                transition: 'all 0.2s ease',
+                boxSizing: 'border-box'
               }}
             />
           </div>
         </div>
       )}
 
-      {/* Draft Modal */}
+      {/* Draft Modal - Professional Design */}
       {showDraftModal && (
         <div style={{
           position: 'fixed',
@@ -693,104 +1039,145 @@ const MainDashboard: React.FC = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 1000
+          zIndex: 1000,
+          padding: designTokens.spacing.xl
         }}>
           <div style={{
-            backgroundColor: '#1E293B',
-            borderRadius: '0.75rem',
-            border: '1px solid #334155',
-            width: '600px',
-            maxHeight: '80vh',
-            overflow: 'hidden'
+            backgroundColor: designTokens.colors.surface,
+            borderRadius: designTokens.radius.xl,
+            border: `1px solid ${designTokens.colors.border}`,
+            width: '100%',
+            maxWidth: '640px',
+            maxHeight: '90vh',
+            overflow: 'hidden',
+            boxShadow: designTokens.shadows.xl
           }}>
             <div style={{
-              padding: '1.5rem',
-              borderBottom: '1px solid #334155',
+              padding: designTokens.spacing.xl,
+              borderBottom: `1px solid ${designTokens.colors.border}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between'
             }}>
-              <h2 style={{ fontSize: '1.125rem', fontWeight: '600', margin: 0 }}>Compose Draft</h2>
+              <h2 style={{ 
+                fontSize: designTokens.typography.lg, 
+                fontWeight: designTokens.typography.semibold, 
+                margin: 0,
+                color: designTokens.colors.textPrimary,
+                lineHeight: designTokens.typography.tight
+              }}>
+                Compose Draft
+              </h2>
               <button
                 onClick={() => setShowDraftModal(false)}
                 style={{
                   backgroundColor: 'transparent',
                   border: 'none',
-                  color: '#94A3B8',
+                  color: designTokens.colors.textMuted,
                   cursor: 'pointer',
-                  fontSize: '1.5rem'
+                  padding: designTokens.spacing.xs,
+                  borderRadius: designTokens.radius.md,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease'
                 }}
               >
-                ×
+                {icons.close}
               </button>
             </div>
             
-            <div style={{ padding: '1.5rem' }}>
-              <div style={{ marginBottom: '1rem' }}>
+            <div style={{ 
+              padding: designTokens.spacing.xl,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: designTokens.spacing.lg
+            }}>
+              <div>
                 <input
                   type="email"
                   placeholder="To:"
                   style={{
                     width: '100%',
-                    backgroundColor: '#334155',
-                    border: '1px solid #475569',
-                    borderRadius: '0.375rem',
-                    padding: '0.75rem',
-                    color: '#E2E8F0',
-                    fontSize: '0.875rem'
+                    backgroundColor: designTokens.colors.surfaceHover,
+                    border: `1px solid ${designTokens.colors.border}`,
+                    borderRadius: designTokens.radius.lg,
+                    padding: `${designTokens.spacing.md} ${designTokens.spacing.lg}`,
+                    color: designTokens.colors.textPrimary,
+                    fontSize: designTokens.typography.sm,
+                    lineHeight: designTokens.typography.normal,
+                    outline: 'none',
+                    transition: 'all 0.2s ease',
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
               
-              <div style={{ marginBottom: '1rem' }}>
+              <div>
                 <input
                   type="text"
                   placeholder="Subject:"
                   style={{
                     width: '100%',
-                    backgroundColor: '#334155',
-                    border: '1px solid #475569',
-                    borderRadius: '0.375rem',
-                    padding: '0.75rem',
-                    color: '#E2E8F0',
-                    fontSize: '0.875rem'
+                    backgroundColor: designTokens.colors.surfaceHover,
+                    border: `1px solid ${designTokens.colors.border}`,
+                    borderRadius: designTokens.radius.lg,
+                    padding: `${designTokens.spacing.md} ${designTokens.spacing.lg}`,
+                    color: designTokens.colors.textPrimary,
+                    fontSize: designTokens.typography.sm,
+                    lineHeight: designTokens.typography.normal,
+                    outline: 'none',
+                    transition: 'all 0.2s ease',
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
               
-              <div style={{ marginBottom: '1.5rem' }}>
+              <div>
                 <textarea
                   placeholder="Message..."
                   rows={8}
                   style={{
                     width: '100%',
-                    backgroundColor: '#334155',
-                    border: '1px solid #475569',
-                    borderRadius: '0.375rem',
-                    padding: '0.75rem',
-                    color: '#E2E8F0',
-                    fontSize: '0.875rem',
-                    resize: 'vertical'
+                    backgroundColor: designTokens.colors.surfaceHover,
+                    border: `1px solid ${designTokens.colors.border}`,
+                    borderRadius: designTokens.radius.lg,
+                    padding: `${designTokens.spacing.md} ${designTokens.spacing.lg}`,
+                    color: designTokens.colors.textPrimary,
+                    fontSize: designTokens.typography.sm,
+                    lineHeight: designTokens.typography.relaxed,
+                    outline: 'none',
+                    transition: 'all 0.2s ease',
+                    resize: 'vertical',
+                    boxSizing: 'border-box',
+                    fontFamily: 'inherit'
                   }}
                 />
               </div>
               
-              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+              <div style={{ 
+                display: 'flex', 
+                gap: designTokens.spacing.sm, 
+                justifyContent: 'flex-end',
+                paddingTop: designTokens.spacing.lg
+              }}>
                 <button
                   onClick={() => setShowDraftModal(false)}
                   style={{
-                    backgroundColor: '#334155',
-                    color: '#94A3B8',
+                    backgroundColor: designTokens.colors.surfaceHover,
+                    color: designTokens.colors.textMuted,
                     border: 'none',
-                    borderRadius: '0.375rem',
-                    padding: '0.75rem 1.5rem',
-                    fontSize: '0.875rem',
-                    fontWeight: '600',
-                    cursor: 'pointer'
+                    borderRadius: designTokens.radius.lg,
+                    padding: `${designTokens.spacing.md} ${designTokens.spacing.xl}`,
+                    fontSize: designTokens.typography.sm,
+                    fontWeight: designTokens.typography.semibold,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    lineHeight: designTokens.typography.normal
                   }}
                 >
                   Cancel
@@ -798,17 +1185,18 @@ const MainDashboard: React.FC = () => {
                 <button
                   onClick={() => {
                     setShowDraftModal(false);
-                    // Add draft save logic here
                   }}
                   style={{
-                    backgroundColor: '#3B82F6',
+                    backgroundColor: designTokens.colors.primary,
                     color: 'white',
                     border: 'none',
-                    borderRadius: '0.375rem',
-                    padding: '0.75rem 1.5rem',
-                    fontSize: '0.875rem',
-                    fontWeight: '600',
-                    cursor: 'pointer'
+                    borderRadius: designTokens.radius.lg,
+                    padding: `${designTokens.spacing.md} ${designTokens.spacing.xl}`,
+                    fontSize: designTokens.typography.sm,
+                    fontWeight: designTokens.typography.semibold,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    lineHeight: designTokens.typography.normal
                   }}
                 >
                   Save Draft
