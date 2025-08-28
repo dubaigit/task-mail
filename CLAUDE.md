@@ -30,6 +30,21 @@ npx pm2 stop all
 # Infrastructure
 docker-compose up -d                   # Supabase + Redis containers
 
+# Smart Install (auto-runs when PRODUCTION is not set)
+# - Detects macOS/Ubuntu
+# - Prompts for OPENAI_API_KEY if missing
+# - Generates secrets
+# - Sets APPLE_MAIL_DB_PATH (fake DB on Ubuntu, real path on macOS)
+# - Validates services and health
+npm run install:all
+
+# Auto-run rule:
+# - If PRODUCTION is unset (or empty), the installer will run automatically
+# - If PRODUCTION=true or NODE_ENV=production, it will not auto-run
+
+# Reset mode (recreate env, regenerate secrets, reset fake DB, reinstall deps)
+npm run install:all -- --reset
+
 # Testing (Comprehensive Suite Implemented)
 npm run test:all                       # Run all tests (backend + frontend + e2e)
 npm run test:backend                   # Backend Jest tests with coverage
@@ -194,7 +209,7 @@ OPENAI_MODEL_MINI=gpt-5-mini
 OPENAI_MODEL_NANO=gpt-5-nano
 
 # Database
-SUPABASE_URL=http://127.0.0.1:54321
+SUPABASE_URL=http://127.0.0.1:3001
 SUPABASE_SERVICE_KEY=...
 SUPABASE_ANON_KEY=...
 
@@ -204,7 +219,7 @@ PORT=8000
 CORS_ORIGIN=http://localhost:3000
 
 # Frontend (.env in dashboard/frontend/)
-REACT_APP_API_URL=http://localhost:8000/api
+REACT_APP_API_URL=http://localhost:8000
 REACT_APP_SUPABASE_URL=http://127.0.0.1:54321
 REACT_APP_SUPABASE_ANON_KEY=...
 

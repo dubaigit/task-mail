@@ -10,7 +10,7 @@ const logger = require('../utils/logger');
  */
 class AppleMailService {
   constructor() {
-    this.dbPath = process.env.APPLE_MAIL_DB_PATH || '/Users/iamomen/Library/Mail/V10/MailData/Envelope Index';
+    this.dbPath = process.env.APPLE_MAIL_DB_PATH || require('path').join(process.cwd(), 'database/fake-apple-mail/fake-envelope-index.sqlite');
     this.db = null;
     this.isConnected = false;
     this.lastSyncTime = null;

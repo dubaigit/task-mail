@@ -125,7 +125,7 @@ class FakeAppleMailBuilder {
     console.log(`      APPLE_MAIL_DB_PATH=${this.dbPath}`);
     console.log('   2. Restart your application');
     console.log('   3. The sync service will now read from the fake database');
-    console.log('\n💡 To switch back to real Apple Mail:');
+    console.log('\n💡 To switch to real Apple Mail on macOS:');
     console.log('   APPLE_MAIL_DB_PATH=/Users/[username]/Library/Mail/V10/MailData/Envelope Index');
   }
 }

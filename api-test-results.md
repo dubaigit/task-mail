@@ -3,7 +3,7 @@
 ## Test Date: 2025-08-27 13:12
 
 ## Server Status: ✅ RUNNING
-- **Server**: Working server (server-working.js)
+- **Server**: Main server (server.js via PM2)
 - **Port**: 8000
 - **Status**: Successfully started and responding
 

@@ -59,10 +59,12 @@ node test-server.js
 
 ## Environment Configuration
 
-Update `.env` file with:
+Update `.env` file with (defaults for Ubuntu/dev):
 ```env
 SUPABASE_URL=http://127.0.0.1:3001
 APPLE_MAIL_DB_PATH=/home/ubuntu/task-mail/database/fake-apple-mail/fake-envelope-index.sqlite
+# Optional (macOS only): switch to real Apple Mail database by uncommenting and updating the path
+# APPLE_MAIL_DB_PATH=/Users/your-username/Library/Mail/V10/MailData/Envelope Index
 ```
 
 **IMPORTANT**: Never put OpenAI API key in `.env` file. Always use environment variable.

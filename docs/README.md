@@ -107,7 +107,7 @@ When adding new documentation:
 
 - `../README.md` - Main project README with Ubuntu testing section
 - `../test-report.md` - Comprehensive testing report
-- `../.env.example` - Environment configuration template
-- `../postgrest.conf` - PostgREST configuration file
-- `../test-server.js` - Simple test server for verification
+- `../.env.example` - Environment configuration template (defaults: SUPABASE_URL http://127.0.0.1:3001; DB_USER supabase_admin; DB_PASSWORD apple_secure_2024; DB_NAME postgres; APPLE_MAIL_DB_PATH defaults to fake DB)
+- `../dashboard/frontend/.env.example` - Frontend env template (REACT_APP_API_URL http://localhost:8000; REACT_APP_SUPABASE_URL http://127.0.0.1:54321)
+- Use `npm run bootstrap` to auto-copy env examples, start Docker, init DB, and start services
 

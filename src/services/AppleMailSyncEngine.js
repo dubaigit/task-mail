@@ -855,9 +855,20 @@ class AppleMailSyncEngine extends EventEmitter {
    * Get all Apple Mail database paths
    */
   getAppleMailDbPaths() {
-    const mailDir = path.join(os.homedir(), 'Library/Mail');
     const dbPaths = [];
 
+    if (process.env.APPLE_MAIL_DB_PATH && fs.existsSync(process.env.APPLE_MAIL_DB_PATH)) {
+      dbPaths.push(process.env.APPLE_MAIL_DB_PATH);
+      return dbPaths;
+    }
+
+    const devFakePath = path.join(process.cwd(), 'database', 'fake-apple-mail', 'fake-envelope-index.sqlite');
+    if (fs.existsSync(devFakePath)) {
+      dbPaths.push(devFakePath);
+      return dbPaths;
+    }
+
+    const mailDir = path.join(os.homedir(), 'Library', 'Mail');
     try {
       const entries = fs.readdirSync(mailDir);
       for (const entry of entries) {
@@ -870,11 +881,6 @@ class AppleMailSyncEngine extends EventEmitter {
       }
     } catch (error) {
       logger.error('Failed to scan Apple Mail directories', { error });
-      // Fallback to most common path
-      const fallbackPath = path.join(mailDir, 'V10/MailData/Envelope Index');
-      if (fs.existsSync(fallbackPath)) {
-        dbPaths.push(fallbackPath);
-      }
     }
 
     return dbPaths;

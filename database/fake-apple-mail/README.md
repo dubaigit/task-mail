@@ -43,7 +43,7 @@ Edit your `.env` file:
 # APPLE_MAIL_DB_PATH=/Users/username/Library/Mail/V10/MailData/Envelope Index
 
 # Uncomment the fake database path
-APPLE_MAIL_DB_PATH=/Users/username/task-mail/database/fake-apple-mail/fake-envelope-index.sqlite
+APPLE_MAIL_DB_PATH=/home/ubuntu/task-mail/database/fake-apple-mail/fake-envelope-index.sqlite
 ```
 
 ### 3. Restart Your Application
@@ -106,7 +106,7 @@ The fake database includes all Apple Mail tables:
 ### Use Fake Data (Testing)
 ```bash
 # .env file
-APPLE_MAIL_DB_PATH=/Users/username/task-mail/database/fake-apple-mail/fake-envelope-index.sqlite
+APPLE_MAIL_DB_PATH=/home/ubuntu/task-mail/database/fake-apple-mail/fake-envelope-index.sqlite
 ```
 
 ### Use Real Apple Mail (Production)

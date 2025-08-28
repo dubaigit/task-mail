@@ -42,9 +42,9 @@ class AppleMailSyncService {
       ]
     });
 
-    this.appleMailDbPath = path.join(
-      os.homedir(),
-      'Library/Mail/V10/MailData/Envelope Index'
+    this.appleMailDbPath = process.env.APPLE_MAIL_DB_PATH || path.join(
+      process.cwd(),
+      'database/fake-apple-mail/fake-envelope-index.sqlite'
     );
 
     this.pollInterval = 5000; // 5 seconds
