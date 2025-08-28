@@ -7,6 +7,7 @@
 
 ## 🚀 Quick Start
 
+### Option 1: Docker Setup (Recommended)
 ```bash
 # Start infrastructure services (Supabase + Redis)
 docker-compose up -d
@@ -18,10 +19,58 @@ node server.js
 cd dashboard/frontend && npm start
 ```
 
+### Option 2: PM2 Production Setup
+```bash
+# Install dependencies
+npm install && npm run install:frontend
+
+# Start with PM2 process manager
+npx pm2 start ecosystem.config.js
+
+# Development mode with auto-restart
+npx pm2 restart all --watch
+```
+
+### Option 3: Ubuntu Local Setup (No Docker)
+```bash
+# Install PostgreSQL and setup database
+sudo apt update && sudo apt install -y postgresql postgresql-contrib
+sudo systemctl start postgresql
+sudo -u postgres createdb taskmail
+sudo -u postgres psql -c "CREATE USER taskmail_user WITH PASSWORD 'apple_secure_2024';"
+
+# Initialize database schema
+PGPASSWORD=apple_secure_2024 psql -h localhost -U taskmail_user -d taskmail -f database/init/001_init_schema.sql
+
+# Install PostgREST for REST API
+wget https://github.com/PostgREST/postgrest/releases/download/v12.0.1/postgrest-v12.0.1-linux-static-x64.tar.xz
+tar -xf postgrest-v12.0.1-linux-static-x64.tar.xz && sudo mv postgrest /usr/local/bin/
+echo 'db-uri = "postgresql://taskmail_user:apple_secure_2024@localhost:5432/taskmail"
+db-schemas = "public"
+db-anon-role = "taskmail_user"
+server-host = "127.0.0.1"
+server-port = 3001' > postgrest.conf
+postgrest postgrest.conf &
+
+# Create fake Apple Mail database for testing
+npm run fake:db
+
+# Set OpenAI API key and start
+export OPENAI_API_KEY="your_openai_api_key_here"
+node server.js
+```
+
 **Access the application:**
-- 🌐 **Frontend**: http://localhost:3000
+- 🌐 **Frontend**: http://localhost:3000 (or http://localhost:3001 for development)
 - 🔧 **Backend API**: http://localhost:8000
 - 📊 **Health Check**: http://localhost:8000/api/health
+
+### Environment Setup
+⚠️ **Important**: Copy `.env.example` to `.env` and configure your OpenAI API key:
+```bash
+cp .env.example .env
+# Edit .env and add: OPENAI_API_KEY=your_openai_api_key_here
+```
 
 ## 📁 Project Structure
 
