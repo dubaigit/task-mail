@@ -38,6 +38,10 @@ docker-compose up -d                   # Supabase + Redis containers
 # - Validates services and health
 npm run install:all
 
+# Auto-run rule:
+# - If PRODUCTION is unset (or empty), the installer will run automatically
+# - If PRODUCTION=true or NODE_ENV=production, it will not auto-run
+
 # Reset mode (recreate env, regenerate secrets, reset fake DB, reinstall deps)
 npm run install:all -- --reset
 

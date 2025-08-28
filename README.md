@@ -1,3 +1,14 @@
+Smart Install
+
+Run:
+npm run install:all
+
+Reset:
+npm run install:all -- --reset
+
+Bootstrap:
+npm run bootstrap
+
 # 📧 Task Mail - Email Intelligence Dashboard
 
 # Apple Mail Task-Centric Email Manager
