@@ -250,6 +250,11 @@ const MainDashboard: React.FC = () => {
         <line x1="6" y1="6" x2="18" y2="18"/>
       </svg>
     ),
+    check: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polyline points="20,6 9,17 4,12"/>
+      </svg>
+    ),
     ai: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M12 8V4H8"/>
@@ -267,7 +272,8 @@ const MainDashboard: React.FC = () => {
       minHeight: '100vh',
       backgroundColor: designTokens.colors.background,
       color: designTokens.colors.textPrimary,
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      position: 'relative'
     }}>
       {/* Professional Header with Perfect Spacing */}
       <header style={{
@@ -481,167 +487,7 @@ const MainDashboard: React.FC = () => {
         </aside>
 
         {/* Main Content Area - Optimized Layout */}
-        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: designTokens.colors.background, position: 'relative' }}>
-          {/* Dashboard Metrics Cards - Relocated to Bottom Left */}
-          <div style={{
-            position: 'absolute',
-            bottom: designTokens.spacing.lg,
-            left: designTokens.spacing.lg,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: designTokens.spacing.md,
-            width: '320px',
-            zIndex: 10
-          }}>
-            {/* Total Emails Card - Compact Professional Design */}
-            <div className="
-              u-bg-surface rounded-xl u-p-4 u-border-primary border
-              shadow-lg hover:shadow-xl transition-all duration-300 ease-out
-              min-h-20 flex items-center relative overflow-hidden group
-              hover:-translate-y-1 hover:scale-102
-              backdrop-blur-sm
-            " style={{
-              background: 'rgba(59, 130, 246, 0.05)',
-              backdropFilter: 'blur(5px)'
-            }}>
-              <div className="flex items-center gap-3 w-full">
-                <div className="
-                  w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600
-                  flex items-center justify-center text-white text-sm
-                  shadow-md group-hover:shadow-lg group-hover:scale-105
-                  transition-all duration-300 ease-out flex-shrink-0
-                ">
-                  {icons.email}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="
-                    u-text-secondary u-text-xs u-font-medium u-leading-tight
-                    uppercase tracking-wide u-mb-1
-                  ">
-                    Total Emails
-                  </p>
-                  <p className="
-                    text-xl font-semibold u-text-primary u-leading-tight
-                    group-hover:text-blue-400 transition-all duration-300
-                  ">
-                    {emailMetrics.totalEmails}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Urgent Emails Card - Compact Alert Design */}
-            <div className="
-              u-bg-surface rounded-xl u-p-4 u-border-error border
-              shadow-lg hover:shadow-xl transition-all duration-300 ease-out
-              min-h-20 flex items-center relative overflow-hidden group
-              hover:-translate-y-1 hover:scale-102
-              backdrop-blur-sm
-            " style={{
-              background: 'rgba(239, 68, 68, 0.05)',
-              backdropFilter: 'blur(5px)'
-            }}>
-              <div className="flex items-center gap-3 w-full">
-                <div className="
-                  w-10 h-10 rounded-lg bg-gradient-to-br from-red-500 to-orange-600
-                  flex items-center justify-center text-white text-sm
-                  shadow-md group-hover:shadow-lg group-hover:scale-105
-                  transition-all duration-300 ease-out flex-shrink-0
-                ">
-                  {icons.alert}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="
-                    u-text-secondary u-text-xs u-font-medium u-leading-tight
-                    uppercase tracking-wide u-mb-1
-                  ">
-                    Urgent
-                  </p>
-                  <p className="
-                    text-xl font-semibold u-text-error u-leading-tight
-                    group-hover:text-red-400 transition-all duration-300
-                  ">
-                    {emailMetrics.urgentEmails}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Response Rate Card - Compact Success Design */}
-            <div className="
-              u-bg-surface rounded-xl u-p-4 u-border-success border
-              shadow-lg hover:shadow-xl transition-all duration-300 ease-out
-              min-h-20 flex items-center relative overflow-hidden group
-              hover:-translate-y-1 hover:scale-102
-              backdrop-blur-sm
-            " style={{
-              background: 'rgba(34, 197, 94, 0.05)',
-              backdropFilter: 'blur(5px)'
-            }}>
-              <div className="flex items-center gap-3 w-full">
-                <div className="
-                  w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600
-                  flex items-center justify-center text-white text-sm
-                  shadow-md group-hover:shadow-lg group-hover:scale-105
-                  transition-all duration-300 ease-out flex-shrink-0
-                ">
-                  {icons.chart}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="
-                    u-text-secondary u-text-xs u-font-medium u-leading-tight
-                    uppercase tracking-wide u-mb-1
-                  ">
-                    Response Rate
-                  </p>
-                  <p className="
-                    text-xl font-semibold u-text-success u-leading-tight
-                    group-hover:text-green-400 transition-all duration-300
-                  ">
-                    {emailMetrics.responseRate}%
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Avg Response Time Card - Compact Performance Design */}
-            <div className="
-              u-bg-surface rounded-xl u-p-4 u-border-warning border
-              shadow-lg hover:shadow-xl transition-all duration-300 ease-out
-              min-h-20 flex items-center relative overflow-hidden group
-              hover:-translate-y-1 hover:scale-102
-              backdrop-blur-sm
-            " style={{
-              background: 'rgba(245, 158, 11, 0.05)',
-              backdropFilter: 'blur(5px)'
-            }}>
-              <div className="flex items-center gap-3 w-full">
-                <div className="
-                  w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-500 to-amber-600
-                  flex items-center justify-center text-white text-sm
-                  shadow-md group-hover:shadow-lg group-hover:scale-105
-                  transition-all duration-300 ease-out flex-shrink-0
-                ">
-                  {icons.clock}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="
-                    u-text-secondary u-text-xs u-font-medium u-leading-tight
-                    uppercase tracking-wide u-mb-1
-                  ">
-                    Avg Response Time
-                  </p>
-                  <p className="
-                    text-xl font-semibold u-text-warning u-leading-tight
-                    group-hover:text-yellow-400 transition-all duration-300
-                  ">
-                    {emailMetrics.avgResponseTime}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
+        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: designTokens.colors.background }}>
           {/* Email List and Details - Now with More Vertical Space */}
           <div style={{ 
             flex: 1, 
@@ -1274,6 +1120,166 @@ const MainDashboard: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Dashboard Metrics Cards - Fixed to Bottom Left */}
+      <div style={{
+        position: 'fixed',
+        bottom: designTokens.spacing.lg,
+        left: `calc(280px + ${designTokens.spacing.lg})`,
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gap: designTokens.spacing.md,
+        width: '320px',
+        zIndex: 1000
+      }}>
+        {/* Total Emails Card - Compact Professional Design */}
+        <div className="
+          u-bg-surface rounded-xl u-p-4 u-border-primary border
+          shadow-lg hover:shadow-xl transition-all duration-300 ease-out
+          min-h-20 flex items-center relative overflow-hidden group
+          hover:-translate-y-1 hover:scale-102
+          backdrop-blur-sm
+        " style={{
+          background: 'rgba(59, 130, 246, 0.05)',
+          backdropFilter: 'blur(5px)'
+        }}>
+          <div className="flex items-center gap-3 w-full">
+            <div className="
+              w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600
+              flex items-center justify-center text-white text-sm
+              shadow-md group-hover:shadow-lg group-hover:scale-105
+              transition-all duration-300 ease-out flex-shrink-0
+            ">
+              {icons.email}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="
+                u-text-secondary u-text-xs u-font-medium u-leading-tight
+                uppercase tracking-wide u-mb-1
+              ">
+                Total Emails
+              </p>
+              <p className="
+                text-xl font-semibold u-text-primary u-leading-tight
+                group-hover:text-blue-400 transition-all duration-300
+              ">
+                {emailMetrics.totalEmails}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Urgent Emails Card - Compact Alert Design */}
+        <div className="
+          u-bg-surface rounded-xl u-p-4 u-border-error border
+          shadow-lg hover:shadow-xl transition-all duration-300 ease-out
+          min-h-20 flex items-center relative overflow-hidden group
+          hover:-translate-y-1 hover:scale-102
+          backdrop-blur-sm
+        " style={{
+          background: 'rgba(239, 68, 68, 0.05)',
+          backdropFilter: 'blur(5px)'
+        }}>
+          <div className="flex items-center gap-3 w-full">
+            <div className="
+              w-10 h-10 rounded-lg bg-gradient-to-br from-red-500 to-orange-600
+              flex items-center justify-center text-white text-sm
+              shadow-md group-hover:shadow-lg group-hover:scale-105
+              transition-all duration-300 ease-out flex-shrink-0
+            ">
+              {icons.alert}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="
+                u-text-secondary u-text-xs u-font-medium u-leading-tight
+                uppercase tracking-wide u-mb-1
+              ">
+                Urgent
+              </p>
+              <p className="
+                text-xl font-semibold u-text-error u-leading-tight
+                group-hover:text-red-400 transition-all duration-300
+              ">
+                {emailMetrics.urgentEmails}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Response Rate Card - Compact Success Design */}
+        <div className="
+          u-bg-surface rounded-xl u-p-4 u-border-success border
+          shadow-lg hover:shadow-xl transition-all duration-300 ease-out
+          min-h-20 flex items-center relative overflow-hidden group
+          hover:-translate-y-1 hover:scale-102
+          backdrop-blur-sm
+        " style={{
+          background: 'rgba(34, 197, 94, 0.05)',
+          backdropFilter: 'blur(5px)'
+        }}>
+          <div className="flex items-center gap-3 w-full">
+            <div className="
+              w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600
+              flex items-center justify-center text-white text-sm
+              shadow-md group-hover:shadow-lg group-hover:scale-105
+              transition-all duration-300 ease-out flex-shrink-0
+            ">
+              {icons.check}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="
+                u-text-secondary u-text-xs u-font-medium u-leading-tight
+                uppercase tracking-wide u-mb-1
+              ">
+                Response Rate
+              </p>
+              <p className="
+                text-xl font-semibold u-text-success u-leading-tight
+                group-hover:text-green-400 transition-all duration-300
+              ">
+                {emailMetrics.responseRate}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Avg Response Time Card - Compact Warning Design */}
+        <div className="
+          u-bg-surface rounded-xl u-p-4 u-border-warning border
+          shadow-lg hover:shadow-xl transition-all duration-300 ease-out
+          min-h-20 flex items-center relative overflow-hidden group
+          hover:-translate-y-1 hover:scale-102
+          backdrop-blur-sm
+        " style={{
+          background: 'rgba(245, 158, 11, 0.05)',
+          backdropFilter: 'blur(5px)'
+        }}>
+          <div className="flex items-center gap-3 w-full">
+            <div className="
+              w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-600
+              flex items-center justify-center text-white text-sm
+              shadow-md group-hover:shadow-lg group-hover:scale-105
+              transition-all duration-300 ease-out flex-shrink-0
+            ">
+              {icons.clock}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="
+                u-text-secondary u-text-xs u-font-medium u-leading-tight
+                uppercase tracking-wide u-mb-1
+              ">
+                Avg Response Time
+              </p>
+              <p className="
+                text-xl font-semibold u-text-warning u-leading-tight
+                group-hover:text-yellow-400 transition-all duration-300
+              ">
+                {emailMetrics.avgResponseTime}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
