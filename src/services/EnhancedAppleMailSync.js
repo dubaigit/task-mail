@@ -41,10 +41,10 @@ class EnhancedAppleMailSync extends EventEmitter {
       ]
     });
 
-    // Apple Mail database path (configurable via environment)
+    // Apple Mail database path (configurable via environment, default to fake DB in repo for dev)
     this.appleMailDbPath = process.env.APPLE_MAIL_DB_PATH || path.join(
-      os.homedir(),
-      'Library/Mail/V10/MailData/Envelope Index'
+      process.cwd(),
+      'database/fake-apple-mail/fake-envelope-index.sqlite'
     );
 
     // Sync configuration
