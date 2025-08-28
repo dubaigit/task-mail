@@ -1145,11 +1145,13 @@ const MainDashboard: React.FC = () => {
         }}>
           <div className="flex items-center gap-3 w-full">
             <div className="
-              w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600
-              flex items-center justify-center text-white text-sm
+              w-10 h-10 rounded-lg flex items-center justify-center text-sm
               shadow-md group-hover:shadow-lg group-hover:scale-105
               transition-all duration-300 ease-out flex-shrink-0
-            ">
+            " style={{ 
+              backgroundColor: designTokens.colors.primary,
+              color: 'white'
+            }}>
               {icons.email}
             </div>
             <div className="flex-1 min-w-0">
@@ -1160,9 +1162,8 @@ const MainDashboard: React.FC = () => {
                 Total Emails
               </p>
               <p className="
-                text-xl font-semibold u-text-primary u-leading-tight
-                group-hover:text-blue-400 transition-all duration-300
-              ">
+                text-xl font-semibold u-leading-tight
+              " style={{ color: designTokens.colors.textPrimary }}>
                 {emailMetrics.totalEmails}
               </p>
             </div>
@@ -1182,11 +1183,13 @@ const MainDashboard: React.FC = () => {
         }}>
           <div className="flex items-center gap-3 w-full">
             <div className="
-              w-10 h-10 rounded-lg bg-gradient-to-br from-red-500 to-orange-600
-              flex items-center justify-center text-white text-sm
+              w-10 h-10 rounded-lg flex items-center justify-center text-sm
               shadow-md group-hover:shadow-lg group-hover:scale-105
               transition-all duration-300 ease-out flex-shrink-0
-            ">
+            " style={{ 
+              backgroundColor: designTokens.colors.error,
+              color: 'white'
+            }}>
               {icons.alert}
             </div>
             <div className="flex-1 min-w-0">
@@ -1197,9 +1200,8 @@ const MainDashboard: React.FC = () => {
                 Urgent
               </p>
               <p className="
-                text-xl font-semibold u-text-error u-leading-tight
-                group-hover:text-red-400 transition-all duration-300
-              ">
+                text-xl font-semibold u-leading-tight
+              " style={{ color: designTokens.colors.error }}>
                 {emailMetrics.urgentEmails}
               </p>
             </div>
@@ -1219,11 +1221,13 @@ const MainDashboard: React.FC = () => {
         }}>
           <div className="flex items-center gap-3 w-full">
             <div className="
-              w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600
-              flex items-center justify-center text-white text-sm
+              w-10 h-10 rounded-lg flex items-center justify-center text-sm
               shadow-md group-hover:shadow-lg group-hover:scale-105
               transition-all duration-300 ease-out flex-shrink-0
-            ">
+            " style={{ 
+              backgroundColor: designTokens.colors.success,
+              color: 'white'
+            }}>
               {icons.check}
             </div>
             <div className="flex-1 min-w-0">
@@ -1234,9 +1238,8 @@ const MainDashboard: React.FC = () => {
                 Response Rate
               </p>
               <p className="
-                text-xl font-semibold u-text-success u-leading-tight
-                group-hover:text-green-400 transition-all duration-300
-              ">
+                text-xl font-semibold u-leading-tight
+              " style={{ color: designTokens.colors.success }}>
                 {emailMetrics.responseRate}
               </p>
             </div>
@@ -1256,11 +1259,13 @@ const MainDashboard: React.FC = () => {
         }}>
           <div className="flex items-center gap-3 w-full">
             <div className="
-              w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-600
-              flex items-center justify-center text-white text-sm
+              w-10 h-10 rounded-lg flex items-center justify-center text-sm
               shadow-md group-hover:shadow-lg group-hover:scale-105
               transition-all duration-300 ease-out flex-shrink-0
-            ">
+            " style={{ 
+              backgroundColor: designTokens.colors.warning,
+              color: 'white'
+            }}>
               {icons.clock}
             </div>
             <div className="flex-1 min-w-0">
@@ -1271,9 +1276,8 @@ const MainDashboard: React.FC = () => {
                 Avg Response Time
               </p>
               <p className="
-                text-xl font-semibold u-text-warning u-leading-tight
-                group-hover:text-yellow-400 transition-all duration-300
-              ">
+                text-xl font-semibold u-leading-tight
+              " style={{ color: designTokens.colors.warning }}>
                 {emailMetrics.avgResponseTime}
               </p>
             </div>
