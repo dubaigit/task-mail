@@ -482,268 +482,232 @@ const MainDashboard: React.FC = () => {
 
         {/* Main Content Area */}
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: designTokens.colors.background }}>
-          {/* Dashboard Metrics Cards - Perfect Grid System */}
-          <div style={{
-            padding: designTokens.spacing.xl,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: designTokens.spacing.xl,
-            backgroundColor: designTokens.colors.background
-          }}>
-            {/* Total Emails Card */}
-            <div style={{
-              backgroundColor: designTokens.colors.surface,
-              borderRadius: designTokens.radius.xl,
-              padding: designTokens.spacing.xl,
-              border: `1px solid ${designTokens.colors.border}`,
-              boxShadow: designTokens.shadows.lg,
-              transition: 'all 0.2s ease',
-              minHeight: '120px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              position: 'relative',
-              overflow: 'hidden'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = designTokens.shadows.xl;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = designTokens.shadows.lg;
-            }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
-                <div style={{ flex: 1 }}>
-                  <p style={{ 
-                    color: designTokens.colors.textMuted, 
-                    fontSize: designTokens.typography.sm, 
-                    fontWeight: designTokens.typography.semibold,
-                    margin: 0,
-                    lineHeight: designTokens.typography.normal,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
-                    Total Emails
+          {/* Dashboard Metrics Cards - 2025 Design Standards with Dramatic Visual Impact */}
+          <div className="u-p-8 grid grid-cols-4 u-gap-8 u-bg-primary relative">
+            {/* Animated Background Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 animate-pulse"></div>
+            {/* Total Emails Card - Enhanced with Dramatic Visual Impact */}
+            <div className="
+              u-bg-surface rounded-3xl u-p-8 u-border-primary border-2
+              shadow-2xl hover:shadow-3xl transition-all duration-500 ease-out
+              min-h-44 flex flex-col justify-center relative overflow-hidden group
+              hover:-translate-y-4 hover:scale-105 hover:rotate-1
+              ring-2 ring-blue-500/20 hover:ring-blue-500/50
+              backdrop-blur-sm
+            " style={{
+              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)',
+              backdropFilter: 'blur(10px)'
+            }}>
+              {/* Animated Background Pattern */}
+              <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-400 to-purple-600 animate-pulse"></div>
+              </div>
+              
+              <div className="flex items-center justify-between h-full relative z-10">
+                <div className="flex-1">
+                  <p className="
+                    u-text-secondary u-text-sm u-font-bold u-leading-normal
+                    uppercase tracking-widest u-mb-3 group-hover:text-blue-300
+                    transition-colors duration-300
+                  ">
+                    📧 Total Emails
                   </p>
-                  <p style={{ 
-                    fontSize: designTokens.typography['3xl'], 
-                    fontWeight: designTokens.typography.bold, 
-                    margin: `${designTokens.spacing.sm} 0 0 0`, 
-                    color: designTokens.colors.textPrimary,
-                    lineHeight: designTokens.typography.tight
-                  }}>
+                  <p className="
+                    text-5xl font-black u-text-primary u-leading-none
+                    group-hover:text-blue-400 transition-all duration-300
+                    bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent
+                    group-hover:from-blue-300 group-hover:to-purple-300
+                  ">
                     {emailMetrics.totalEmails}
                   </p>
+                  <div className="
+                    w-16 h-1 bg-gradient-to-r from-blue-500 to-purple-500 u-mt-3
+                    transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500
+                  "></div>
                 </div>
-                <div style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: designTokens.radius.xl,
-                  backgroundColor: designTokens.colors.primary,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-                  flexShrink: 0
-                }}>
+                <div className="
+                  w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600
+                  flex items-center justify-center text-white text-2xl
+                  shadow-2xl group-hover:shadow-3xl group-hover:scale-110 group-hover:rotate-12
+                  transition-all duration-500 ease-out flex-shrink-0
+                  ring-4 ring-blue-500/30 group-hover:ring-blue-400/50
+                ">
                   {icons.email}
                 </div>
               </div>
+              
+              {/* Floating Animation Elements */}
+              <div className="absolute top-4 right-4 w-2 h-2 bg-blue-400 rounded-full animate-ping opacity-75"></div>
+              <div className="absolute bottom-6 left-6 w-1 h-1 bg-purple-400 rounded-full animate-pulse"></div>
             </div>
 
-            {/* Urgent Emails Card */}
-            <div style={{
-              backgroundColor: designTokens.colors.surface,
-              borderRadius: designTokens.radius.xl,
-              padding: designTokens.spacing.xl,
-              border: `1px solid ${designTokens.colors.border}`,
-              boxShadow: designTokens.shadows.md,
-              transition: 'all 0.2s ease',
-              minHeight: '120px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              position: 'relative',
-              overflow: 'hidden'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = designTokens.shadows.lg;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = designTokens.shadows.md;
-            }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
-                <div style={{ flex: 1 }}>
-                  <p style={{ 
-                    color: designTokens.colors.textMuted, 
-                    fontSize: designTokens.typography.sm, 
-                    fontWeight: designTokens.typography.semibold,
-                    margin: 0,
-                    lineHeight: designTokens.typography.normal,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
-                    Urgent
+            {/* Urgent Emails Card - Critical Alert Design with Pulsing Animation */}
+            <div className="
+              u-bg-surface rounded-3xl u-p-8 u-border-error border-2
+              shadow-2xl hover:shadow-3xl transition-all duration-500 ease-out
+              min-h-44 flex flex-col justify-center relative overflow-hidden group
+              hover:-translate-y-4 hover:scale-105 hover:-rotate-1
+              ring-4 ring-red-500/30 hover:ring-red-500/60 animate-pulse
+              backdrop-blur-sm
+            " style={{
+              background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(249, 115, 22, 0.2) 100%)',
+              backdropFilter: 'blur(10px)'
+            }}>
+              {/* Critical Alert Background */}
+              <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500">
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-red-500 to-orange-600 animate-pulse"></div>
+              </div>
+              
+              <div className="flex items-center justify-between h-full relative z-10">
+                <div className="flex-1">
+                  <p className="
+                    u-text-secondary u-text-sm u-font-bold u-leading-normal
+                    uppercase tracking-widest u-mb-3 group-hover:text-red-300
+                    transition-colors duration-300 animate-pulse
+                  ">
+                    🚨 Urgent
                   </p>
-                  <p style={{ 
-                    fontSize: designTokens.typography['3xl'], 
-                    fontWeight: designTokens.typography.bold, 
-                    margin: `${designTokens.spacing.sm} 0 0 0`, 
-                    color: designTokens.colors.error,
-                    lineHeight: designTokens.typography.tight
-                  }}>
+                  <p className="
+                    text-5xl font-black u-text-error u-leading-none
+                    group-hover:text-red-400 transition-all duration-300
+                    bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent
+                    group-hover:from-red-300 group-hover:to-orange-300 animate-pulse
+                  ">
                     {emailMetrics.urgentEmails}
                   </p>
+                  <div className="
+                    w-16 h-1 bg-gradient-to-r from-red-500 to-orange-500 u-mt-3
+                    transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500
+                    animate-pulse
+                  "></div>
                 </div>
-                <div style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: designTokens.radius.xl,
-                  backgroundColor: designTokens.colors.error,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)',
-                  flexShrink: 0
-                }}>
+                <div className="
+                  w-20 h-20 rounded-2xl bg-gradient-to-br from-red-500 to-orange-600
+                  flex items-center justify-center text-white text-2xl
+                  shadow-2xl group-hover:shadow-3xl group-hover:scale-110 group-hover:-rotate-12
+                  transition-all duration-500 ease-out flex-shrink-0
+                  ring-4 ring-red-500/50 group-hover:ring-red-400/70 animate-pulse
+                ">
                   {icons.alert}
                 </div>
               </div>
+              
+              {/* Alert Animation Elements */}
+              <div className="absolute top-4 right-4 w-3 h-3 bg-red-400 rounded-full animate-ping"></div>
+              <div className="absolute bottom-6 left-6 w-2 h-2 bg-orange-400 rounded-full animate-bounce"></div>
+              <div className="absolute top-1/2 left-4 w-1 h-1 bg-red-300 rounded-full animate-pulse"></div>
             </div>
 
-            {/* Response Rate Card */}
-            <div style={{
-              backgroundColor: designTokens.colors.surface,
-              borderRadius: designTokens.radius.xl,
-              padding: designTokens.spacing.xl,
-              border: `1px solid ${designTokens.colors.border}`,
-              boxShadow: designTokens.shadows.md,
-              transition: 'all 0.2s ease',
-              minHeight: '120px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              position: 'relative',
-              overflow: 'hidden'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = designTokens.shadows.lg;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = designTokens.shadows.md;
-            }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
-                <div style={{ flex: 1 }}>
-                  <p style={{ 
-                    color: designTokens.colors.textMuted, 
-                    fontSize: designTokens.typography.sm, 
-                    fontWeight: designTokens.typography.semibold,
-                    margin: 0,
-                    lineHeight: designTokens.typography.normal,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
-                    Response Rate
+            {/* Response Rate Card - Success Indicator with Growth Animation */}
+            <div className="
+              u-bg-surface rounded-3xl u-p-8 u-border-success border-2
+              shadow-2xl hover:shadow-3xl transition-all duration-500 ease-out
+              min-h-44 flex flex-col justify-center relative overflow-hidden group
+              hover:-translate-y-4 hover:scale-105 hover:rotate-1
+              ring-2 ring-green-500/20 hover:ring-green-500/50
+              backdrop-blur-sm
+            " style={{
+              background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)',
+              backdropFilter: 'blur(10px)'
+            }}>
+              {/* Success Background Pattern */}
+              <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 animate-pulse"></div>
+              </div>
+              
+              <div className="flex items-center justify-between h-full relative z-10">
+                <div className="flex-1">
+                  <p className="
+                    u-text-secondary u-text-sm u-font-bold u-leading-normal
+                    uppercase tracking-widest u-mb-3 group-hover:text-green-300
+                    transition-colors duration-300
+                  ">
+                    📈 Response Rate
                   </p>
-                  <p style={{ 
-                    fontSize: designTokens.typography['3xl'], 
-                    fontWeight: designTokens.typography.bold, 
-                    margin: `${designTokens.spacing.sm} 0 0 0`, 
-                    color: designTokens.colors.success,
-                    lineHeight: designTokens.typography.tight
-                  }}>
+                  <p className="
+                    text-5xl font-black u-text-success u-leading-none
+                    group-hover:text-green-400 transition-all duration-300
+                    bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent
+                    group-hover:from-green-300 group-hover:to-emerald-300
+                  ">
                     {emailMetrics.responseRate}%
                   </p>
+                  <div className="
+                    w-16 h-1 bg-gradient-to-r from-green-500 to-emerald-500 u-mt-3
+                    transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500
+                  "></div>
                 </div>
-                <div style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: designTokens.radius.xl,
-                  backgroundColor: designTokens.colors.success,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)',
-                  flexShrink: 0
-                }}>
+                <div className="
+                  w-20 h-20 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600
+                  flex items-center justify-center text-white text-2xl
+                  shadow-2xl group-hover:shadow-3xl group-hover:scale-110 group-hover:rotate-12
+                  transition-all duration-500 ease-out flex-shrink-0
+                  ring-4 ring-green-500/30 group-hover:ring-green-400/50
+                ">
                   {icons.chart}
                 </div>
               </div>
+              
+              {/* Success Animation Elements */}
+              <div className="absolute top-4 right-4 w-2 h-2 bg-green-400 rounded-full animate-ping opacity-75"></div>
+              <div className="absolute bottom-6 left-6 w-1 h-1 bg-emerald-400 rounded-full animate-pulse"></div>
+              <div className="absolute top-1/3 right-8 w-1 h-1 bg-green-300 rounded-full animate-bounce"></div>
             </div>
 
-            {/* Avg Response Time Card */}
-            <div style={{
-              backgroundColor: designTokens.colors.surface,
-              borderRadius: designTokens.radius.xl,
-              padding: designTokens.spacing.xl,
-              border: `1px solid ${designTokens.colors.border}`,
-              boxShadow: designTokens.shadows.md,
-              transition: 'all 0.2s ease',
-              minHeight: '120px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              position: 'relative',
-              overflow: 'hidden'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = designTokens.shadows.lg;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = designTokens.shadows.md;
-            }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
-                <div style={{ flex: 1 }}>
-                  <p style={{ 
-                    color: designTokens.colors.textMuted, 
-                    fontSize: designTokens.typography.sm, 
-                    fontWeight: designTokens.typography.semibold,
-                    margin: 0,
-                    lineHeight: designTokens.typography.normal,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
-                    Avg Response Time
+            {/* Avg Response Time Card - Performance Metric with Time Animation */}
+            <div className="
+              u-bg-surface rounded-3xl u-p-8 u-border-warning border-2
+              shadow-2xl hover:shadow-3xl transition-all duration-500 ease-out
+              min-h-44 flex flex-col justify-center relative overflow-hidden group
+              hover:-translate-y-4 hover:scale-105 hover:-rotate-1
+              ring-2 ring-yellow-500/20 hover:ring-yellow-500/50
+              backdrop-blur-sm
+            " style={{
+              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(251, 191, 36, 0.1) 100%)',
+              backdropFilter: 'blur(10px)'
+            }}>
+              {/* Performance Background Pattern */}
+              <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-yellow-400 to-amber-600 animate-pulse"></div>
+              </div>
+              
+              <div className="flex items-center justify-between h-full relative z-10">
+                <div className="flex-1">
+                  <p className="
+                    u-text-secondary u-text-sm u-font-bold u-leading-normal
+                    uppercase tracking-widest u-mb-3 group-hover:text-yellow-300
+                    transition-colors duration-300
+                  ">
+                    ⏱️ Avg Response Time
                   </p>
-                  <p style={{ 
-                    fontSize: designTokens.typography['3xl'], 
-                    fontWeight: designTokens.typography.bold, 
-                    margin: `${designTokens.spacing.sm} 0 0 0`, 
-                    color: designTokens.colors.warning,
-                    lineHeight: designTokens.typography.tight
-                  }}>
+                  <p className="
+                    text-5xl font-black u-text-warning u-leading-none
+                    group-hover:text-yellow-400 transition-all duration-300
+                    bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text text-transparent
+                    group-hover:from-yellow-300 group-hover:to-amber-300
+                  ">
                     {emailMetrics.avgResponseTime}
                   </p>
+                  <div className="
+                    w-16 h-1 bg-gradient-to-r from-yellow-500 to-amber-500 u-mt-3
+                    transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500
+                  "></div>
                 </div>
-                <div style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: designTokens.radius.xl,
-                  backgroundColor: designTokens.colors.warning,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)',
-                  flexShrink: 0
-                }}>
+                <div className="
+                  w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600
+                  flex items-center justify-center text-white text-2xl
+                  shadow-2xl group-hover:shadow-3xl group-hover:scale-110 group-hover:rotate-12
+                  transition-all duration-500 ease-out flex-shrink-0
+                  ring-4 ring-yellow-500/30 group-hover:ring-yellow-400/50
+                ">
                   {icons.clock}
                 </div>
               </div>
+              
+              {/* Time Animation Elements */}
+              <div className="absolute top-4 right-4 w-2 h-2 bg-yellow-400 rounded-full animate-ping opacity-75"></div>
+              <div className="absolute bottom-6 left-6 w-1 h-1 bg-amber-400 rounded-full animate-pulse"></div>
+              <div className="absolute top-1/2 right-6 w-1 h-1 bg-yellow-300 rounded-full animate-bounce"></div>
             </div>
           </div>
 
