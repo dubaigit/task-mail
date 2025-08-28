@@ -69,11 +69,11 @@ update_env_kv ".env" "DB_USER" "supabase_admin"
 update_env_kv ".env" "DB_PASSWORD" "apple_secure_2024"
 
 if ! grep -qE "^OPENAI_API_KEY=" ".env" || [[ -z "$(grep -E '^OPENAI_API_KEY=' .env | cut -d= -f2-)" ]]; then
-  echo "OPENAI_API_KEY not set. Enter your OpenAI API key (or leave blank to skip):"
+  echo "OPENAI_API_KEY not set. Enter your OpenAI API key (or leave blank to skip). It will NOT be saved:"
   read -r -s OPENAI_INPUT || true
   echo
   if [[ -n "${OPENAI_INPUT:-}" ]]; then
-    update_env_kv ".env" "OPENAI_API_KEY" "$OPENAI_INPUT"
+    export OPENAI_API_KEY="$OPENAI_INPUT"
   else
     if grep -qE "^OPENAI_API_KEY=" ".env"; then
       sed -i.bak -E "s|^OPENAI_API_KEY=.*|# OPENAI_API_KEY=|g" ".env"
@@ -137,7 +137,7 @@ if [[ -z "$PRODUCTION_VAL" ]]; then
     host_port=$(echo "$svc" | awk -F: '{print $2}')
     ok=0
     for i in $(seq 1 60); do
-      if curl -sSf "http://127.0.0.1:${host_port}" -o /dev/null; then ok=1; break; fi
+      if curl -sS "http://127.0.0.1:${host_port}" -o /dev/null; then ok=1; break; fi
       sleep 2
     done
     if [[ $ok -ne 1 ]]; then
@@ -157,6 +157,7 @@ if [[ "$BACKEND_HEALTH" != "200" ]]; then
   echo "Backend health check failed (code=$BACKEND_HEALTH)."
   npx pm2 status || true
   docker compose ps || true
+  echo "Tip: If you skipped providing OPENAI_API_KEY, health should still be 200; failures usually indicate Supabase REST/AUTH readiness. Re-run after a few seconds."
   exit 1
 fi
 
