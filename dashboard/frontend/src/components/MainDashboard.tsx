@@ -433,69 +433,47 @@ const MainDashboard: React.FC = () => {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
+                  className={`
+                    w-full flex items-center justify-between u-px-6 u-py-4
+                    ${selectedCategory === category.id ? 'u-bg-surface-secondary u-border-secondary' : 'bg-transparent border-transparent'}
+                    border rounded-xl cursor-pointer u-text-sm u-font-medium
+                    transition-all duration-200 ease-in-out u-leading-normal text-left
+                    min-h-11 box-border hover:u-bg-surface-secondary hover:u-text-primary
+                    ${selectedCategory === category.id ? 'u-text-primary' : 'u-text-secondary'}
+                  `}
                   style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: `${designTokens.spacing.lg} ${designTokens.spacing.xl}`,
-                    backgroundColor: selectedCategory === category.id ? designTokens.colors.surfaceHover : 'transparent',
-                    border: `1px solid ${selectedCategory === category.id ? designTokens.colors.borderLight : 'transparent'}`,
-                    borderRadius: designTokens.radius.lg,
-                    color: selectedCategory === category.id ? designTokens.colors.textPrimary : designTokens.colors.textSecondary,
-                    cursor: 'pointer',
-                    fontSize: designTokens.typography.sm,
-                    fontWeight: designTokens.typography.medium,
-                    transition: 'all 0.2s ease',
-                    borderLeft: `3px solid ${selectedCategory === category.id ? category.color : 'transparent'}`,
-                    lineHeight: designTokens.typography.normal,
-                    textAlign: 'left',
-                    gap: designTokens.spacing.lg,
-                    minHeight: '44px', // Consistent button height
-                    boxSizing: 'border-box'
+                    borderLeft: `3px solid ${selectedCategory === category.id ? category.color : 'transparent'}`
                   }}
                   onMouseEnter={(e) => {
                     if (selectedCategory !== category.id) {
-                      e.currentTarget.style.backgroundColor = designTokens.colors.surfaceHover;
-                      e.currentTarget.style.color = designTokens.colors.textPrimary;
-                      e.currentTarget.style.borderColor = designTokens.colors.border;
+                      e.currentTarget.style.backgroundColor = '#2a2a2a';
+                      e.currentTarget.style.color = '#ffffff';
+                      e.currentTarget.style.borderColor = '#404040';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (selectedCategory !== category.id) {
                       e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = designTokens.colors.textSecondary;
+                      e.currentTarget.style.color = '#a1a1aa';
                       e.currentTarget.style.borderColor = 'transparent';
                     }
                   }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${category.name}, ${category.count} items`}
+                  aria-pressed={selectedCategory === category.id}
                 >
-                  <span style={{
-                    flex: 1,
-                    textAlign: 'left',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
+                  <div className="flex-1 text-left u-whitespace-nowrap overflow-hidden u-text-ellipsis">
                     {category.name}
-                  </span>
-                  <span style={{
-                    backgroundColor: category.color,
-                    color: 'white',
-                    borderRadius: designTokens.radius.md,
-                    padding: `${designTokens.spacing.xs} ${designTokens.spacing.sm}`,
-                    fontSize: designTokens.typography.xs,
-                    fontWeight: designTokens.typography.semibold,
-                    lineHeight: '1',
-                    minWidth: '24px',
-                    height: '20px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    marginLeft: designTokens.spacing.xl // Increased spacing
-                  }}>
+                  </div>
+                  <div className="w-4 flex-shrink-0"></div>
+                  <div 
+                    className="text-white rounded-md u-px-2 u-py-1 u-text-xs u-font-semibold u-leading-none min-w-6 h-5 inline-flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: category.color }}
+                    aria-hidden="true"
+                  >
                     {category.count}
-                  </span>
+                  </div>
                 </button>
               ))}
             </div>
@@ -877,45 +855,33 @@ const MainDashboard: React.FC = () => {
                           {email.time}
                         </span>
                         
-                        <div style={{ 
-                          display: 'flex', 
-                          gap: designTokens.spacing.sm,
-                          flexWrap: 'wrap',
-                          alignItems: 'center'
-                        }}>
-                          <span style={{
-                            backgroundColor: email.status === 'urgent' ? designTokens.colors.error : 
-                                           email.status === 'pending' ? designTokens.colors.warning : 
-                                           email.status === 'action_required' ? '#8B5CF6' : designTokens.colors.success,
-                            color: 'white',
-                            fontSize: designTokens.typography.xs,
-                            fontWeight: designTokens.typography.bold,
-                            padding: `${designTokens.spacing.sm} ${designTokens.spacing.md}`,
-                            borderRadius: designTokens.radius.md,
-                            textTransform: 'uppercase',
-                            lineHeight: '1',
-                            whiteSpace: 'nowrap',
-                            letterSpacing: '0.025em',
-                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                          }}>
+                        <div 
+                          className="flex flex-wrap items-center u-gap-2"
+                          role="group" 
+                          aria-label="Email status indicators"
+                        >
+                          <div 
+                            className={`
+                              text-white u-text-xs u-font-bold u-px-2 u-py-1 rounded-md
+                              u-uppercase u-leading-none u-whitespace-nowrap u-tracking-wide
+                              shadow-sm
+                              ${email.status === 'urgent' ? 'u-bg-error-solid' : 
+                                email.status === 'pending' ? 'u-bg-warning-solid' : 
+                                email.status === 'action_required' ? 'bg-purple-600' : 'u-bg-success-solid'}
+                            `}
+                            role="status" 
+                            aria-label={`${email.status.replace('_', ' ')} priority`}
+                          >
                             {email.status.replace('_', ' ')}
-                          </span>
+                          </div>
                           
-                          <span style={{
-                            backgroundColor: designTokens.colors.surfaceHover,
-                            color: designTokens.colors.textSecondary,
-                            fontSize: designTokens.typography.xs,
-                            fontWeight: designTokens.typography.semibold,
-                            padding: `${designTokens.spacing.sm} ${designTokens.spacing.md}`,
-                            borderRadius: designTokens.radius.md,
-                            textTransform: 'uppercase',
-                            lineHeight: '1',
-                            whiteSpace: 'nowrap',
-                            letterSpacing: '0.025em',
-                            border: `1px solid ${designTokens.colors.border}`
-                          }}>
-                            {email.taskType}
-                          </span>
+                          <div 
+                            className="u-bg-surface-secondary u-text-secondary u-text-xs u-font-semibold u-px-2 u-py-1 rounded-md u-uppercase u-leading-none u-whitespace-nowrap u-tracking-wide u-border-secondary border"
+                            role="status" 
+                            aria-label={`${email.taskType} task type`}
+                          >
+                            {email.taskType.replace('-', ' ')}
+                          </div>
                         </div>
                       </div>
                     </div>
