@@ -864,7 +864,7 @@ const MainDashboard: React.FC = () => {
                             className={`
                               text-white u-text-xs u-font-bold u-px-2 u-py-1 rounded-md
                               u-uppercase u-leading-none u-whitespace-nowrap u-tracking-wide
-                              shadow-sm
+                              shadow-sm transition-all duration-200 hover:shadow-md hover:scale-105
                               ${email.status === 'urgent' ? 'u-bg-error-solid' : 
                                 email.status === 'pending' ? 'u-bg-warning-solid' : 
                                 email.status === 'action_required' ? 'bg-purple-600' : 'u-bg-success-solid'}
@@ -872,15 +872,15 @@ const MainDashboard: React.FC = () => {
                             role="status" 
                             aria-label={`${email.status.replace('_', ' ')} priority`}
                           >
-                            {email.status.replace('_', ' ')}
+                            {email.status.replace('_', ' ').toUpperCase()}
                           </div>
                           
                           <div 
-                            className="u-bg-surface-secondary u-text-secondary u-text-xs u-font-semibold u-px-2 u-py-1 rounded-md u-uppercase u-leading-none u-whitespace-nowrap u-tracking-wide u-border-secondary border"
+                            className="u-bg-surface-secondary u-text-secondary u-text-xs u-font-semibold u-px-2 u-py-1 rounded-md u-uppercase u-leading-none u-whitespace-nowrap u-tracking-wide u-border-secondary border transition-all duration-200 hover:u-bg-surface-tertiary hover:u-text-primary"
                             role="status" 
                             aria-label={`${email.taskType} task type`}
                           >
-                            {email.taskType.replace('-', ' ')}
+                            {email.taskType.replace('-', ' ').toUpperCase()}
                           </div>
                         </div>
                       </div>
