@@ -10,6 +10,13 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
+# Additional log ignores
+logs/
+*.log
+*.log.*
+*.out
+*.err
+
 # Caches
 
 .cache

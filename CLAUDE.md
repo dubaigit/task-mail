@@ -1,3 +1,11 @@
+Log Cleanup
+
+- Preview what would be deleted:
+  npm run clean:logs
+- Delete repo logs (logs/*.log*) and truncate large PM2 logs:
+  npm run clean:logs -- --force
+
+
 # CLAUDE.md
 
 Purpose: Development guidance for working on this repo with Claude Code (claude.ai/code).
@@ -32,7 +40,7 @@ docker-compose up -d                   # Supabase + Redis containers
 
 # Smart Install (auto-runs when PRODUCTION is not set)
 # - Detects macOS/Ubuntu
-# - Prompts for OPENAI_API_KEY if missing
+# - Prompts for OPENAI_API_KEY if missing (you can enter it ephemerally; it will not be saved unless you later choose to)
 # - Generates secrets
 # - Sets APPLE_MAIL_DB_PATH (fake DB on Ubuntu, real path on macOS)
 # - Validates services and health

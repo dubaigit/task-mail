@@ -1,3 +1,10 @@
+Log Cleanup
+
+To remove large logs and reclaim disk space:
+npm run clean:logs             # dry-run preview
+npm run clean:logs -- --force  # actually delete repo logs and truncate large PM2 logs
+
+
 Smart Install
 
 Run:
@@ -21,6 +28,7 @@ npm run bootstrap
 ### Option 1: One-Command Bootstrap (Recommended)
 ```bash
 # Installs deps, starts Docker (Supabase + Redis), initializes DB, and starts PM2 (backend + frontend)
+# If OPENAI_API_KEY is not set, you'll be prompted. You can paste it for this run without saving to disk.
 npm run bootstrap
 ```
 
